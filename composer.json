@@ -1,0 +1,9 @@
+{
+  "name": "oit/oit",
+  "type": "drupal-custom-module",
+  "description": "Replacement for OIT General module in D7. General functionality will be placed in here.",
+  "keywords": ["Drupal"],
+  "license": "GPL-2.0-or-later",
+  "homepage": "https://github.com/UCBoulder/oit",
+  "minimum-stability": "dev"
+}
