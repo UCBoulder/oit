@@ -1,0 +1,8 @@
+name: 'OIT'
+type: module
+description: 'Replacement for OIT General module in D7. General functionality will be placed in here.'
+dependencies:
+  - drupal:block
+
+core: '8.x'
+core_version_requirement: ^8 || ^9

@@ -1,0 +1,61 @@
+oit_node_news_form:
+  js:
+    js/oit_node_news_form.js: {}
+oit_node_page_form:
+  js:
+    js/oit_node_page_form.js: {}
+oit_clipboard:
+  js:
+    js/oit_clipboard.js: {}
+oit_pass:
+  js:
+    js/oit_pass.js: {}
+  css:
+    theme:
+      css/oit_pass.css: {}
+oit_projects:
+  css:
+    theme:
+      css/oit_projects.css: {}
+table_search:
+  js:
+    js/table_search.js: {}
+spacemonkey:
+  js:
+    js/spacemonkey.js: {}
+  css:
+    theme:
+      css/spacemonkey.css: {}
+  dependencies:
+    - core/jquery
+    - core/drupalSettings
+details:
+  remote: https://github.com/javan/details-element-polyfill
+  version: 2.4.0
+  license:
+    name: MIT
+    gpl-compatible: false
+  js:
+    /libraries/details-element-polyfill/dist/details-element-polyfill.js: { minified: false }
+gsap:
+  remote: https://github.com/greensock/GSAP
+  version: 3.4.0
+  license:
+    name: standard "no charge" license
+    gpl-compatible: false
+  js:
+    /libraries/gsap/dist/gsap.min.js: { minified: false }
+    /sites/default/files/gsap/minified/DrawSVGPlugin.min.js: {}
+    /sites/default/files/gsap/minified/MorphSVGPlugin.min.js: {}
+    /sites/default/files/gsap/minified/MotionPathPlugin.min.js: {}
+listjs:
+  remote: https://github.com/javve/list.js
+  version: 1.5.0
+  license:
+    name: MIT
+    gpl-compatible: false
+  js:
+    /libraries/list.js/dist/list.min.js: { minified: true }
+downloads_search:
+  js:
+    js/oit_downloads_search.js: {}

@@ -1,0 +1,713 @@
+<?php
+
+/**
+ * @file
+ * Module containing custom oit code.
+ */
+
+use Drupal\oit\Plugin\Util\ArchiveNews;
+use Drupal\oit\Plugin\Util\ServiceMaintenanceCompletion;
+use Drupal\oit\Plugin\Util\DeleteOldTermNode;
+use Drupal\Core\Render\BubbleableMetadata;
+use Drupal\Core\Url;
+use Drupal\Core\Link;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Component\Utility\Xss;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Drupal\block\Entity\Block;
+use Drupal\Core\Session\AccountInterface;
+use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Cache\Cache;
+
+/**
+ * Implements hook_form_alter().
+ */
+function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  if (($form_id == 'views_exposed_form' && $form['#id'] == 'views-exposed-form-service-pages-tutorials-page-1') || ($form['#id'] == 'views-exposed-form-service-pages-tutorials-block-1')) {
+    $form['#attributes']['class'][] = 'flex';
+    $form['actions']['#attributes']['class'][] = 'flex-full';
+    $form['service_tutorial_types'] = [
+      '#type' => 'select',
+      '#title' => t('Services & Tutorials'),
+      '#weight' => 0,
+      '#options' => [
+        0 => t('Services and Tutorials'),
+        1 => t('Services A to Z'),
+        2 => t('Services'),
+        3 => t('Tutorials'),
+      ],
+    ];
+  }
+  if ($form_id == 'search_form') {
+    $search_key = Xss::filter(strtolower($form['basic']['keys']['#default_value']));
+    $space = [
+      'space monkey',
+      'space+monkey',
+      'spacemonkey'
+    ];
+    if (in_array($search_key, $space)) {
+      $form['#attached']['library'][] = 'oit/spacemonkey';
+    }
+  }
+  if (isset($form['field_oit_page_category'])) {
+    $form['#attached']['library'][] = 'zap_initialize/zap.selectivity';
+    $form['#attached']['library'][] = 'zap_initialize/zap.pages';
+  }
+  switch ($form_id) {
+    case "node_service_alert_form":
+    case "node_service_alert_edit_form":
+      // Group for page sub-type extra fields.
+      $form['oit_sa_extras'] = [
+        '#title' => t('Service Alert Extras'),
+        '#type' => 'details',
+        '#group' => 'advanced',
+        '#open' => 1,
+        '#weight' => 100,
+      ];
+      $form['field_access_control_2']['#group'] = 'oit_sa_extras';
+      $form['field_sympa_send']['#group'] = 'options';
+      // Death to comments.
+      $form['comment_node_service_alert']['#access'] = FALSE;
+      break;
+
+    case "search_block_form":
+      $form['keys']['#attributes']['placeholder'] = t('Search OIT');
+      $form['keys']['#attributes']['autocomplete'] = 'off';
+      break;
+
+    case "node_page_form":
+    case "node_page_edit_form":
+      $form['#attached']['library'][] = 'admino/form';
+      // Group for page sub-type extra fields.
+      $form['page_extras'] = [
+        '#title' => t('Page Extras'),
+        '#type' => 'details',
+        '#group' => 'advanced',
+        '#open' => 1,
+        '#weight' => 100,
+      ];
+      $form['field_oit_category']['#group'] = 'page_extras';
+      $form['field_access_control_2']['#group'] = 'page_extras';
+      $form['field_show_child_links']['#group'] = 'page_extras';
+      $form['upload']['#group'] = 'page_extras';
+
+      // Private files.
+      $form['protected_downloads'] = [
+        '#title' => t('Protected Downloads'),
+        '#type' => 'details',
+        '#group' => 'advanced',
+        '#open' => 0,
+        '#weight' => 101,
+      ];
+      $form['field_dl_facstaff']['#group'] = 'protected_downloads';
+      $form['field_dl_student']['#group'] = 'protected_downloads';
+      $form['field_dl_authenticated']['#group'] = 'protected_downloads';
+      // Group for service type.
+      $form['type_service'] = [
+        '#title' => t('Service'),
+        '#type' => 'details',
+        '#group' => 'advanced',
+        '#open' => 0,
+        '#weight' => 102,
+      ];
+      $form['taxonomy_vocabulary_11']['#group'] = 'type_service';
+      $form['field_service_main_page']['#group'] = 'type_service';
+      $form['field_services_related']['#group'] = 'type_service';
+      $form['field_tut_comp_type_d7']['#group'] = 'type_service';
+      $form['field_software_download_link']['#group'] = 'type_service';
+      // Group for custom code.
+      $form['page_css_js'] = [
+        '#title' => t('Do not use - trash'),
+        '#type' => 'details',
+        '#group' => 'advanced',
+        '#open' => 0,
+        '#weight' => 102,
+      ];
+      $form['field_page_footer']['#group'] = 'page_css_js';
+      $request = \Drupal::request();
+      $request_type = $request->get("type");
+      if (isset($request_type)) {
+        // Show/hide fields that apply/don't apply to the service type.
+        if ($request_type == "service") {
+          $form['field_faq']['#access'] = FALSE;
+          $form['field_faq_section_title']['#access'] = FALSE;
+          $form['type_service']['#open'] = 1;
+          $form['body']['widget'][0]['#default_value'] = '<h2>Features</h2><p>Features here.</p><h2>Related Policies</h2><p>Policies here</p><h2>Benefits</h2><p>Benefits here</p><h2>Cost</h2><p>Cost here</p><h2>Who can get it</h2><p>Who can get it here</p><h2>How to get it</h2><p>how to get it here</p><h2>Related Projects</h2><p>related projects here</p>';
+          $form['field_oit_category']['widget']['#default_value'][] = 1039;
+          $form['taxonomy_vocabulary_11']['widget']['#required'] = TRUE;
+          $form['#title'] = t('Create Service Page');
+        }
+        if ($request_type == "accessibility") {
+          $form['field_oit_category']['widget']['#default_value'][] = 847;
+          $form['type_service']['#access'] = FALSE;
+        }
+        if ($request_type == "phish") {
+          $form['field_oit_category']['widget']['#default_value'][] = 849;
+          $form['type_service']['#access'] = FALSE;
+          $form['field_faq']['#access'] = FALSE;
+          $form['field_faq_section_title']['#access'] = FALSE;
+          $form['#title'] = t('Create Phish Page');
+        }
+      }
+      $form['#attached']['library'][] = 'oit/oit_clipboard';
+      $form['#attached']['library'][] = 'webform/webform.element.select2';
+      $form['#attached']['library'][] = 'oit/oit_node_page_form';
+      $advanced = sprintf(
+        '<details><summary>%s</summary>
+        <ul><li><a href="%s" class="edit-button use-ajax" data-dialog-type="dialog" data-dialog-renderer="off_canvas" data-dialog-options="{&quot;width&quot;:400}">%s</a></li><li><a href="%s" target="_blank">%s</a></li><li><a href="%s" target="_blank">%s</a></li></ul>
+        <h3>%s</h3>
+        <p>%s</p>
+        <h3>%s</h3>
+        <p>%s</p>
+        </details>',
+        t('OIT advanced html'),
+        '/admin/config/content/shortcode_svg/svg_list',
+        t('Icons shortcode panel'),
+        'https://oit.style.protitude.com',
+        t('Style Guide'),
+        '/admin/config/development/asset-injector/js',
+        t('Custom js/css (admin only)'),
+        t('Flexbox Codez'),
+        '<button type="button" class="copy-icon" data-clipboard="flexBox">Copy flexbox</button>',
+        t('Columns'),
+        '<button type="button" class="copy-icon" data-clipboard="text-cols--3">Copy Columns class</button>'
+      );
+      $form['oit_advanced'] = [
+        '#markup' => $advanced,
+        '#weight' => 100,
+        '#allowed_tags' => [
+          'button',
+          'details',
+          'summary',
+          'ul',
+          'li',
+          'a',
+          'p',
+          'h3'
+        ]
+      ];
+      break;
+
+    case "node_news_form":
+    case "node_news_edit_form":
+      // Group for page sub-type extra fields.
+      $form['oit_news_extras'] = [
+        '#title' => t('News Extras'),
+        '#type' => 'details',
+        '#group' => 'advanced',
+        '#open' => 1,
+        '#weight' => 100,
+      ];
+      $form['field_oit_category']['#group'] = 'oit_news_extras';
+      $form['field_access_control_2']['#group'] = 'oit_news_extras';
+      $form['taxonomy_vocabulary_11']['#group'] = 'oit_news_extras';
+      $form['field_sympa_send']['#group'] = 'options';
+      $form['field_oit_page_file_attatchment']['#group'] = 'oit_news_extras';
+      $form['field_oit_news_front_image']['#group'] = 'oit_news_extras';
+      $form['field_oit_page_related_content']['#group'] = 'oit_news_extras';
+      $form['#attached']['library'][] = 'webform/webform.element.select2';
+      $form['#attached']['library'][] = 'oit/oit_node_news_form';
+      $form['#validate'][] = 'oit_news_types_categories';
+      break;
+
+    case "user_login_form":
+      \Drupal::messenger()->deleteAll();
+      $env = getenv('AH_SITE_ENVIRONMENT');
+      $form['login_words']['#markup'] = '<div class="login_text"></div>';
+      $form['login_words']['#weight'] = -10;
+      if (($env == 'prod') || ($env == 'test')) {
+        $dest_get = Xss::filter(\Drupal::request()->get('destination'));
+        $destination = !empty($dest_get) ? '?destination=' . $dest_get : '';
+        $response = new RedirectResponse('/saml_login' . $destination);
+        $response->send();
+        unset($form['name']);
+        unset($form['pass']);
+        unset($form['actions']);
+        $login_text = t('Click below to login');
+        $form['login_words']['#markup'] = "<div class='login_text'><p>$login_text</p></div>";
+        $form['simplesamlphp_auth_login_link']['#attributes']['class'][] = 'button';
+        $form['simplesamlphp_auth_login_link']['#attributes']['class'][] = 'ext';
+        $form['#attached']['library'][] = 'oit/gsap';
+      }
+      break;
+    // Imported from zap_initialize
+    case 'node_webform_form':
+    case 'node_webform_edit_form':
+      $form['oit_webform_extras'] = [
+        '#title' => t('Webform Extras'),
+        '#type' => 'details',
+        '#group' => 'advanced',
+        '#open' => 1,
+        '#weight' => 100,
+      ];
+      $form['field_access_control_2']['#group'] = 'oit_webform_extras';
+      $form['field_oit_category']['#group'] = 'oit_webform_extras';
+      break;
+
+    case 'node_tutorial_form':
+    case 'node_tutorial_edit_form':
+      $form['oit_page_extras'] = [
+        '#title' => t('Tutorial Extras'),
+        '#type' => 'details',
+        '#group' => 'advanced',
+        '#open' => 1,
+        '#weight' => 100,
+      ];
+      $form['field_access_control_2']['#group'] = 'oit_page_extras';
+      $form['field_oit_category']['#group'] = 'oit_page_extras';
+      $form['taxonomy_vocabulary_11']['#group'] = 'oit_page_extras';
+      $form['field_tut_comp_type_d7']['#group'] = 'oit_page_extras';
+      $form['upload']['#group'] = 'oit_page_extras';
+      break;
+  }
+}
+
+/**
+ * News form validate.
+ */
+function oit_news_types_categories(&$form, \Drupal\Core\Form\FormStateInterface $form_state) {
+  $hero = $form_state->getValue('field_news_front_image');
+  $nope = preg_match_all("/^Decorative photo/i", $hero[0]['alt'], $matches);
+  if ($nope) {
+    $external_link = Link::fromTextAndUrl(t('Decorative Error Message'), Url::fromUri('https://www.w3.org/WAI/tutorials/images/decorative'))->toString();
+    $form_state->setErrorByName('field_news_front_image', $external_link);
+  }
+  $categories = $form_state->getValue('field_oit_category');
+  $parent_cat = [];
+  if (isset($categories)) {
+    foreach ($categories as $category) {
+      $term = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load($category['target_id']);
+      $parent_term_id = $term->parent->target_id;
+      $parent_cat[] = $parent_term_id ;
+    }
+  }
+  $cat_type = '';
+  if (!in_array('885', $parent_cat)) {
+    $cat_type = 'Service';
+  }
+  if (!in_array('889', $parent_cat)) {
+    if ($cat_type == 'Service') {
+      $cat_type .= ' & ';
+    }
+    $cat_type .= 'News';
+  }
+  if (!empty($cat_type)) {
+    $form_state->setErrorByName('field_oit_category', t('Please select a @type category', ['@type' => $cat_type]));
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * Add custom messages for 403 redirects.
+ *
+ * @see oit_form_system_site_information_settings_form_submit()
+ */
+function oit_form_user_login_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  $form['#cache'] = ['max-age' => 0];
+  $destination = Url::fromRoute('route_name', [], ['query' => \Drupal::service('redirect.destination')->getAsArray()]);
+  $destination = $destination->getOptions();
+  $dest_set = $destination['query']['destination'];
+  $config = \Drupal::config('oit.settings');
+  $oit_403 = $config->get('oit_403_message');
+  if (isset($oit_403[$dest_set])) {
+    $messenger = \Drupal::messenger();
+    $messenger->addMessage($oit_403[$dest_set]);
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * Add custom messages for 403 redirects.
+ *
+ * @see oit_form_system_site_information_settings_form_submit()
+ */
+function oit_form_system_site_information_settings_alter(&$form, FormStateInterface $form_state, $form_id) {
+  $config = \Drupal::config('oit.settings');
+  $oit_403 = $config->get('oit_403_message');
+  $oit_403_message = '';
+  foreach ($oit_403 as $path => $message) {
+    $oit_403_message .= "$path: $message\r";
+  }
+  $oit_403_message = rtrim($oit_403_message);
+  $form['error_page']['oit_user_403_messages'] = [
+    '#type' => 'textarea',
+    '#weight' => 13,
+    '#title' => t("Custom 403 message"),
+    '#description' => t('Seperate each path and message into seperate lines. Write the path/message as follows: path/that/gives/403: Custom message'),
+    '#default_value' => $oit_403_message,
+  ];
+  $form['actions']['submit']['#submit'][] = 'oit_general_user_403_message';
+}
+
+/**
+ * Custom submit handler to save 403 user/login messages for users.
+ */
+function oit_general_user_403_message($form, FormStateInterface $form_state) {
+  $message_text = Xss::filter($form_state->getValue('oit_user_403_messages'));
+  $message_text = explode(PHP_EOL, $message_text);
+  $mess = [];
+  foreach ($message_text as $message) {
+    if (!empty(rtrim($message))) {
+      $parts = explode(':', $message);
+      $path = $parts[0];
+      $msg = ltrim($parts[1]);
+      $msg = rtrim($msg);
+      $mess[$path] = $msg;
+    }
+  }
+  $config = \Drupal::service('config.factory')->getEditable('oit.settings');
+  $config->set('oit_403_message', $mess);
+  $config->save();
+}
+
+/**
+ * Implements hook_token_info().
+ */
+function oit_token_info() {
+  $type = [
+    'name' => t('OIT'),
+    'description' => t('Custom OIT tokens.'),
+  ];
+  $node['tweet_pic'] = [
+    'name' => t("Twitter Picture"),
+    'description' => t('Sets the twitter picture for news/service alerts.'),
+  ];
+  $node['sa_status'] = [
+    'name' => t("Service Alert Status"),
+    'description' => t('Set status of the service alert node type.'),
+  ];
+  $node['sa_title'] = [
+    'name' => t("Service Alert Title"),
+    'description' => t('Display the service alert title field.'),
+  ];
+  return [
+    'types' => ['oittoken' => $type],
+    'tokens' => ['oittoken' => $node],
+  ];
+}
+
+/**
+ * Implements hook_tokens().
+ */
+function oit_tokens($type, $tokens, array $data, array $options, BubbleableMetadata $bubbleable_metadata) {
+  $replacements = [];
+  if ($type == 'oittoken' && !empty($data['node'])) {
+
+    foreach ($tokens as $name => $original) {
+      // Find the desired token by name.
+      switch ($name) {
+        case 'tweet_pic':
+          $replacements[$original] = '';
+          if ($data['node']->getType() == 'news') {
+            $sa_image = $data['node']->get('field_news_front_image')->getValue()[0]['target_id'];
+            $sa_image_style = new \Drupal\oit\Plugin\OitImageStyled($sa_image, 'large');
+            $sa_image_styled = $sa_image_style->getImageUrl();
+            $replacements[$original] = $sa_image_styled;
+          }
+          if ($data['node']->getType() == 'service_alert' && count($data['node']->get('field_service_dashboard_category')->getValue()) !== 0) {
+            $set_dashboard = $data['node']->get('field_service_dashboard_category')->getValue()[0]['value'];
+            $translated_dashboard = $set_dashboard-1;
+            $sa_dashboard = [
+              'buffportal',
+              'canvas',
+              'classcap',
+              'complab',
+              'fedauth',
+              'google',
+              'grouper',
+              'iclicker',
+              'identity',
+              'kaltura',
+              'office365',
+              'mycuinfo',
+              'network',
+              'datacenter',
+              'perscap',
+              'playposit',
+              'proctorio',
+              'qualtrics',
+              'senses',
+              'sympa',
+              'turnitin',
+              'voicethread',
+              'vpn',
+              'zoom',
+              'other'
+            ];
+            $twitter_image = "/sites/default/files/sa_images/sa_$sa_dashboard[$translated_dashboard].png";
+            $replacements[$original] = $twitter_image;
+          }
+          break;
+        case 'sa_status':
+          $sa_status = $data['node']->get('field_service_alert_status')->getValue() !== null ? $data['node']->get('field_service_alert_status')->getValue() : '';
+          $replacements[$original] = $sa_status[0]['value'];
+          break;
+
+        case 'sa_title':
+          $sa_title = $data['node']->get('field_service_alert_title')->getValue() !== null ? $data['node']->get('field_service_alert_title')->getValue() : '';
+          $replacements[$original] = $sa_title[0]['value'];
+          break;
+      }
+    }
+  }
+  return $replacements;
+}
+
+/**
+ * Implements hook_page_attachments_alter().
+ */
+function oit_page_attachments_alter(array &$attachments) {
+  $node = \Drupal::routeMatch()->getParameter('node');
+  if (!is_null($node)) {
+    $id = is_string($node)?$node:$node->id();
+    if ($id == 262) {
+      $attachments['#attached']['library'][] = 'oit/listjs';
+      $attachments['#attached']['library'][] = 'oit/downloads_search';
+    }
+    if ($id == 329 || $id == 1485) {
+      $attachments['#attached']['library'][] = 'oit/listjs';
+    }
+    if (!is_string($node)) {
+      if ($node->getType() == 'tutorial') {
+        $attachments['#attached']['library'][] = 'dingo/tutorial';
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_entity_access().
+ */
+
+function oit_entity_access(\Drupal\Core\Entity\EntityInterface $entity, $operation, \Drupal\Core\Session\AccountInterface $account) {
+  if ($entity->getEntityType()->getBundleEntityType() == 'node_type' && $entity->getType() == 'webform') {
+    $webform_id = $entity->get('webform')->getValue();
+    if (isset($webform_id)) {
+      $webform_id = $webform_id[0]['target_id'];
+      $webform = \Drupal::entityTypeManager()->getStorage('webform')->load($webform_id);
+      if ($webform->access('view') === FALSE) {
+        return AccessResult::forbidden();
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_cron().
+ */
+function oit_cron() {
+  $midnight = FALSE;
+  if ((date('G', time()) == 00) && (date('i', time()) < 30)) {
+    $midnight = TRUE;
+  }
+  if ($midnight) {
+    $nodes = [10687, 13639];
+    foreach ($nodes as $nid) {
+      $node = \Drupal::entityTypeManager()->getStorage('node')->load($nid);
+      $node->setNewRevision(TRUE);
+      $node->setRevisionLogMessage('Cron update - no actual changes');
+      // D8 is smarter and won't actually update without a change, so we'll
+      // toggle the sticky checkbox to make this work.
+      if ($node->isSticky()) {
+        $node->setSticky(FALSE);
+      }
+      else {
+        $node->setSticky(TRUE);
+      }
+      $node->save();
+    }
+  }
+  $cut_off = strtotime("-90 days");
+  $phish_cut_off = strtotime("-3 years");
+  new ArchiveNews($cut_off);
+  new ServiceMaintenanceCompletion();
+  new DeleteOldTermNode(849, $phish_cut_off);
+}
+
+/**
+ * Implements hook_preprocess_node().
+ */
+function oit_preprocess_node(&$variables) {
+  $node = $variables['node'];
+  $body = $node->get('body')->getValue();
+  $body = isset($body[0]['value']) ? $body[0]['value'] : '';
+  // Check the node body and if the <details> element exists add the details
+  // polyfill to the page. Currently not supported by edge or ie, may remove in
+  // the future.
+  if (strpos($body, '</details>') !== FALSE) {
+    $variables['#attached']['library'][] = 'oit/details';
+  }
+}
+
+/**
+ * Implements hook_preprocess_block().
+ * Disable caching on certain blocks.
+ */
+function oit_preprocess_block(&$variables) {
+  if ($variables['base_plugin_id'] == 'page_overview') {
+    $variables['#cache']['max-age'] = 0;
+  }
+}
+
+/**
+ * Alter the off-canvas menu tree.
+ *
+ * @param array $rendered_tree
+ *   The built menu tree to be altered. This is provided as a render array.
+ */
+function oit_responsive_menu_off_canvas_tree_alter(array &$rendered_tree) {
+  $feedback = "<a href='mailto:oithelp@colorado.edu' title='email feedback' class='button'>Feedback</a>";
+  $close = "<a href='#mm-0' class='button'>close menu</a>";
+  $twitter = oit_social_links(t('twitter'), 'http://www.twitter.com/CUBoulderOIT');
+  $facebook = oit_social_links(t('facebook'), 'https://www.facebook.com/CUBoulderOIT');
+  $youtube = oit_social_links(t('youtube'), 'https://www.youtube.com/CUBoulderOIT');
+
+  $rendered_tree['#suffix'] = "<div class='feedback-social'><ul class='feedback-social-inner'><li>$facebook</li><li>$twitter</li><li>$youtube</li><li>$feedback</li><li>$close</li></ul></div>";
+}
+
+/**
+ * Create social link.
+ */
+function oit_social_links($title, $url) {
+  return "<a class='social-icon $title' title='$title' href='$url'><img alt='' src='/themes/custom/dingo/images/icons/$title.svg'></a>";
+}
+
+/**
+ * Implements hook_entity_presave().
+ */
+function oit_entity_presave(\Drupal\Core\Entity\EntityInterface $entity) {
+  if (method_exists($entity, 'getType')) {
+    if ($entity->getType() == 'news') {
+      oit_news_update($entity);
+    }
+    if ($entity->getType() == 'service_alert') {
+      oit_servicealert_update($entity);
+    }
+    // Allows for clearing of blocks based on node type.
+    $tags = ['node_type:' . $entity->getType()];
+    Cache::invalidateTags($tags);
+  }
+  // Set image alt.
+  if (method_exists($entity, 'bundle')) {
+    if ($entity->bundle() == 'pictures') {
+      $entity->field_finished_picture->alt = $entity->get('title')->value;
+    }
+  }
+}
+
+/**
+ * Implements hook_entity_delete().
+ */
+function oit_entity_delete(\Drupal\Core\Entity\EntityInterface $entity) {
+  if (method_exists($entity, 'getType')) {
+    // Allows for clearing of blocks based on node type.
+    $tags = ['node_type:' . $entity->getType()];
+    Cache::invalidateTags($tags);
+  }
+}
+
+function oit_news_update($entity) {
+  $meta_info = !empty($entity->get('field_meta_tags')->getValue())?unserialize($entity->get('field_meta_tags')->getValue()[0]['value']):[];
+  if (!isset($meta_info['twitter_cards_image']) || !isset($meta_info['og_image'])) {
+    $image_id = $entity->get('field_news_front_image')->getValue()[0]['target_id'];
+    $image_style = new \Drupal\oit\Plugin\OitImageStyled($image_id, 'large', 'front_news');
+    $image_styled = $image_style->getImageUrl();
+    if (!isset($meta_info['twitter_cards_image']) || $meta_info['twitter_cards_image'] != null) {
+      $meta_info['twitter_cards_image'] = $image_styled;
+    }
+    if (!isset($meta_info['og_image']) || $meta_info['og_image'] != null) {
+      $meta_info['og_image'] = $image_styled;
+    }
+    $meta_serial = serialize($meta_info);
+    $entity->set('field_meta_tags', $meta_serial);
+  }
+  if ($entity->getType() == 'news' && $entity->get('field_news_archive')->getValue()[0]['value'] == 2) {
+    $entity->set('unpublish_on', strtotime("100 days"));
+  }
+}
+
+function oit_servicealert_update($entity) {
+  $meta_info = !empty($entity->get('field_meta_tags')->getValue())?unserialize($entity->get('field_meta_tags')->getValue()[0]['value']):[];
+  if (!isset($meta_info['twitter_cards_image']) || !isset($meta_info['og_image'])) {
+    $meta_info["twitter_cards_type"] = "summary";
+    $set_dashboard = $entity->get('field_service_dashboard_category')->getValue()[0]['value'];
+    $translated_dashboard = $set_dashboard-1;
+    $sa_dashboard = [
+      'buffportal',
+      'canvas',
+      'classcap',
+      'complab',
+      'fedauth',
+      'google',
+      'grouper',
+      'iclicker',
+      'identity',
+      'kaltura',
+      'office365',
+      'mycuinfo',
+      'network',
+      'datacenter',
+      'perscap',
+      'playposit',
+      'proctorio',
+      'qualtrics',
+      'senses',
+      'sympa',
+      'turnitin',
+      'voicethread',
+      'vpn',
+      'zoom',
+      'other'
+    ];
+    $host = \Drupal::request()->getSchemeAndHttpHost();
+    $social_image = "$host/sites/default/files/sa_images/sa_$sa_dashboard[$translated_dashboard].png";
+    if (!isset($meta_info['twitter_cards_image']) || $meta_info['twitter_cards_image'] != null) {
+      $meta_info['twitter_cards_image'] = $social_image;
+    }
+    if (!isset($meta_info['og_image']) || $meta_info['og_image'] != null) {
+      $meta_info['og_image'] = $social_image;
+    }
+    $meta_serial = serialize($meta_info);
+    $entity->set('field_meta_tags', $meta_serial);
+  }
+}
+
+/**
+ * Implements hook_menu().
+ */
+function oit_menu() {
+  $items['front'] = [
+    'title' => 'Office of Information Technology',
+    'access arguments' => ['access content'],
+  ];
+
+  return $items;
+}
+
+/**
+ * Implements hook_menu_local_tasks_alter().
+ */
+function oit_menu_local_tasks_alter(&$data, $route_name) {
+  if ($route_name == 'user.login') {
+    $data['tabs'][0]['user.pass']['#access'] = FALSE;
+  }
+}
+
+/**
+ * Implements hook_block_access().
+ */
+function oit_block_access(Block $block, $operation, AccountInterface $account) {
+  if ($block->id() == 'mainnavigation') {
+    $node = \Drupal::routeMatch()->getParameter('node');
+    if (!is_string($node) && isset($node)) {
+      if ($node->bundle() == 'page') {
+        $child = $node->get('field_show_child_links')->getValue();
+        if (!$child[0]['value']) {
+          return AccessResult::forbiddenIf(true)->addCacheableDependency($block);
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,10 @@
+#space {
+  transition: all 2s;
+}
+#space:hover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+}

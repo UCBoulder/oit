@@ -1,0 +1,5 @@
+oit_403_message:
+  sympa/unsubscribe/news: 'Please log in to complete the process of unsubscribing to news updates.'
+  sympa/subscribe/news: 'Please log in to complete the process of subscribing to news updates.'
+  sympa/unsubscribe/service_alert: 'Please log in to complete the process of unsubscribing to service alerts.'
+  sympa/subscribe/service_alert: 'Please log in to complete the process of subscribing to service alerts.'

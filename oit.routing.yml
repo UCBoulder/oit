@@ -1,0 +1,35 @@
+oit.front:
+  path: '/front'
+  defaults:
+    _controller: '\Drupal\oit\Controller\OitController::front'
+    _title: ''
+  requirements:
+    _permission: 'access content'
+oit.request:
+  path: '/request-portal'
+  defaults:
+    _controller: '\Drupal\oit\Controller\OitController::requestPortal'
+    _title: ''
+  requirements:
+    _permission: 'access content'
+oit.denied:
+  path: '/denied'
+  defaults:
+    _controller: '\Drupal\oit\Controller\OitController::oitDenied'
+    _title: ''
+  requirements:
+    _permission: 'access content'
+oit.health:
+  path: '/service-health'
+  defaults:
+    _controller: '\Drupal\oit\Controller\OitController::serviceAlertHealth'
+    _title: 'Service Health'
+  requirements:
+    _permission: 'access content'
+oit.useredit:
+  path: '/user/me/edit'
+  defaults:
+    _controller: '\Drupal\oit\Controller\OitController::oitUserEdit'
+    _title: ''
+  requirements:
+    _role: 'authenticated'

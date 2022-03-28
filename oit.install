@@ -1,0 +1,111 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the sympa_initialize module.
+ */
+
+/**
+ * Add missing manage_webform users.
+ */
+function oit_update_9000() {
+  $usernames = [
+    'jonesdr',
+    'fast',
+    'gewe8216',
+    'tiha2368',
+    'joca3391',
+    'sode2485',
+    'aled9463',
+    'prte0550',
+    'evansc',
+    'houston',
+    'thba2172',
+    'kero7268',
+    'alla1028',
+    'laba7221',
+    'sisa6831',
+    'amwi5704',
+  ];
+  foreach ($usernames as $username) {
+    $language = \Drupal::languageManager()->getCurrentLanguage()->getId();
+    $user = \Drupal\user\Entity\User::create();
+    $random = new \Drupal\Component\Utility\Random();
+    $string = $random->string();
+
+    // Mandatory.
+    $user->setPassword($random->string());
+    $user->enforceIsNew();
+    $user->setEmail($random->string());
+    $user->setUsername($username);
+
+    // Optional.
+    $user->set('langcode', $language);
+    $user->set('preferred_langcode', $language);
+    $user->set('preferred_admin_langcode', $language);
+    $user->addRole('manage_webforms');
+    $user->activate();
+
+    // Save user account.
+    $user->save();
+  }
+}
+
+/**
+ * Truncate cache_container table to remove zap modules.
+ */
+function oit_update_9001() {
+  \Drupal::database()->truncate('cache_container')->execute();
+}
+
+
+/**
+ * Set menu items for phising nodes.
+ */
+function oit_update_9002() {
+    $term_id = 849;
+    $query = \Drupal::database()->select('taxonomy_index', 'ti');
+    $query->fields('ti', ['nid']);
+    $query->condition('ti.tid', $term_id);
+    $nodes = $query->execute()->fetchAll();
+
+    foreach ($nodes as $nid) {
+      $nid = $nid->nid;
+      $menu = \Drupal\menu_link_content\Entity\MenuLinkContent::create([
+        'title' => 'Phishing Email-' . $nid,
+        'link' => ['uri' => 'entity:node/' . $nid],
+        'menu_name' => 'main',
+        'parent' => 'views_view:views.phishing.page_1',
+        'weight' => 0,
+      ]);
+      $menu->setUnpublished(TRUE);
+      $menu->save();
+    }
+}
+
+/**
+ * Disable/enable servicenow to enable new schema/class.
+ */
+function oit_update_9003() {
+  $module = ['servicenow'];
+  \Drupal::service('module_installer')->uninstall($module, TRUE);
+  \Drupal::service('module_installer')->install($module, TRUE);
+}
+
+/**
+ * Clear out field_exclude_from_search field.
+ */
+function oit_update_9004() {
+  \Drupal::database()->truncate('node__field_exclude_from_search')->execute();
+  \Drupal::database()->truncate('node_revision__field_exclude_from_search')->execute();
+}
+
+/**
+ * Trashing markdown.
+ */
+function oit_update_9005() {
+  \Drupal::configFactory()->getEditable('filter.format.markdown')->delete();
+  $module = ['markdown'];
+  \Drupal::service('module_installer')->uninstall($module, TRUE);
+  \Drupal::configFactory()->getEditable('markdown.settings')->delete();
+}

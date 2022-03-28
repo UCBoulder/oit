@@ -1,0 +1,5 @@
+@media screen and (min-width: 920px) {
+  [data-label="Project Overview"] {
+    width: 45%;
+  }
+}
