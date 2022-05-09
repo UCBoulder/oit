@@ -21,7 +21,7 @@ class LiaisonsBlock extends BlockBase {
    * {@inheritdoc}
    */
   public function build() {
-    $liaisons = $this->liaisonTable('0AgLrphpbBv94dDVtY05oRUFmd3NpZ19DeVFnWjA5dEE', 0, 'b,c,d,e,f,g,h,i,j,k,l', NULL);
+    $liaisons = $this->liaisonTable('0AgLrphpbBv94dDVtY05oRUFmd3NpZ19DeVFnWjA5dEE', 0, 'b,c,d,e,f,i,j', NULL);
 
     return $liaisons;
   }
@@ -41,10 +41,10 @@ class LiaisonsBlock extends BlockBase {
       'Contact Information',
     ];
     foreach ($data['rows'] as $key => $row) {
-      if (method_exists($row['data'][3], '__toString') && method_exists($row['data'][6], '__toString') && method_exists($row['data'][8], '__toString')) {
+      if (method_exists($row['data'][3], '__toString') && method_exists($row['data'][5], '__toString') && method_exists($row['data'][6], '__toString')) {
         $last = $this->removeFormat($row['data'][0]);
         $first = $this->removeFormat($row['data'][1]);
-        $phone = $this->removeFormat($row['data'][6]);
+        $phone = $this->removeFormat($row['data'][5]);
         if (isset($phone)) {
           $phone_leng = strlen($phone);
           if ($phone_leng == 5) {
@@ -54,7 +54,7 @@ class LiaisonsBlock extends BlockBase {
         $dept = Xss::filter($row['data'][4]);
         $email = $this->removeFormat($row['data'][2]);
         $title = Xss::filter($row['data'][3]->__toString());
-        $publish = $this->removeFormat($row['data'][8]->__toString());
+        $publish = $this->removeFormat($row['data'][6]->__toString());
         if ($publish == 'Yes') {
           $rows[] = [
             'name' => [
