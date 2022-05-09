@@ -39,7 +39,6 @@ class LiaisonsBlock extends BlockBase {
       'Department',
       'Job Title',
       'Contact Information',
-      'Partner Type',
     ];
     foreach ($data['rows'] as $key => $row) {
       if (method_exists($row['data'][3], '__toString') && method_exists($row['data'][6], '__toString') && method_exists($row['data'][8], '__toString')) {
@@ -55,17 +54,7 @@ class LiaisonsBlock extends BlockBase {
         $dept = Xss::filter($row['data'][4]);
         $email = $this->removeFormat($row['data'][2]);
         $title = Xss::filter($row['data'][3]->__toString());
-        $itp = $this->removeFormat($row['data'][6]->__toString());
-        $itp_col = $itp == 'Yes' ? '<abbr title="IT Practitioner">ITP</abbr>' : '';
-        $itcl = $this->removeFormat($row['data'][7]);
-        $itcl_col = $itcl == 'Yes' ? '<abbr title="IT Communications Liaison">ITCL</abbr>' : '';
         $publish = $this->removeFormat($row['data'][8]->__toString());
-        if ((!empty($itp_col)) && (!empty($itcl_col))) {
-          $partner_type = $itp_col . ' & ' . $itcl_col;
-        }
-        else {
-          $partner_type = $itp_col . $itcl_col;
-        }
         if ($publish == 'Yes') {
           $rows[] = [
             'name' => [
@@ -84,11 +73,6 @@ class LiaisonsBlock extends BlockBase {
             'email' => [
               'data' => [
                 '#markup' => '<a href="mailto:' . $email . '">' . $email . '</a> <br />' . $phone,
-              ],
-            ],
-            'partner' => [
-              'data' => [
-                '#markup' => $partner_type,
               ],
             ],
           ];
