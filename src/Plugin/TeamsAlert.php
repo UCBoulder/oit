@@ -38,7 +38,7 @@ class TeamsAlert {
    */
   public function __construct() {
     $this->teamsUrl = trim(\Drupal::service('key.repository')->getKey('ms_teams')->getKeyValue());
-    $this->env = getenv('AH_SITE_ENVIRONMENT');
+    $this->env = getenv('PANTHEON_ENVIRONMENT');
   }
 
   /**
@@ -46,7 +46,7 @@ class TeamsAlert {
    */
   public function sendMessage(
     $message,
-    $environment = ['prod', 'dev', 'test', 'local', 'LANDO']
+    $environment = ['live', 'dev', 'test', 'local', 'LANDO']
   ) {
     if (!in_array($this->env, $environment)) {
       return;
