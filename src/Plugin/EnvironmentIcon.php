@@ -27,17 +27,17 @@ class EnvironmentIcon {
     $env = getenv('PANTHEON_ENVIRONMENT');
     $user = \Drupal::currentUser()->getRoles();
     $env_icon = '';
-    if ($env == 'local' || $env == 'LANDO') {
-      $env_icon = '✅🐕 ';
-    }
-    if ($env == 'dev') {
-      $env_icon = '🟢🐕 ';
-    }
-    if ($env == 'test') {
-      $env_icon = '🟡🐕 ';
-    }
     if (($env == 'live') && (in_array('administrator', $user))) {
       $env_icon = '🔴🐕 ';
+    }
+    elseif ($env == 'dev') {
+      $env_icon = '🟢🐕 ';
+    }
+    elseif ($env == 'test') {
+      $env_icon = '🟡🐕 ';
+    }
+    elseif ($env != 'live') {
+      $env_icon = '🔵🐕 ';
     }
     $this->env = $env_icon;
   }
