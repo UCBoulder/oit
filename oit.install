@@ -109,3 +109,13 @@ function oit_update_9005() {
   \Drupal::service('module_installer')->uninstall($module, TRUE);
   \Drupal::configFactory()->getEditable('markdown.settings')->delete();
 }
+
+/**
+ * Pantheon enable/disable proper modules.
+ */
+function oit_update_9006() {
+  $disable = ['acquia_connector', 'memcache', 'syslog', 'new_relic_rpm', 'automated_cron'];
+  $enable = ['pantheon_advanced_page_cache', 'dblog'];
+  \Drupal::service('module_installer')->uninstall($disable, TRUE);
+  \Drupal::service('module_installer')->install($enable, TRUE);
+}
