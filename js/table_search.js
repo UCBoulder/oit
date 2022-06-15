@@ -13,16 +13,16 @@ function searchTable(inputVal) {
     var allCells = $(row).find('td');
     if(allCells.length > 0)
     {
-      var found = false;
+      var found = FALSE;
       allCells.each(function (index, td) {
         var regExp = new RegExp(inputVal, 'i');
         if(regExp.test($(td).text()))
         {
-          found = true;
-          return false;
+          found = TRUE;
+          return FALSE;
         }
       });
-      if(found == true) { $(row).show();} else { $(row).hide();
+      if(found == TRUE) { $(row).show();} else { $(row).hide();
       }
     }
   });
