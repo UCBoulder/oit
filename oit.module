@@ -115,15 +115,6 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
       $form['field_services_related']['#group'] = 'type_service';
       $form['field_tut_comp_type_d7']['#group'] = 'type_service';
       $form['field_software_download_link']['#group'] = 'type_service';
-      // Group for custom code.
-      $form['page_css_js'] = [
-        '#title' => t('Do not use - trash'),
-        '#type' => 'details',
-        '#group' => 'advanced',
-        '#open' => 0,
-        '#weight' => 102,
-      ];
-      $form['field_page_footer']['#group'] = 'page_css_js';
       $request = \Drupal::request();
       $request_type = $request->get("type");
       if (isset($request_type)) {
