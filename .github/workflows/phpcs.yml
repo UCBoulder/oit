@@ -7,4 +7,4 @@ jobs:
   deploy:
     uses: UCBoulder/oitid_reusable_actions/.github/workflows/phpcs.yml@main
     secrets:
-      phpstan_level: "9"
+      phpstan_level: "0"

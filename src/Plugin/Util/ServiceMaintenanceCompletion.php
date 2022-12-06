@@ -2,7 +2,7 @@
 
 namespace Drupal\oit\Plugin\Util;
 
-use Drupal\node\Entity\Node;
+use Drupal\oit\Plugin\TeamsAlert;
 
 /**
  * Set Serv Maint Completed when past end date.
@@ -25,7 +25,7 @@ class ServiceMaintenanceCompletion {
     $result = $query->execute();
     $fetch = $result->fetchCol();
     foreach ($fetch as $nid) {
-      $node = Node::load($nid);
+      $node = \Drupal::entityTypeManager()->getStorage('node')->load($nid);
       $end_date = $node->get('field_service_alert_iss_resolve1')->getValue();
       $end_timestamp = strtotime($end_date[0]['value']);
       $now = time();
@@ -34,6 +34,8 @@ class ServiceMaintenanceCompletion {
         $node->set('field_sympa_send', 0);
         $node->set('field_service_alert_status', 'Service Maintenance Completed');
         $node->save();
+        $teams = new TeamsAlert();
+        $teams->sendMessage("Service maintenance set to completed. nid: $nid", ['prod']);
       }
     }
   }

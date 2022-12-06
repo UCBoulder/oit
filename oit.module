@@ -5,6 +5,8 @@
  * Module containing custom oit code.
  */
 
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\oit\Plugin\OitImageStyled;
 use Drupal\oit\Plugin\Util\ArchiveNews;
 use Drupal\oit\Plugin\Util\ServiceMaintenanceCompletion;
 use Drupal\oit\Plugin\Util\DeleteOldTermNode;
@@ -43,7 +45,7 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
     $space = [
       'space monkey',
       'space+monkey',
-      'spacemonkey'
+      'spacemonkey',
     ];
     if (in_array($search_key, $space)) {
       $form['#attached']['library'][] = 'oit/spacemonkey';
@@ -174,8 +176,8 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
           'li',
           'a',
           'p',
-          'h3'
-        ]
+          'h3',
+        ],
       ];
       break;
 
@@ -221,7 +223,8 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
         $form['#attached']['library'][] = 'oit/gsap';
       }
       break;
-    // Imported from zap_initialize
+
+    // Imported from zap_initialize.
     case 'node_webform_form':
     case 'node_webform_edit_form':
       $form['oit_webform_extras'] = [
@@ -256,7 +259,7 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
 /**
  * News form validate.
  */
-function oit_news_types_categories(&$form, \Drupal\Core\Form\FormStateInterface $form_state) {
+function oit_news_types_categories(&$form, FormStateInterface $form_state) {
   $hero = $form_state->getValue('field_news_front_image');
   $nope = preg_match_all("/^Decorative photo/i", $hero[0]['alt'], $matches);
   if ($nope) {
@@ -269,7 +272,7 @@ function oit_news_types_categories(&$form, \Drupal\Core\Form\FormStateInterface 
     foreach ($categories as $category) {
       $term = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load($category['target_id']);
       $parent_term_id = $term->parent->target_id;
-      $parent_cat[] = $parent_term_id ;
+      $parent_cat[] = $parent_term_id;
     }
   }
   $cat_type = '';
@@ -393,13 +396,13 @@ function oit_tokens($type, $tokens, array $data, array $options, BubbleableMetad
           $replacements[$original] = '';
           if ($data['node']->getType() == 'news') {
             $sa_image = $data['node']->get('field_news_front_image')->getValue()[0]['target_id'];
-            $sa_image_style = new \Drupal\oit\Plugin\OitImageStyled($sa_image, 'large');
+            $sa_image_style = new OitImageStyled($sa_image, 'large');
             $sa_image_styled = $sa_image_style->getImageUrl();
             $replacements[$original] = $sa_image_styled;
           }
           if ($data['node']->getType() == 'service_alert' && count($data['node']->get('field_service_dashboard_category')->getValue()) !== 0) {
             $set_dashboard = $data['node']->get('field_service_dashboard_category')->getValue()[0]['value'];
-            $translated_dashboard = $set_dashboard-1;
+            $translated_dashboard = $set_dashboard - 1;
             $sa_dashboard = [
               'buffportal',
               'canvas',
@@ -425,19 +428,20 @@ function oit_tokens($type, $tokens, array $data, array $options, BubbleableMetad
               'voicethread',
               'vpn',
               'zoom',
-              'other'
+              'other',
             ];
             $twitter_image = "/sites/default/files/sa_images/sa_$sa_dashboard[$translated_dashboard].png";
             $replacements[$original] = $twitter_image;
           }
           break;
+
         case 'sa_status':
-          $sa_status = $data['node']->get('field_service_alert_status')->getValue() !== null ? $data['node']->get('field_service_alert_status')->getValue() : '';
+          $sa_status = $data['node']->get('field_service_alert_status')->getValue() !== NULL ? $data['node']->get('field_service_alert_status')->getValue() : '';
           $replacements[$original] = $sa_status[0]['value'];
           break;
 
         case 'sa_title':
-          $sa_title = $data['node']->get('field_service_alert_title')->getValue() !== null ? $data['node']->get('field_service_alert_title')->getValue() : '';
+          $sa_title = $data['node']->get('field_service_alert_title')->getValue() !== NULL ? $data['node']->get('field_service_alert_title')->getValue() : '';
           $replacements[$original] = $sa_title[0]['value'];
           break;
       }
@@ -452,7 +456,7 @@ function oit_tokens($type, $tokens, array $data, array $options, BubbleableMetad
 function oit_page_attachments_alter(array &$attachments) {
   $node = \Drupal::routeMatch()->getParameter('node');
   if (!is_null($node)) {
-    $id = is_string($node)?$node:$node->id();
+    $id = is_string($node) ? $node : $node->id();
     if ($id == 262) {
       $attachments['#attached']['library'][] = 'oit/listjs';
       $attachments['#attached']['library'][] = 'oit/downloads_search';
@@ -471,8 +475,7 @@ function oit_page_attachments_alter(array &$attachments) {
 /**
  * Implements hook_entity_access().
  */
-
-function oit_entity_access(\Drupal\Core\Entity\EntityInterface $entity, $operation, \Drupal\Core\Session\AccountInterface $account) {
+function oit_entity_access(EntityInterface $entity, $operation, AccountInterface $account) {
   if ($entity->getEntityType()->getBundleEntityType() == 'node_type' && $entity->getType() == 'webform') {
     $webform_id = $entity->get('webform')->getValue();
     if (isset($webform_id)) {
@@ -523,7 +526,7 @@ function oit_cron() {
 function oit_preprocess_node(&$variables) {
   $node = $variables['node'];
   $body = $node->get('body')->getValue();
-  $body = isset($body[0]['value']) ? $body[0]['value'] : '';
+  $body = $body[0]['value'] ?? '';
   // Check the node body and if the <details> element exists add the details
   // polyfill to the page. Currently not supported by edge or ie, may remove in
   // the future.
@@ -534,9 +537,9 @@ function oit_preprocess_node(&$variables) {
 
 /**
  * Implements hook_preprocess_block().
- * Disable caching on certain blocks.
  */
 function oit_preprocess_block(&$variables) {
+  // Disable caching on certain blocks.
   if ($variables['base_plugin_id'] == 'page_overview') {
     $variables['#cache']['max-age'] = 0;
   }
@@ -568,7 +571,7 @@ function oit_social_links($title, $url) {
 /**
  * Implements hook_entity_presave().
  */
-function oit_entity_presave(\Drupal\Core\Entity\EntityInterface $entity) {
+function oit_entity_presave(EntityInterface $entity) {
   if (method_exists($entity, 'getType')) {
     if ($entity->getType() == 'news') {
       oit_news_update($entity);
@@ -591,7 +594,7 @@ function oit_entity_presave(\Drupal\Core\Entity\EntityInterface $entity) {
 /**
  * Implements hook_entity_delete().
  */
-function oit_entity_delete(\Drupal\Core\Entity\EntityInterface $entity) {
+function oit_entity_delete(EntityInterface $entity) {
   if (method_exists($entity, 'getType')) {
     // Allows for clearing of blocks based on node type.
     $tags = ['node_type:' . $entity->getType()];
@@ -599,16 +602,19 @@ function oit_entity_delete(\Drupal\Core\Entity\EntityInterface $entity) {
   }
 }
 
+/**
+ * Set twitter meta image and set unpublish date.
+ */
 function oit_news_update($entity) {
-  $meta_info = !empty($entity->get('field_meta_tags')->getValue())?unserialize($entity->get('field_meta_tags')->getValue()[0]['value']):[];
+  $meta_info = !empty($entity->get('field_meta_tags')->getValue()) ? unserialize($entity->get('field_meta_tags')->getValue()[0]['value'], ['allowed_classes' => FALSE]) : [];
   if (!isset($meta_info['twitter_cards_image']) || !isset($meta_info['og_image'])) {
     $image_id = $entity->get('field_news_front_image')->getValue()[0]['target_id'];
-    $image_style = new \Drupal\oit\Plugin\OitImageStyled($image_id, 'large', 'front_news');
+    $image_style = new OitImageStyled($image_id, 'large', 'front_news');
     $image_styled = $image_style->getImageUrl();
-    if (!isset($meta_info['twitter_cards_image']) || $meta_info['twitter_cards_image'] != null) {
+    if (!isset($meta_info['twitter_cards_image']) || $meta_info['twitter_cards_image'] != NULL) {
       $meta_info['twitter_cards_image'] = $image_styled;
     }
-    if (!isset($meta_info['og_image']) || $meta_info['og_image'] != null) {
+    if (!isset($meta_info['og_image']) || $meta_info['og_image'] != NULL) {
       $meta_info['og_image'] = $image_styled;
     }
     $meta_serial = serialize($meta_info);
@@ -619,12 +625,15 @@ function oit_news_update($entity) {
   }
 }
 
+/**
+ * Set twitter image and dashboard ordering.
+ */
 function oit_servicealert_update($entity) {
-  $meta_info = !empty($entity->get('field_meta_tags')->getValue())?unserialize($entity->get('field_meta_tags')->getValue()[0]['value']):[];
+  $meta_info = !empty($entity->get('field_meta_tags')->getValue()) ? unserialize($entity->get('field_meta_tags')->getValue()[0]['value'], ['allowed_classes' => FALSE]) : [];
   if (!isset($meta_info['twitter_cards_image']) || !isset($meta_info['og_image'])) {
     $meta_info["twitter_cards_type"] = "summary";
     $set_dashboard = $entity->get('field_service_dashboard_category')->getValue()[0]['value'];
-    $translated_dashboard = $set_dashboard-1;
+    $translated_dashboard = $set_dashboard - 1;
     $sa_dashboard = [
       'buffportal',
       'canvas',
@@ -650,14 +659,14 @@ function oit_servicealert_update($entity) {
       'voicethread',
       'vpn',
       'zoom',
-      'other'
+      'other',
     ];
     $host = \Drupal::request()->getSchemeAndHttpHost();
     $social_image = "$host/sites/default/files/sa_images/sa_$sa_dashboard[$translated_dashboard].png";
-    if (!isset($meta_info['twitter_cards_image']) || $meta_info['twitter_cards_image'] != null) {
+    if (!isset($meta_info['twitter_cards_image']) || $meta_info['twitter_cards_image'] != NULL) {
       $meta_info['twitter_cards_image'] = $social_image;
     }
-    if (!isset($meta_info['og_image']) || $meta_info['og_image'] != null) {
+    if (!isset($meta_info['og_image']) || $meta_info['og_image'] != NULL) {
       $meta_info['og_image'] = $social_image;
     }
     $meta_serial = serialize($meta_info);
@@ -696,7 +705,7 @@ function oit_block_access(Block $block, $operation, AccountInterface $account) {
       if ($node->bundle() == 'page') {
         $child = $node->get('field_show_child_links')->getValue();
         if (!$child[0]['value']) {
-          return AccessResult::forbiddenIf(true)->addCacheableDependency($block);
+          return AccessResult::forbiddenIf(TRUE)->addCacheableDependency($block);
         }
       }
     }

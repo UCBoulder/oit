@@ -2,7 +2,7 @@
 
 namespace Drupal\oit\Plugin\Util;
 
-use Drupal\node\Entity\Node;
+use Drupal\oit\Plugin\TeamsAlert;
 
 /**
  * Set archive status on old news.
@@ -25,12 +25,14 @@ class ArchiveNews {
     $result = $query->execute();
     $fetch = $result->fetchCol();
     foreach ($fetch as $nid) {
-      $node = Node::load($nid);
+      $node = \Drupal::entityTypeManager()->getStorage('node')->load($nid);
       $updated_date = $node->getChangedTime();
       if ($cut_off > $updated_date) {
         $node->set('field_news_archive', 3);
         $node->set('field_sympa_send', 0);
         $node->save();
+        $teams = new TeamsAlert();
+        $teams->sendMessage("Archived news nid: $nid", ['prod']);
       }
     }
   }

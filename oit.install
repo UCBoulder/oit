@@ -5,6 +5,10 @@
  * Install, update and uninstall functions for the sympa_initialize module.
  */
 
+use Drupal\menu_link_content\Entity\MenuLinkContent;
+use Drupal\Component\Utility\Random;
+use Drupal\user\Entity\User;
+
 /**
  * Add missing manage_webform users.
  */
@@ -29,9 +33,8 @@ function oit_update_9000() {
   ];
   foreach ($usernames as $username) {
     $language = \Drupal::languageManager()->getCurrentLanguage()->getId();
-    $user = \Drupal\user\Entity\User::create();
-    $random = new \Drupal\Component\Utility\Random();
-    $string = $random->string();
+    $user = User::create();
+    $random = new Random();
 
     // Mandatory.
     $user->setPassword($random->string());
@@ -58,29 +61,28 @@ function oit_update_9001() {
   \Drupal::database()->truncate('cache_container')->execute();
 }
 
-
 /**
  * Set menu items for phising nodes.
  */
 function oit_update_9002() {
-    $term_id = 849;
-    $query = \Drupal::database()->select('taxonomy_index', 'ti');
-    $query->fields('ti', ['nid']);
-    $query->condition('ti.tid', $term_id);
-    $nodes = $query->execute()->fetchAll();
+  $term_id = 849;
+  $query = \Drupal::database()->select('taxonomy_index', 'ti');
+  $query->fields('ti', ['nid']);
+  $query->condition('ti.tid', $term_id);
+  $nodes = $query->execute()->fetchAll();
 
-    foreach ($nodes as $nid) {
-      $nid = $nid->nid;
-      $menu = \Drupal\menu_link_content\Entity\MenuLinkContent::create([
-        'title' => 'Phishing Email-' . $nid,
-        'link' => ['uri' => 'entity:node/' . $nid],
-        'menu_name' => 'main',
-        'parent' => 'views_view:views.phishing.page_1',
-        'weight' => 0,
-      ]);
-      $menu->setUnpublished(TRUE);
-      $menu->save();
-    }
+  foreach ($nodes as $nid) {
+    $nid = $nid->nid;
+    $menu = MenuLinkContent::create([
+      'title' => 'Phishing Email-' . $nid,
+      'link' => ['uri' => 'entity:node/' . $nid],
+      'menu_name' => 'main',
+      'parent' => 'views_view:views.phishing.page_1',
+      'weight' => 0,
+    ]);
+    $menu->setUnpublished(TRUE);
+    $menu->save();
+  }
 }
 
 /**
