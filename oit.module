@@ -156,7 +156,7 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
         t('OIT advanced html'),
         '/admin/config/content/shortcode_svg/svg_list',
         t('Icons shortcode panel'),
-        'https://oit.style.protitude.com',
+        'https://curly-umbrella-61336c58.pages.github.io',
         t('Style Guide'),
         '/admin/config/development/asset-injector/js',
         t('Custom js/css (admin only)'),
