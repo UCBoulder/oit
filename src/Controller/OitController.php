@@ -152,7 +152,7 @@ class OitController extends ControllerBase {
       $requested_path = '';
     }
     global $base_url;
-    $module_path = drupal_get_path('module', 'oit');
+    $module_path = \Drupal::service('extension.list.module')->getPath('oit');
     $content = sprintf(
       '<p>%s <a href="%s/saml_login%s">%s</a> %s.</p><a style="border: none;" href="%s/saml_login%s"><img src="%s/%s/images/you_shall_not_pass.png" alt="%s" title="%s" style="display:none;" id="myprecious" /></a>',
       $this->t('You may need to'),
