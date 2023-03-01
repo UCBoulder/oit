@@ -12,7 +12,7 @@ use Drupal\filter\Plugin\FilterBase;
  *   id = "filter_email",
  *   title = @Translation("Email Filter"),
  *   description = @Translation("Remove hyphen from E-mail"),
- *   type = Drupal\filter\Plugin\FilterInterface::TYPE_MARKUP_LANGUAGE,
+ *   type = Drupal\filter\Plugin\FilterInterface::TYPE_TRANSFORM_IRREVERSIBLE,
  * )
  */
 class FilterEmail extends FilterBase {

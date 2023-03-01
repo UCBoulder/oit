@@ -12,7 +12,7 @@ use Drupal\filter\Plugin\FilterBase;
  *   id = "filter_cu",
  *   title = @Translation("CU Boulder Filter"),
  *   description = @Translation("Remove hyphen in CU-Boulder"),
- *   type = Drupal\filter\Plugin\FilterInterface::TYPE_MARKUP_LANGUAGE,
+ *   type = Drupal\filter\Plugin\FilterInterface::TYPE_TRANSFORM_IRREVERSIBLE,
  * )
  */
 class FilterCu extends FilterBase {

@@ -12,7 +12,7 @@ use Drupal\filter\Plugin\FilterBase;
  *   id = "filter_noopener",
  *   title = @Translation("_blank Filter"),
  *   description = @Translation("Adds rel=noopener to _blank links"),
- *   type = Drupal\filter\Plugin\FilterInterface::TYPE_MARKUP_LANGUAGE,
+ *   type = Drupal\filter\Plugin\FilterInterface::TYPE_TRANSFORM_IRREVERSIBLE,
  * )
  */
 class FilterNoopener extends FilterBase {
