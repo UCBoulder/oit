@@ -32,5 +32,6 @@ class RedirectAddAnalytics {
       ]);
       $query->execute();
     }
+    \Drupal::logger('oit')->notice('Redirects updated with utm info.');
   }
 }

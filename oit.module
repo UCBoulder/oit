@@ -10,6 +10,7 @@ use Drupal\oit\Plugin\OitImageStyled;
 use Drupal\oit\Plugin\Util\ArchiveNews;
 use Drupal\oit\Plugin\Util\ServiceMaintenanceCompletion;
 use Drupal\oit\Plugin\Util\DeleteOldTermNode;
+use Drupal\oit\Plugin\RedirectAddAnalytics;
 use Drupal\Core\Render\BubbleableMetadata;
 use Drupal\Core\Url;
 use Drupal\Core\Link;
@@ -514,6 +515,8 @@ function oit_cron() {
       }
       $node->save();
     }
+    // Add analytics to redirects.
+    new RedirectAddAnalytics();
   }
   $cut_off = strtotime("-90 days");
   $phish_cut_off = strtotime("-3 years");
