@@ -163,6 +163,9 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
         <p>%s</p>
         <h3>%s</h3>
         <p>%s</p>
+        <p>%s</p>
+        <h3>%s</h3>
+        <p>%s</p>
         </details>',
         t('OIT advanced html'),
         '/admin/config/content/shortcode_svg/svg_list',
@@ -173,6 +176,9 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
         t('Custom js/css (admin only)'),
         t('Flexbox Codez'),
         '<button type="button" class="copy-icon" data-clipboard="flexBox">Copy flexbox</button>',
+        t('Details'),
+        '<button type="button" class="copy-icon" data-clipboard="details">Copy details element</button>',
+        '<button type="button" class="copy-icon" data-clipboard="details-no-deets">Copy details element with class to hide show/hide links</button>',
         t('Columns'),
         '<button type="button" class="copy-icon" data-clipboard="text-cols--3">Copy Columns class</button>'
       );
