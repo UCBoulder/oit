@@ -71,6 +71,16 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
       $form['field_sympa_send']['#group'] = 'options';
       // Death to comments.
       $form['comment_node_service_alert']['#access'] = FALSE;
+      // Fill in empty body with template
+      if ($form['body']['widget'][0]['#default_value'] == Null) {
+        $form['body']['widget'][0]['#default_value'] = '<h2>Impact</h2><p></p>
+            <h2>Scope</h2><p></p>
+            <h2>Affected Services</h2><p></p>
+            <h2>Affected Buildings</h2><p></p>
+            <h2>For More Information</h2><p></p>
+            <h2>Additional Information from Vendor</h2><p></p>
+            <h2>Additional Information from UIS</h2><p></p>';
+      }
       break;
 
     case "search_block_form":
