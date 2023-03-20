@@ -55,8 +55,6 @@ class ServiceAlertNodeUpdate {
       foreach ($fields as $key => $field) {
         $this->descriptionHtml .= $this->getBodyField($node, $key, $field);
       }
-      kint($result);
-      kint($this->descriptionHtml);
       $node->set('body', $this->descriptionHtml);
       $node->body->format = 'rich_text';
       $node->set('field_sympa_send', 0);
