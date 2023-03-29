@@ -9,6 +9,7 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\oit\Plugin\OitImageStyled;
 use Drupal\oit\Plugin\Util\ArchiveNews;
 use Drupal\oit\Plugin\Util\ServiceMaintenanceCompletion;
+use Drupal\oit\Plugin\Util\ServiceAlertNodeUpdate;
 use Drupal\oit\Plugin\Util\DeleteOldTermNode;
 use Drupal\oit\Plugin\RedirectAddAnalytics;
 use Drupal\Core\Render\BubbleableMetadata;
@@ -546,6 +547,7 @@ function oit_cron() {
   $phish_cut_off = strtotime("-3 years");
   new ArchiveNews($cut_off);
   new ServiceMaintenanceCompletion();
+  new ServiceAlertNodeUpdate();
   new DeleteOldTermNode(849, $phish_cut_off);
 }
 
