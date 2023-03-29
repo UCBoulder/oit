@@ -81,6 +81,14 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
             <h2>Additional Information from Vendor</h2><p></p>
             <h2>Additional Information from UIS</h2><p></p>';
       }
+      // Hide fields before they  eventually get trashed.
+      $form['field_service_alert_impact']['#access'] = FALSE;
+      $form['field_service_alert_scope']['#access'] = FALSE;
+      $form['field_service_alert_aff_serv']['#access'] = FALSE;
+      $form['field_service_alert_aff_bldg']['#access'] = FALSE;
+      $form['field_service_alert_main_impact']['#access'] = FALSE;
+      $form['field_service_alert_add_vendor']['#access'] = FALSE;
+      $form['field_service_alert_add_uis']['#access'] = FALSE;
       break;
 
     case "search_block_form":
