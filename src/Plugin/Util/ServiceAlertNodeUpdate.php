@@ -2,7 +2,6 @@
 
 namespace Drupal\oit\Plugin\Util;
 
-
 /**
  * Update servicenow nodes to combine all fields into the body.
  */
@@ -36,10 +35,10 @@ class ServiceAlertNodeUpdate {
       ->condition('field_service_alert_add_vendor', '', '<>')
       ->condition('field_service_alert_add_uis', '', '<>');
     $results = $query->condition($group)
-                     ->condition('type', 'service_alert')
-                     ->sort('nid', 'DESC')
-                     ->range(0, 10)
-                     ->execute();
+      ->condition('type', 'service_alert')
+      ->sort('nid', 'DESC')
+      ->range(0, 10)
+      ->execute();
     foreach ($results as $result) {
       $node = \Drupal::entityTypeManager()->getStorage('node')->load($result);
       $this->descriptionHtml = $node->get('body')->value;
