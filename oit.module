@@ -27,9 +27,13 @@ use Drupal\Core\Cache\Cache;
  * Implements hook_form_alter().
  */
 function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
-  if (isset($form['body']) && $form_id != 'block_content_shortcode_embed_form' && $form_id != 'block_content_shortcode_embed_edit_form') {
-    $form['body']['widget']['#after_build'][] = 'oit_hide_format_info';
+  if (isset($form['body'])) {
+    if ($form_id != 'block_content_shortcode_embed_form' && $form_id != 'block_content_shortcode_embed_edit_form') {
+      $form['body']['widget']['#after_build'][] = 'oit_hide_format';
+    }
+    $form['body']['widget']['#after_build'][] = 'oit_hide_format_phish';
   }
+
   if (($form_id == 'views_exposed_form' && $form['#id'] == 'views-exposed-form-service-pages-tutorials-page-1') || ($form['#id'] == 'views-exposed-form-service-pages-tutorials-block-1')) {
     $form['#attributes']['class'][] = 'flex';
     $form['actions']['#attributes']['class'][] = 'flex-full';
@@ -85,14 +89,6 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
             <h2>Additional Information from Vendor</h2><p></p>
             <h2>Additional Information from UIS</h2><p></p>';
       }
-      // Hide fields before they  eventually get trashed.
-      $form['field_service_alert_impact']['#access'] = FALSE;
-      $form['field_service_alert_scope']['#access'] = FALSE;
-      $form['field_service_alert_aff_serv']['#access'] = FALSE;
-      $form['field_service_alert_aff_bldg']['#access'] = FALSE;
-      $form['field_service_alert_main_impact']['#access'] = FALSE;
-      $form['field_service_alert_add_vendor']['#access'] = FALSE;
-      $form['field_service_alert_add_uis']['#access'] = FALSE;
       break;
 
     case "search_block_form":
@@ -164,6 +160,11 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
           $form['field_faq_section_title']['#access'] = FALSE;
           $form['#title'] = t('Create Phish Page');
         }
+      }
+      // If page type is phish.
+      if ($form['field_oit_category']['widget']['#default_value'][0] == 849) {
+        $phish_format_key = array_search('oit_hide_format_phish', $form['body']['widget']['#after_build']);
+        unset($form['body']['widget']['#after_build'][$phish_format_key]);
       }
       $form['#attached']['library'][] = 'oit/oit_clipboard';
       $form['#attached']['library'][] = 'webform/webform.element.select2';
@@ -285,25 +286,32 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
       $form['taxonomy_vocabulary_11']['#group'] = 'oit_page_extras';
       $form['field_tut_comp_type_d7']['#group'] = 'oit_page_extras';
       $form['upload']['#group'] = 'oit_page_extras';
-      $form['field_tut_footer']['widget']['#after_build'][] = 'oit_hide_format_info';
+      $form['field_tut_footer']['widget']['#after_build'][] = 'oit_hide_format';
+      $form['field_tut_footer']['widget']['#after_build'][] = 'oit_hide_format_phish';
       break;
   }
 }
 
 /**
  * After build callback for text_format element.
- *
- * Place this in a .module file or so, the function can be used
- * by any form text_format element.
  */
-function oit_hide_format_info($form_element, FormStateInterface $form_state) {
+function oit_hide_format($form_element, FormStateInterface $form_state) {
   if (isset($form_element[0]['format'])) {
-    // kint($form_element[0]['format']);
     unset($form_element[0]['format']['format']['#options']['restricted_html']);
     unset($form_element[0]['format']['format']['#options']['www_unfiltered_']);
-     // All this stuff is needed to hide the help text.
+    // All this stuff is needed to hide the help text.
     unset($form_element[0]['format']['guidelines']);
     unset($form_element[0]['format']['help']);
+  }
+  return $form_element;
+}
+
+/**
+ * After build callback for text_format element.
+ */
+function oit_hide_format_phish($form_element, FormStateInterface $form_state) {
+  if (isset($form_element[0]['format'])) {
+    unset($form_element[0]['format']['format']['#options']['phish']);
   }
   return $form_element;
 }
