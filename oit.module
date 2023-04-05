@@ -27,6 +27,9 @@ use Drupal\Core\Cache\Cache;
  * Implements hook_form_alter().
  */
 function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  if (isset($form['body']) && $form_id != 'block_content_shortcode_embed_form' && $form_id != 'block_content_shortcode_embed_edit_form') {
+    $form['body']['widget']['#after_build'][] = 'oit_hide_format_info';
+  }
   if (($form_id == 'views_exposed_form' && $form['#id'] == 'views-exposed-form-service-pages-tutorials-page-1') || ($form['#id'] == 'views-exposed-form-service-pages-tutorials-block-1')) {
     $form['#attributes']['class'][] = 'flex';
     $form['actions']['#attributes']['class'][] = 'flex-full';
@@ -72,8 +75,8 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
       $form['field_sympa_send']['#group'] = 'options';
       // Death to comments.
       $form['comment_node_service_alert']['#access'] = FALSE;
-      // Fill in empty body with template
-      if ($form['body']['widget'][0]['#default_value'] == Null) {
+      // Fill in empty body with template.
+      if ($form['body']['widget'][0]['#default_value'] == NULL) {
         $form['body']['widget'][0]['#default_value'] = '<h2>Impact</h2><p></p>
             <h2>Scope</h2><p></p>
             <h2>Affected Services</h2><p></p>
@@ -175,6 +178,8 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
         <p>%s</p>
         <h3>%s</h3>
         <p>%s</p>
+        <h3>%s</h3>
+        <p>%s</p>
         </details>',
         t('OIT advanced html'),
         '/admin/config/content/shortcode_svg/svg_list',
@@ -189,7 +194,9 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
         '<button type="button" class="copy-icon" data-clipboard="details">Copy details element</button>',
         '<button type="button" class="copy-icon" data-clipboard="details-no-deets">Copy details element with class to hide show/hide links</button>',
         t('Columns'),
-        '<button type="button" class="copy-icon" data-clipboard="text-cols--3">Copy Columns class</button>'
+        '<button type="button" class="copy-icon" data-clipboard="text-cols--3">Copy Columns class</button>',
+        t('Shortcode Block embed'),
+        '<button type="button" class="copy-icon" data-clipboard="shortcode-block">Copy block shortcode embed</button>',
       );
       $form['oit_advanced'] = [
         '#markup' => $advanced,
@@ -278,8 +285,27 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
       $form['taxonomy_vocabulary_11']['#group'] = 'oit_page_extras';
       $form['field_tut_comp_type_d7']['#group'] = 'oit_page_extras';
       $form['upload']['#group'] = 'oit_page_extras';
+      $form['field_tut_footer']['widget']['#after_build'][] = 'oit_hide_format_info';
       break;
   }
+}
+
+/**
+ * After build callback for text_format element.
+ *
+ * Place this in a .module file or so, the function can be used
+ * by any form text_format element.
+ */
+function oit_hide_format_info($form_element, FormStateInterface $form_state) {
+  if (isset($form_element[0]['format'])) {
+    // kint($form_element[0]['format']);
+    unset($form_element[0]['format']['format']['#options']['restricted_html']);
+    unset($form_element[0]['format']['format']['#options']['www_unfiltered_']);
+     // All this stuff is needed to hide the help text.
+    unset($form_element[0]['format']['guidelines']);
+    unset($form_element[0]['format']['help']);
+  }
+  return $form_element;
 }
 
 /**
@@ -501,7 +527,7 @@ function oit_page_attachments_alter(array &$attachments) {
 /**
  * Implements hook_entity_access().
  */
-function oit_entity_access(\Drupal\Core\Entity\EntityInterface $entity, $operation, \Drupal\Core\Session\AccountInterface $account) {
+function oit_entity_access(EntityInterface $entity, $operation, AccountInterface $account) {
   if ($entity->getEntityType()->getBundleEntityType() == 'node_type' && $entity->getType() == 'webform') {
     if ($account->isAnonymous()) {
       $webform_id = $entity->get('webform')->getValue();
@@ -511,7 +537,7 @@ function oit_entity_access(\Drupal\Core\Entity\EntityInterface $entity, $operati
         if ($webform->access('view') === FALSE) {
           return AccessResult::forbidden();
         }
-    }
+      }
     }
   }
 }
