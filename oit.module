@@ -162,9 +162,11 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
         }
       }
       // If page type is phish.
-      if ($form['field_oit_category']['widget']['#default_value'][0] == 849) {
-        $phish_format_key = array_search('oit_hide_format_phish', $form['body']['widget']['#after_build']);
-        unset($form['body']['widget']['#after_build'][$phish_format_key]);
+      if (!empty($form['field_oit_category']['widget']['#default_value'])) {
+        if ($form['field_oit_category']['widget']['#default_value'][0] == 849) {
+          $phish_format_key = array_search('oit_hide_format_phish', $form['body']['widget']['#after_build']);
+          unset($form['body']['widget']['#after_build'][$phish_format_key]);
+        }
       }
       $form['#attached']['library'][] = 'oit/oit_clipboard';
       $form['#attached']['library'][] = 'webform/webform.element.select2';
@@ -258,7 +260,7 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
       }
       break;
 
-    // Imported from zap_initialize.
+      // Imported from zap_initialize.
     case 'node_webform_form':
     case 'node_webform_edit_form':
       $form['oit_webform_extras'] = [
@@ -568,8 +570,7 @@ function oit_cron() {
       // toggle the sticky checkbox to make this work.
       if ($node->isSticky()) {
         $node->setSticky(FALSE);
-      }
-      else {
+      } else {
         $node->setSticky(TRUE);
       }
       $node->save();
