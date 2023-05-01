@@ -2,6 +2,8 @@
 
 namespace Drupal\oit\Plugin;
 
+use Drupal\encrypt\Entity\EncryptionProfile;
+
 /**
  * Environment icon to be used on header title.
  *
@@ -37,7 +39,10 @@ class TeamsAlert {
    * Sets up to send message to Teams.
    */
   public function __construct() {
-    $this->teamsUrl = trim(\Drupal::service('key.repository')->getKey('ms_teams')->getKeyValue());
+    $key_encrypted = trim(\Drupal::service('key.repository')->getKey('ms_teams')->getKeyValue());
+    $encryption_profile = EncryptionProfile::load('key_encryption');
+    $this->teamsUrl = \Drupal::service('encryption')->decrypt($key_encrypted, $encryption_profile);
+    kint($this->teamsUrl);
     $this->env = getenv('AH_SITE_ENVIRONMENT');
   }
 
@@ -93,5 +98,4 @@ class TeamsAlert {
       ],
     ];
   }
-
 }

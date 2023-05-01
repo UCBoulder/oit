@@ -147,8 +147,7 @@ class OitController extends ControllerBase {
     if ($_SERVER["REQUEST_URI"]) {
       $clean_uri = Xss::filter($_SERVER["REQUEST_URI"]);
       $requested_path = '?destination=' . $clean_uri;
-    }
-    else {
+    } else {
       $requested_path = '';
     }
     global $base_url;
@@ -343,5 +342,4 @@ class OitController extends ControllerBase {
       '#allowed_tags' => ['svg', 'circle'],
     ];
   }
-
 }
