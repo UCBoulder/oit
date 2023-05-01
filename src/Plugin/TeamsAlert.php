@@ -42,7 +42,6 @@ class TeamsAlert {
     $key_encrypted = trim(\Drupal::service('key.repository')->getKey('ms_teams')->getKeyValue());
     $encryption_profile = EncryptionProfile::load('key_encryption');
     $this->teamsUrl = \Drupal::service('encryption')->decrypt($key_encrypted, $encryption_profile);
-    kint($this->teamsUrl);
     $this->env = getenv('AH_SITE_ENVIRONMENT');
   }
 
