@@ -111,3 +111,11 @@ function oit_update_9005() {
   \Drupal::service('module_installer')->uninstall($module, TRUE);
   \Drupal::configFactory()->getEditable('markdown.settings')->delete();
 }
+
+/**
+ * Implements hook_update().
+ */
+function oit_update_9006() {
+  $config = \Drupal::configFactory()->getEditable('oit.settings');
+  $config->set('show_login_form', TRUE)->save();
+}
