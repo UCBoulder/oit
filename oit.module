@@ -5,6 +5,7 @@
  * Module containing custom oit code.
  */
 
+use Drupal\node\NodeInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\oit\Plugin\OitImageStyled;
 use Drupal\oit\Plugin\Util\ArchiveNews;
@@ -260,7 +261,7 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
       }
       break;
 
-      // Imported from zap_initialize.
+    // Imported from zap_initialize.
     case 'node_webform_form':
     case 'node_webform_edit_form':
       $form['oit_webform_extras'] = [
@@ -570,7 +571,8 @@ function oit_cron() {
       // toggle the sticky checkbox to make this work.
       if ($node->isSticky()) {
         $node->setSticky(FALSE);
-      } else {
+      }
+      else {
         $node->setSticky(TRUE);
       }
       $node->save();
@@ -765,6 +767,15 @@ function oit_menu_local_tasks_alter(&$data, $route_name) {
  * Implements hook_block_access().
  */
 function oit_block_access(Block $block, $operation, AccountInterface $account) {
+  // Forbid access to unpublished block on published nodes.
+  if ($block->getPluginId() == 'block_content:b64c8b8f-40f5-492b-9cd9-4261baee0cfd') {
+    $node = \Drupal::routeMatch()->getParameter('node');
+    if ($node instanceof NodeInterface) {
+      if ($node->isPublished()) {
+        return AccessResult::forbidden();
+      }
+    }
+  }
   if ($block->id() == 'mainnavigation') {
     $node = \Drupal::routeMatch()->getParameter('node');
     if (!is_string($node) && isset($node)) {
