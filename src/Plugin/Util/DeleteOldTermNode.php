@@ -2,7 +2,6 @@
 
 namespace Drupal\oit\Plugin\Util;
 
-use Drupal\oit\Plugin\TeamsAlert;
 
 /**
  * Provides ability to delete old nodes by term - prev used on security notices.
@@ -33,7 +32,7 @@ class DeleteOldTermNode {
         $updated_date = $node->getCreatedTime();
         if ($date > $updated_date) {
           $node->delete();
-          $teams = new TeamsAlert();
+          $teams = \Drupal::service('oit.teamsalert');
           $teams->sendMessage("Deleted old node nid: $nid with term id: $term_id", ['prod']);
         }
         $n++;

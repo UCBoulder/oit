@@ -2,8 +2,6 @@
 
 namespace Drupal\oit\Plugin\Util;
 
-use Drupal\oit\Plugin\TeamsAlert;
-
 /**
  * Set archive status on old news.
  *
@@ -31,7 +29,7 @@ class ArchiveNews {
         $node->set('field_news_archive', 3);
         $node->set('field_sympa_send', 0);
         $node->save();
-        $teams = new TeamsAlert();
+        $teams = \Drupal::service('oit.teamsalert');
         $teams->sendMessage("Archived news nid: $nid", ['prod']);
       }
     }

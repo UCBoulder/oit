@@ -1,0 +1,4 @@
+services:
+  oit.teamsalert:
+    class: Drupal\oit\Plugin\TeamsAlert
+    arguments: ['@key.repository', '@encryption']

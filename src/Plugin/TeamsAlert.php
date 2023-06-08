@@ -3,6 +3,8 @@
 namespace Drupal\oit\Plugin;
 
 use Drupal\encrypt\Entity\EncryptionProfile;
+use Drupal\key\KeyRepositoryInterface;
+use Drupal\encrypt\EncryptServiceInterface;
 
 /**
  * Environment icon to be used on header title.
@@ -36,12 +38,28 @@ class TeamsAlert {
   private $env;
 
   /**
+   * The key repository.
+   *
+   * @var \Drupal\key\KeyRepositoryInterface
+   */
+  protected $keyRepository;
+
+  /**
+   * The encrypt service.
+   *
+   * @var \Drupal\encrypt\EncryptServiceInterface
+   */
+  protected $encryptService;
+
+  /**
    * Sets up to send message to Teams.
    */
-  public function __construct() {
-    $key_encrypted = trim(\Drupal::service('key.repository')->getKey('ms_teams')->getKeyValue());
+  public function __construct(KeyRepositoryInterface $key_repository, EncryptServiceInterface $encrypt_service) {
+    $this->keyRepository = $key_repository;
+    $this->encryptService = $encrypt_service;
+    $key_encrypted = trim($this->keyRepository->getKey('ms_teams')->getKeyValue());
     $encryption_profile = EncryptionProfile::load('key_encryption');
-    $this->teamsUrl = \Drupal::service('encryption')->decrypt($key_encrypted, $encryption_profile);
+    $this->teamsUrl = $this->encryptService->decrypt($key_encrypted, $encryption_profile);
     $this->env = getenv('AH_SITE_ENVIRONMENT');
   }
 
@@ -50,7 +68,7 @@ class TeamsAlert {
    */
   public function sendMessage(
     $message,
-    $environment = ['prod', 'dev', 'test', 'local', 'LANDO']
+    $environment = ['prod', 'dev', 'test', 'local']
   ) {
     if (!in_array($this->env, $environment)) {
       return;
@@ -97,4 +115,5 @@ class TeamsAlert {
       ],
     ];
   }
+
 }

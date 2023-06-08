@@ -113,6 +113,7 @@ class OitController extends ControllerBase {
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
+    $teamsAlert = $container->get('oit.teamsalert');
     return new static(
       $container->get('current_user'),
       $container->get('request_stack'),
@@ -120,7 +121,8 @@ class OitController extends ControllerBase {
       $container->get('page_cache_kill_switch'),
       $container->get('config.factory'),
       $container->get('date.formatter'),
-      $container->get('entity_type.manager')
+      $container->get('entity_type.manager'),
+      $teamsAlert
     );
   }
 
@@ -128,6 +130,10 @@ class OitController extends ControllerBase {
    * Routes for zap.
    */
   public function oitDenied() {
+    $teams = \Drupal::service('oit.teamsalert');
+    $teams->sendMessage("Foo", ['local']);
+
+    die();
     $content = $this->deniedContent();
 
     return [
@@ -147,7 +153,8 @@ class OitController extends ControllerBase {
     if ($_SERVER["REQUEST_URI"]) {
       $clean_uri = Xss::filter($_SERVER["REQUEST_URI"]);
       $requested_path = '?destination=' . $clean_uri;
-    } else {
+    }
+    else {
       $requested_path = '';
     }
     global $base_url;
@@ -342,4 +349,5 @@ class OitController extends ControllerBase {
       '#allowed_tags' => ['svg', 'circle'],
     ];
   }
+
 }
