@@ -2,6 +2,9 @@
 
 namespace Drupal\oit\Plugin\Util;
 
+use Drupal\Core\Database\Connection;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\oit\Plugin\TeamsAlert;
 
 /**
  * Provides ability to delete old nodes by term - prev used on security notices.
@@ -15,28 +18,57 @@ namespace Drupal\oit\Plugin\Util;
 class DeleteOldTermNode {
 
   /**
+   * Run Database query.
+   *
+   * @var \Drupal\Core\Database\Connection
+   */
+  protected $connection;
+
+  /**
+   * The entity type manager.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   */
+  protected $entityTypeManager;
+
+  /**
+   * Constructs a new DeleteOldTermNode object.
+   */
+  public function __construct(
+    Connection $connection,
+    EntityTypeManagerInterface $entity_type_manager,
+    TeamsAlert $teams_alert
+  ) {
+    $this->connection = $connection;
+    $this->entityTypeManager = $entity_type_manager;
+    $this->teamsAlert = $teams_alert;
+  }
+
+  /**
    * Function to delete old node by term id.
    */
-  public function __construct($term_id, $date) {
-    $query = \Drupal::database()->select('taxonomy_index', 'ti');
+  public function update($term_id, $date) {
+    $query = $this->connection->select('taxonomy_index', 'ti');
     $query->fields('ti', ['nid']);
     $query->condition('ti.tid', $term_id, 'IN');
     $query->distinct(TRUE);
     $result = $query->execute();
     $fetch = $result->fetchCol();
-    $n = 0;
+    $updated_nid = '';
     foreach ($fetch as $nid) {
-      if ($n < 20) {
-        $node = \Drupal::entityTypeManager()->getStorage('node')->load($nid);
-        // $updated_date = $node->getChangedTime();
-        $updated_date = $node->getCreatedTime();
-        if ($date > $updated_date) {
-          $node->delete();
-          $teams = \Drupal::service('oit.teamsalert');
-          $teams->sendMessage("Deleted old node nid: $nid with term id: $term_id", ['prod']);
-        }
-        $n++;
+      $node = $this->entityTypeManager->getStorage('node')->load($nid);
+      // $updated_date = $node->getChangedTime();
+      $updated_date = $node->getCreatedTime();
+      if ($date > $updated_date) {
+        kint($nid);
+        // $node->delete();
+        $updated_nid .= "$nid, ";
       }
+    }
+    if ($updated_nid) {
+      $updated_nid = substr($updated_nid, 0, -2);
+      $teams = $this->teamsAlert;
+      $teams->sendMessage("Deleted old node nid: $updated_nid with term id: $term_id \n <b>service:</b> oit.dotn", ['local']);
     }
   }
 

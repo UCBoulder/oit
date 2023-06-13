@@ -5,3 +5,6 @@ services:
   oit.smc:
     class: Drupal\oit\Plugin\Util\ServiceMaintenanceCompletion
     arguments: ['@database', '@entity_type.manager', '@oit.teamsalert']
+  oit.dotn:
+    class: Drupal\oit\Plugin\Util\DeleteOldTermNode
+    arguments: ['@database', '@entity_type.manager', '@oit.teamsalert']

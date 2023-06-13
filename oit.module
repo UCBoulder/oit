@@ -584,7 +584,9 @@ function oit_cron() {
   $phish_cut_off = strtotime("-3 years");
   new ArchiveNews($cut_off);
   new ServiceMaintenanceCompletion();
-  new DeleteOldTermNode(849, $phish_cut_off);
+  // Delete old phishing reports that are older than 3 years.
+  $dotn = Drupal::service('oit.dotn');
+  $dotn->update(849, $phish_cut_off);
 }
 
 /**
