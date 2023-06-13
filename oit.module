@@ -584,7 +584,6 @@ function oit_cron() {
   $phish_cut_off = strtotime("-3 years");
   new ArchiveNews($cut_off);
   new ServiceMaintenanceCompletion();
-  new ServiceAlertNodeUpdate();
   new DeleteOldTermNode(849, $phish_cut_off);
 }
 
