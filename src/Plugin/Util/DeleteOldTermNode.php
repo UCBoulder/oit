@@ -32,6 +32,13 @@ class DeleteOldTermNode {
   protected $entityTypeManager;
 
   /**
+   * Send teams alert.
+   *
+   * @var \Drupal\oit\Plugin\TeamsAlert
+   */
+  protected $teamsAlert;
+
+  /**
    * Constructs a new DeleteOldTermNode object.
    */
   public function __construct(
@@ -60,15 +67,14 @@ class DeleteOldTermNode {
       // $updated_date = $node->getChangedTime();
       $updated_date = $node->getCreatedTime();
       if ($date > $updated_date) {
-        kint($nid);
-        // $node->delete();
+        $node->delete();
         $updated_nid .= "$nid, ";
       }
     }
     if ($updated_nid) {
       $updated_nid = substr($updated_nid, 0, -2);
       $teams = $this->teamsAlert;
-      $teams->sendMessage("Deleted old node nid: $updated_nid with term id: $term_id \n <b>service:</b> oit.dotn", ['local']);
+      $teams->sendMessage("Deleted old node nid: $updated_nid with term id: $term_id \n <b>service:</b> oit.dotn", ['prod']);
     }
   }
 
