@@ -2,22 +2,22 @@
 
 namespace Drupal\oit\Controller;
 
-use Drupal\Core\Url;
-use Drupal\oit\Plugin\ServiceHealth;
-use Drupal\Core\Controller\ControllerBase;
-use Drupal\Core\Session\AccountInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Drupal\Component\Utility\Xss;
-use Drupal\Core\Logger\LoggerChannelFactoryInterface;
-use Drupal\Core\PageCache\ResponsePolicy\KillSwitch;
 use Drupal\Core\Config\ConfigFactory;
+use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Datetime\DateFormatter;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Logger\LoggerChannelFactoryInterface;
+use Drupal\Core\PageCache\ResponsePolicy\KillSwitch;
+use Drupal\Core\Session\AccountInterface;
+use Drupal\Core\Url;
+use Drupal\oit\Plugin\BlockUuidQuery;
+use Drupal\oit\Plugin\ServiceHealth;
 use Drupal\shortcode_svg\Plugin\ShortcodeIcon;
 use Drupal\views\Views;
-use Drupal\oit\Plugin\BlockUuidQuery;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * Controller routines for zap routes.
@@ -130,10 +130,6 @@ class OitController extends ControllerBase {
    * Routes for zap.
    */
   public function oitDenied() {
-    $teams = \Drupal::service('oit.teamsalert');
-    $teams->sendMessage("Foo", ['local']);
-
-    die();
     $content = $this->deniedContent();
 
     return [

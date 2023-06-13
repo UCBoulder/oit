@@ -2,3 +2,6 @@ services:
   oit.teamsalert:
     class: Drupal\oit\Plugin\TeamsAlert
     arguments: ['@key.repository', '@encryption']
+  oit.smc:
+    class: Drupal\oit\Plugin\Util\ServiceMaintenanceCompletion
+    arguments: ['@database', '@entity_type.manager', '@oit.teamsalert']

@@ -2,6 +2,8 @@
 
 namespace Drupal\oit\Plugin\Util;
 
+use Drupal\Core\Database\Connection;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\oit\Plugin\TeamsAlert;
 
 /**
@@ -16,16 +18,43 @@ use Drupal\oit\Plugin\TeamsAlert;
 class ServiceMaintenanceCompletion {
 
   /**
+   * Run Database query.
+   *
+   * @var \Drupal\Core\Database\Connection
+   */
+  protected $connection;
+
+  /**
+   * The entity type manager.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   */
+  protected $entityTypeManager;
+
+  /**
+   * Send teams alert.
+   *
+   * @var \Drupal\oit\Plugin\TeamsAlert
+   */
+  protected $teamsAlert;
+
+  /**
    * Function to set to Service maintenance completed once past end date.
    */
-  public function __construct() {
-    $query = \Drupal::database()->select('node__field_service_alert_status', 'sa');
+  public function __construct(
+    Connection $connection,
+    EntityTypeManagerInterface $entity_type_manager,
+    TeamsAlert $teams_alert
+  ) {
+    $this->connection = $connection;
+    $query = $this->connection->select('node__field_service_alert_status', 'sa');
     $query->fields('sa', ['entity_id']);
     $query->condition('sa.field_service_alert_status_value', 'Service Maintenance Scheduled');
     $result = $query->execute();
     $fetch = $result->fetchCol();
     foreach ($fetch as $nid) {
-      $node = \Drupal::entityTypeManager()->getStorage('node')->load($nid);
+      $this->entityTypeManager = $entity_type_manager;
+      $node = $this->entityTypeManager->getStorage('node')->load($nid);
       $end_date = $node->get('field_service_alert_iss_resolve1')->getValue();
       $end_timestamp = strtotime($end_date[0]['value']);
       $now = time();
@@ -34,8 +63,8 @@ class ServiceMaintenanceCompletion {
         $node->set('field_sympa_send', 0);
         $node->set('field_service_alert_status', 'Service Maintenance Completed');
         $node->save();
-        $teams = new TeamsAlert();
-        $teams->sendMessage("Service maintenance set to completed. nid: $nid", ['prod']);
+        $this->TeamsAlert = $teams_alert;
+        $this->TeamsAlert->sendMessage("Service maintenance set to completed. nid: $nid", ['prod']);
       }
     }
   }
