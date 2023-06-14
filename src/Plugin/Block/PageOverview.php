@@ -49,8 +49,8 @@ class PageOverview extends BlockBase implements
    *
    * @return static
    */
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
-    return new static(
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition): self {
+    return new self(
       $configuration,
       $plugin_id,
       $plugin_definition,
@@ -168,6 +168,7 @@ class PageOverview extends BlockBase implements
         ],
       ];
     }
+    return '';
   }
 
   /**

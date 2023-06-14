@@ -2,6 +2,8 @@
 
 namespace Drupal\oit\Plugin;
 
+use Drupal\Core\Session\AccountProxyInterface;
+
 /**
  * Environment icon to be used on header title.
  *
@@ -12,6 +14,14 @@ namespace Drupal\oit\Plugin;
  * )
  */
 class EnvironmentIcon {
+
+  /**
+   * Drupal account object.
+   *
+   * @var \Drupal\Core\Session\AccountProxyInterface
+   */
+  protected $account;
+
   /**
    * Return icon for environemnt.
    *
@@ -22,10 +32,11 @@ class EnvironmentIcon {
   /**
    * Check environment and give icon accordingly.
    */
-  public function __construct() {
+  public function __construct(AccountProxyInterface $account) {
+    $this->account = $account;
     // Add icon to title per environment.
     $env = getenv('AH_SITE_ENVIRONMENT');
-    $user = \Drupal::currentUser()->getRoles();
+    $user = $this->account->getRoles();
     $env_icon = '';
     if ($env == 'local' || $env == 'LANDO') {
       $env_icon = '✅🐕 ';

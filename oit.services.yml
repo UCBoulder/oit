@@ -17,3 +17,9 @@ services:
   oit.redirect.add.analytics:
     class: Drupal\oit\Plugin\RedirectAddAnalytics
     arguments: ['@database', '@logger.factory']
+  oit.environment.icon:
+    class: Drupal\oit\Plugin\EnvironmentIcon
+    arguments: ['@current_user']
+  oit.block.uuid.query:
+    class: Drupal\oit\Plugin\BlockUuidQuery
+    arguments: ['@database', '@entity_type.manager']

@@ -22,6 +22,13 @@ class TutorialBlock extends BlockBase implements
     ContainerFactoryPluginInterface {
 
   /**
+   * Logger Factory.
+   *
+   * @var \Drupal\Core\Logger\LoggerChannelFactoryInterface
+   */
+  protected $loggerFactory;
+
+  /**
    * Invoke renderer.
    *
    * @var \Drupal\Core\Entity\EntityTypeManagerInterface
@@ -49,8 +56,8 @@ class TutorialBlock extends BlockBase implements
    *
    * @return static
    */
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
-    return new static(
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition): self {
+    return new self(
       $configuration,
       $plugin_id,
       $plugin_definition,
@@ -128,6 +135,7 @@ class TutorialBlock extends BlockBase implements
         ],
       ];
     }
+    return '';
   }
 
   /**

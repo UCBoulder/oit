@@ -17,7 +17,7 @@ class CvsToArray {
    *
    * @var array
    */
-  private $arrCvs;
+  private $arrayCvs;
 
   /**
    * Function to convert CSV into associative array.

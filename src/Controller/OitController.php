@@ -11,7 +11,6 @@ use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\PageCache\ResponsePolicy\KillSwitch;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Url;
-use Drupal\oit\Plugin\BlockUuidQuery;
 use Drupal\shortcode_svg\Plugin\ShortcodeIcon;
 use Drupal\views\Views;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -129,6 +128,13 @@ class OitController extends ControllerBase {
    * Routes for zap.
    */
   public function oitDenied() {
+    $render_query = \Drupal::service('oit.block.uuid.query');
+    $render_query->getBidByUuid('bb686d55-fe0c-41ef-8dd4-0257b0a7256a');
+    $render = $render_query->loadBlock();
+
+
+    kint($render);
+    die();
     $content = $this->deniedContent();
 
     return [
@@ -204,14 +210,18 @@ class OitController extends ControllerBase {
     $svg = new ShortcodeIcon();
     $title = $this->t('Request Portal');
     $search = '<form action="/search/cse" method="get" id="search-request" accept-charset="UTF-8" class="search" data-drupal-form-fields="edit-keys"><label for="edit-keys" class="visually-hidden form-item__label">Search</label> <input title="Enter the terms you wish to search for." placeholder="Get help with..." autocomplete="off" type="search" id="search-keys" name="keys" value="" size="15" maxlength="128" class="form-search form-item__textfield"><input data-drupal-selector="submit-search" type="submit" id="submit-search" value="Search" class="button"></form>';
-    $issue_query = new BlockUuidQuery('04d5cc3e-8b9d-4bb7-8cab-16f162cb729a');
+    $issue_query = \Drupal::service('oit.block.uuid.query');
+    $issue_query->getBidByUuid('04d5cc3e-8b9d-4bb7-8cab-16f162cb729a');
     $issue = $issue_query->loadBlock();
-    $request_query = new BlockUuidQuery('3a69be06-3b81-4a30-9996-0da3d6c45e8d');
+    $request_query = \Drupal::service('oit.block.uuid.query');
+    $request_query->getBidByUuid('3a69be06-3b81-4a30-9996-0da3d6c45e8d');
     $request = $request_query->loadBlock();
-    $cases_query = new BlockUuidQuery('f4bc74b5-ba88-4b86-86e4-58d9ce96260b');
+    $cases_query = \Drupal::service('oit.block.uuid.query');
+    $cases_query->getBidByUuid('f4bc74b5-ba88-4b86-86e4-58d9ce96260b');
     $my_cases = $cases_query->loadBlock();
 
-    $topreq_query = new BlockUuidQuery('9c8e8f57-f654-4976-a4bd-85acb21f0457');
+    $topreq_query = \Drupal::service('oit.block.uuid.query');
+    $topreq_query->getBidByUuid('9c8e8f57-f654-4976-a4bd-85acb21f0457');
     $topreq = $topreq_query->loadBlock();
     $view_id = 'request_portal';
     $display = 'block_1';

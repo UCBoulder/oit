@@ -18,12 +18,20 @@ class GoogleSheetsFetch {
    * @var string
    */
   private $fetchData;
+
   /**
    * Sheet count returned.
    *
    * @var string
    */
   private $sheetCount;
+
+  /**
+   * Get returned sheet.
+   *
+   * @var string
+   */
+  private $cvsSheet;
 
   /**
    * Fetch google sheet.
