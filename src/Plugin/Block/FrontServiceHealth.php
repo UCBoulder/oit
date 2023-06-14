@@ -2,7 +2,6 @@
 
 namespace Drupal\oit\Plugin\Block;
 
-use Drupal\oit\Plugin\ServiceHealth;
 use Drupal\Core\Block\BlockBase;
 
 /**
@@ -19,7 +18,7 @@ class FrontServiceHealth extends BlockBase {
    * {@inheritdoc}
    */
   public function build() {
-    $service_dashboard = new ServiceHealth();
+    $service_dashboard = \Drupal::service('oit.servicehealth');
     $category = $service_dashboard->serviceHealthLookup();
     krsort($category);
     $clean_category = $service_dashboard->removeDuplicates($category);

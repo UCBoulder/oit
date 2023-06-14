@@ -5,6 +5,7 @@ namespace Drupal\oit\Plugin;
 use Drupal\encrypt\Entity\EncryptionProfile;
 use Drupal\key\KeyRepositoryInterface;
 use Drupal\encrypt\EncryptServiceInterface;
+use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 
 /**
  * Environment icon to be used on header title.
@@ -52,11 +53,23 @@ class TeamsAlert {
   protected $encryptService;
 
   /**
+   * The Teams logging channel.
+   *
+   * @var \Drupal\Core\Logger\LoggerChannelInterface
+   */
+  protected $logger;
+
+  /**
    * Sets up to send message to Teams.
    */
-  public function __construct(KeyRepositoryInterface $key_repository, EncryptServiceInterface $encrypt_service) {
+  public function __construct(
+    KeyRepositoryInterface $key_repository,
+    EncryptServiceInterface $encrypt_service,
+    LoggerChannelFactoryInterface $channelFactory
+  ) {
     $this->keyRepository = $key_repository;
     $this->encryptService = $encrypt_service;
+    $this->logger = $channelFactory->get('oit');
     $key_encrypted = trim($this->keyRepository->getKey('ms_teams')->getKeyValue());
     $encryption_profile = EncryptionProfile::load('key_encryption');
     $this->teamsUrl = $this->encryptService->decrypt($key_encrypted, $encryption_profile);
@@ -89,7 +102,7 @@ class TeamsAlert {
     // Run the whole process.
     $result = curl_exec($ch);
     if ($result !== "1") {
-      \Drupal::logger('my_module')->error("Issue sending Teams Message. " . $result);
+      $this->logger->error("Issue sending Teams Message. " . $result);
     }
     // Close cURL handler.
     curl_close($ch);

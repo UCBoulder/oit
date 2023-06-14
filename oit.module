@@ -5,24 +5,21 @@
  * Module containing custom oit code.
  */
 
-use Drupal\node\NodeInterface;
-use Drupal\Core\Entity\EntityInterface;
-use Drupal\oit\Plugin\OitImageStyled;
-use Drupal\oit\Plugin\Util\ArchiveNews;
-use Drupal\oit\Plugin\Util\ServiceMaintenanceCompletion;
-use Drupal\oit\Plugin\Util\ServiceAlertNodeUpdate;
-use Drupal\oit\Plugin\Util\DeleteOldTermNode;
-use Drupal\oit\Plugin\RedirectAddAnalytics;
-use Drupal\Core\Render\BubbleableMetadata;
-use Drupal\Core\Url;
-use Drupal\Core\Link;
-use Drupal\Core\Form\FormStateInterface;
-use Drupal\Component\Utility\Xss;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Drupal\block\Entity\Block;
-use Drupal\Core\Session\AccountInterface;
+use Drupal\Component\Utility\Xss;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Cache\Cache;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Link;
+use Drupal\Core\Render\BubbleableMetadata;
+use Drupal\Core\Session\AccountInterface;
+use Drupal\Core\Url;
+use Drupal\node\NodeInterface;
+use Drupal\oit\Plugin\OitImageStyled;
+use Drupal\oit\Plugin\RedirectAddAnalytics;
+use Drupal\oit\Plugin\Util\ArchiveNews;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 /**
  * Implements hook_form_alter().
@@ -578,14 +575,17 @@ function oit_cron() {
       $node->save();
     }
     // Add analytics to redirects.
-    new RedirectAddAnalytics();
+    \Drupal::service('oit.redirect.add.analytics');
   }
+  // Archive news older than 90 days.
   $cut_off = strtotime("-90 days");
-  $phish_cut_off = strtotime("-3 years");
-  new ArchiveNews($cut_off);
-  new ServiceMaintenanceCompletion();
+  $archivenews = \Drupal::service('oit.archivenews');
+  $archivenews->archive($cut_off);
+  // Archive service maintenance past completion date.
+  \Drupal::service('oit.smc');
   // Delete old phishing reports that are older than 3 years.
-  $dotn = Drupal::service('oit.dotn');
+  $phish_cut_off = strtotime("-3 years");
+  $dotn = \Drupal::service('oit.dotn');
   $dotn->update(849, $phish_cut_off);
 }
 

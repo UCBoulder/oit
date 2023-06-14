@@ -1,10 +1,19 @@
 services:
   oit.teamsalert:
     class: Drupal\oit\Plugin\TeamsAlert
-    arguments: ['@key.repository', '@encryption']
+    arguments: ['@key.repository', '@encryption', '@logger.factory']
   oit.smc:
     class: Drupal\oit\Plugin\Util\ServiceMaintenanceCompletion
     arguments: ['@database', '@entity_type.manager', '@oit.teamsalert']
   oit.dotn:
     class: Drupal\oit\Plugin\Util\DeleteOldTermNode
     arguments: ['@database', '@entity_type.manager', '@oit.teamsalert']
+  oit.archivenews:
+    class: Drupal\oit\Plugin\Util\ArchiveNews
+    arguments: ['@database', '@entity_type.manager', '@oit.teamsalert']
+  oit.servicehealth:
+    class: Drupal\oit\Plugin\ServiceHealth
+    arguments: ['@config.factory', '@date.formatter', '@entity_type.manager']
+  oit.redirect.add.analytics:
+    class: Drupal\oit\Plugin\RedirectAddAnalytics
+    arguments: ['@database', '@logger.factory']

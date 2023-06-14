@@ -12,7 +12,6 @@ use Drupal\Core\PageCache\ResponsePolicy\KillSwitch;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Url;
 use Drupal\oit\Plugin\BlockUuidQuery;
-use Drupal\oit\Plugin\ServiceHealth;
 use Drupal\shortcode_svg\Plugin\ShortcodeIcon;
 use Drupal\views\Views;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -307,7 +306,7 @@ class OitController extends ControllerBase {
    * Service Alert dashboard page.
    */
   public function serviceAlertHealth() {
-    $service_dashboard = new ServiceHealth();
+    $service_dashboard = \Drupal::service('oit.servicehealth');
     $category = $service_dashboard->serviceHealthLookup();
     $status_key = $service_dashboard->serviceHealthStatusByKey();
     $clean_category = $service_dashboard->removeDuplicates($category);

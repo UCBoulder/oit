@@ -2,6 +2,9 @@
 
 namespace Drupal\oit\Plugin;
 
+use Drupal\Core\Database\Connection;
+use Drupal\Core\Logger\LoggerChannelFactoryInterface;
+
 /**
  * Environment icon to be used on header title.
  *
@@ -15,10 +18,29 @@ namespace Drupal\oit\Plugin;
 class RedirectAddAnalytics {
 
   /**
+   * Run Database query.
+   *
+   * @var \Drupal\Core\Database\Connection
+   */
+  protected $connection;
+
+  /**
+   * The RedirectAddAnalytics logging channel.
+   *
+   * @var \Drupal\Core\Logger\LoggerChannelInterface
+   */
+  protected $logger;
+
+  /**
    * Look for redirects missing utm code and add it.
    */
-  public function __construct() {
-    $query = \Drupal::database()->select('redirect', 'r');
+  public function __construct(
+    Connection $connection,
+    LoggerChannelFactoryInterface $channelFactory
+  ) {
+    $this->connection = $connection;
+    $this->logger = $channelFactory->get('oit');
+    $query = $this->connection->select('redirect', 'r');
     $query->fields('r', [
       'rid',
       'redirect_source__path',
@@ -30,7 +52,7 @@ class RedirectAddAnalytics {
     foreach ($redirects as $redirect) {
       $uri = $redirect->redirect_redirect__uri;
       $path = $redirect->redirect_source__path;
-      $query = \Drupal::database()->update('redirect');
+      $query = $this->connection->update('redirect');
       $query->condition('rid', $redirect->rid);
       $query->fields([
         'redirect_redirect__uri' => $uri .
@@ -40,7 +62,7 @@ class RedirectAddAnalytics {
       ]);
       $query->execute();
     }
-    \Drupal::logger('oit')->notice('Redirects updated with utm info.');
+    $this->logger->notice('Redirects updated with utm info.');
   }
 
 }
