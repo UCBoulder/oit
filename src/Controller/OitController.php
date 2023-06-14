@@ -128,13 +128,6 @@ class OitController extends ControllerBase {
    * Routes for zap.
    */
   public function oitDenied() {
-    $render_query = \Drupal::service('oit.block.uuid.query');
-    $render_query->getBidByUuid('bb686d55-fe0c-41ef-8dd4-0257b0a7256a');
-    $render = $render_query->loadBlock();
-
-
-    kint($render);
-    die();
     $content = $this->deniedContent();
 
     return [
