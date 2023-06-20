@@ -55,7 +55,7 @@ class TeamsAlert {
   /**
    * The Teams logging channel.
    *
-   * @var \Drupal\Core\Logger\LoggerChannelInterface
+   * @var \Drupal\Core\Logger\LoggerChannelFactoryInterface
    */
   protected $logger;
 
