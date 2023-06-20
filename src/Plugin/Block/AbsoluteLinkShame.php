@@ -88,13 +88,10 @@ class AbsoluteLinkShame extends BlockBase implements
       $node = $this->entityInterface->getStorage('node')->load($nid);
       $body = $node->get('body')->getString();
       if (isset($body)) {
-        $matches = [];
         preg_match('/\=[\"\']http[s]*\:\/\/oit.colorado.edu/', $body, $matches1, PREG_OFFSET_CAPTURE, 3);
         preg_match('/\=[\"\']http[s]*\:\/\/w*.?colorado.edu\/oit/', $body, $matches2, PREG_OFFSET_CAPTURE, 3);
-        $matches[0] = $matches1;
-        $matches[1] = $matches2;
-        $match = array_filter($matches);
-        if (!empty($match)) {
+        $match = !empty($matches1) || !empty($matches2) ? TRUE : FALSE;
+        if ($match) {
           $fail_img = [
             'http://i.giphy.com/pcC2u7rl89b44.gif',
             'https://media.giphy.com/media/EimNpKJpihLY4/giphy.gif',
@@ -120,8 +117,13 @@ class AbsoluteLinkShame extends BlockBase implements
           ];
         }
       }
+      return [
+        '#markup' => '',
+      ];
     }
-    return '';
+      return [
+        '#markup' => '',
+      ];
   }
 
   /**
