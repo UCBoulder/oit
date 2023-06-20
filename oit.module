@@ -436,6 +436,10 @@ function oit_token_info() {
     'name' => t("Service Alert Title"),
     'description' => t('Display the service alert title field.'),
   ];
+  $node['who_i_is'] = [
+    'name' => t("Who I Is"),
+    'description' => t('Displays users name.'),
+  ];
   return [
     'types' => ['oittoken' => $type],
     'tokens' => ['oittoken' => $node],
@@ -447,62 +451,73 @@ function oit_token_info() {
  */
 function oit_tokens($type, $tokens, array $data, array $options, BubbleableMetadata $bubbleable_metadata) {
   $replacements = [];
-  if ($type == 'oittoken' && !empty($data['node'])) {
+  if ($type == 'oittoken') {
 
     foreach ($tokens as $name => $original) {
       // Find the desired token by name.
       switch ($name) {
+        case 'who_i_is':
+          $user = \Drupal\user\Entity\User::load(\Drupal::currentUser()->id());
+          $user_name = $user->get('field_user_name')->getValue()[0]['value'];
+          $replacements[$original] = $user_name;
+          break;
         case 'tweet_pic':
-          $replacements[$original] = '';
-          if ($data['node']->getType() == 'news') {
-            $sa_image = $data['node']->get('field_news_front_image')->getValue()[0]['target_id'];
-            $sa_image_style = new OitImageStyled($sa_image, 'large');
-            $sa_image_styled = $sa_image_style->getImageUrl();
-            $replacements[$original] = $sa_image_styled;
-          }
-          if ($data['node']->getType() == 'service_alert' && count($data['node']->get('field_service_dashboard_category')->getValue()) !== 0) {
-            $set_dashboard = $data['node']->get('field_service_dashboard_category')->getValue()[0]['value'];
-            $translated_dashboard = $set_dashboard - 1;
-            $sa_dashboard = [
-              'buffportal',
-              'canvas',
-              'classcap',
-              'complab',
-              'fedauth',
-              'google',
-              'grouper',
-              'iclicker',
-              'identity',
-              'kaltura',
-              'office365',
-              'mycuinfo',
-              'network',
-              'datacenter',
-              'perscap',
-              'playposit',
-              'proctorio',
-              'qualtrics',
-              'senses',
-              'sympa',
-              'turnitin',
-              'voicethread',
-              'vpn',
-              'zoom',
-              'other',
-            ];
-            $twitter_image = "/sites/default/files/sa_images/sa_$sa_dashboard[$translated_dashboard].png";
-            $replacements[$original] = $twitter_image;
+          if (!empty($data['node'])) {
+            $replacements[$original] = '';
+            if ($data['node']->getType() == 'news') {
+              $sa_image = $data['node']->get('field_news_front_image')->getValue()[0]['target_id'];
+              $sa_image_style = new OitImageStyled($sa_image, 'large');
+              $sa_image_styled = $sa_image_style->getImageUrl();
+              $replacements[$original] = $sa_image_styled;
+            }
+            if ($data['node']->getType() == 'service_alert' && count($data['node']->get('field_service_dashboard_category')->getValue()) !== 0) {
+              $set_dashboard = $data['node']->get('field_service_dashboard_category')->getValue()[0]['value'];
+              $translated_dashboard = $set_dashboard - 1;
+              $sa_dashboard = [
+                'buffportal',
+                'canvas',
+                'classcap',
+                'complab',
+                'fedauth',
+                'google',
+                'grouper',
+                'iclicker',
+                'identity',
+                'kaltura',
+                'office365',
+                'mycuinfo',
+                'network',
+                'datacenter',
+                'perscap',
+                'playposit',
+                'proctorio',
+                'qualtrics',
+                'senses',
+                'sympa',
+                'turnitin',
+                'voicethread',
+                'vpn',
+                'zoom',
+                'other',
+              ];
+              $twitter_image = "/sites/default/files/sa_images/sa_$sa_dashboard[$translated_dashboard].png";
+              $replacements[$original] = $twitter_image;
+            }
           }
           break;
 
         case 'sa_status':
-          $sa_status = $data['node']->get('field_service_alert_status')->getValue() !== NULL ? $data['node']->get('field_service_alert_status')->getValue() : '';
-          $replacements[$original] = $sa_status[0]['value'];
+          if (!empty($data['node'])) {
+            $sa_status = $data['node']->get('field_service_alert_status')->getValue() !== NULL ? $data['node']->get('field_service_alert_status')->getValue() : '';
+            $replacements[$original] = $sa_status[0]['value'];
+          }
           break;
 
         case 'sa_title':
-          $sa_title = $data['node']->get('field_service_alert_title')->getValue() !== NULL ? $data['node']->get('field_service_alert_title')->getValue() : '';
-          $replacements[$original] = $sa_title[0]['value'];
+          if (!empty($data['node'])) {
+            $sa_title = $data['node']->get('field_service_alert_title')->getValue() !== NULL ? $data['node']->get('field_service_alert_title')->getValue() : '';
+            $replacements[$original] = $sa_title[0]['value'];
+          }
           break;
       }
     }
