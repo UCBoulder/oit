@@ -16,7 +16,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * )
  */
 class MenuAnchor extends BlockBase implements
-    ContainerFactoryPluginInterface {
+  ContainerFactoryPluginInterface {
 
   /**
    * The theme manager.

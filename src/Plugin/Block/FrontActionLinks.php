@@ -3,12 +3,12 @@
 namespace Drupal\oit\Plugin\Block;
 
 use Drupal\Core\Block\BlockBase;
-use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\views\Views;
+use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\oit\Plugin\BlockUuidQuery;
 use Drupal\shortcode_svg\Plugin\ShortcodeIcon;
+use Drupal\views\Views;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Front action links.
@@ -19,7 +19,7 @@ use Drupal\shortcode_svg\Plugin\ShortcodeIcon;
  * )
  */
 class FrontActionLinks extends BlockBase implements
-    ContainerFactoryPluginInterface {
+  ContainerFactoryPluginInterface {
 
   /**
    * Invoke renderer.
@@ -70,6 +70,8 @@ class FrontActionLinks extends BlockBase implements
    *   Plugin Definition mixed.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_interface
    *   Invokes renderer.
+   * @param \Drupal\oit\Plugin\BlockUuidQuery $block_uuid_query
+   *   Loads block.
    */
   public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_interface, BlockUuidQuery $block_uuid_query) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);

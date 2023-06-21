@@ -4,8 +4,8 @@ namespace Drupal\oit\Plugin\Block;
 
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\oit\Plugin\ServiceHealth;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Service Health block.
@@ -16,7 +16,7 @@ use Drupal\oit\Plugin\ServiceHealth;
  * )
  */
 class FrontServiceHealth extends BlockBase implements
-    ContainerFactoryPluginInterface {
+  ContainerFactoryPluginInterface {
 
   /**
    * Logger Factory.

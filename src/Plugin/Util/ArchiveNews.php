@@ -52,8 +52,7 @@ class ArchiveNews {
   }
 
   /**
-   * Function to archive news after cut off date.
-   * $cut_off is a unix timestamp.
+   * Function to archive news after cut off date. $cut_off is a unix timestamp.
    */
   public function archive($cut_off) {
     $query = $this->connection->select('node__field_news_archive', 'na');

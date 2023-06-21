@@ -2,10 +2,10 @@
 
 namespace Drupal\oit\Plugin;
 
+use Drupal\Core\Logger\LoggerChannelFactoryInterface;
+use Drupal\encrypt\EncryptServiceInterface;
 use Drupal\encrypt\Entity\EncryptionProfile;
 use Drupal\key\KeyRepositoryInterface;
-use Drupal\encrypt\EncryptServiceInterface;
-use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 
 /**
  * Environment icon to be used on header title.

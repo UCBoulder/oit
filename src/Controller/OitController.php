@@ -121,11 +121,11 @@ class OitController extends ControllerBase {
    */
   public function __construct(
     AccountInterface $account,
+    BlockUuidQuery $block_uuid_query,
     RequestStack $request_stack,
     LoggerChannelFactoryInterface $logger_factory,
     KillSwitch $killSwitch,
     ConfigFactory $config_factory,
-    BlockUuidQuery $block_uuid_query,
     ModuleExtensionList $module_extension_list,
     RendererInterface $renderer,
     ServiceHealth $service_health,
@@ -133,10 +133,10 @@ class OitController extends ControllerBase {
   ) {
     $this->account = $account;
     $this->requestStack = $request_stack;
+    $this->blockUuidQuery = $block_uuid_query;
     $this->loggerFactory = $logger_factory->get('oit');
     $this->killSwitch = $killSwitch;
     $this->configFactory = $config_factory;
-    $this->blockUuidQuery = $block_uuid_query;
     $this->moduleExtensionList = $module_extension_list;
     $this->renderer = $renderer;
     $this->serviceHealth = $service_health;
@@ -150,11 +150,11 @@ class OitController extends ControllerBase {
     $teamsAlert = $container->get('oit.teamsalert');
     return new self(
       $container->get('current_user'),
+      $container->get('oit.block.uuid.query'),
       $container->get('request_stack'),
       $container->get('logger.factory'),
       $container->get('page_cache_kill_switch'),
       $container->get('config.factory'),
-      $container->get('oit.block.uuid.query'),
       $container->get('extension.list.module'),
       $container->get('renderer'),
       $container->get('oit.servicehealth'),

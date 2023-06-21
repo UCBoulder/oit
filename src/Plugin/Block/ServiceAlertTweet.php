@@ -3,15 +3,15 @@
 namespace Drupal\oit\Plugin\Block;
 
 use Drupal\Core\Block\BlockBase;
-use Drupal\Core\Url;
+use Drupal\Core\Cache\Cache;
+use Drupal\Core\Entity\EntityTypeManager;
 use Drupal\Core\Link;
 use Drupal\Core\Path\CurrentPathStack;
-use Symfony\Component\HttpFoundation\RequestStack;
-use Drupal\Core\Entity\EntityTypeManager;
-use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Url;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\Core\Cache\Cache;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * Service Alert Tweet block.
@@ -22,7 +22,7 @@ use Drupal\Core\Cache\Cache;
  * )
  */
 class ServiceAlertTweet extends BlockBase implements
-    ContainerFactoryPluginInterface {
+  ContainerFactoryPluginInterface {
 
   /**
    * Current path injected.

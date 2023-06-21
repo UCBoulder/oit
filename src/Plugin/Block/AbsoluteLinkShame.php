@@ -121,9 +121,9 @@ class AbsoluteLinkShame extends BlockBase implements
         '#markup' => '',
       ];
     }
-      return [
-        '#markup' => '',
-      ];
+    return [
+      '#markup' => '',
+    ];
   }
 
   /**
