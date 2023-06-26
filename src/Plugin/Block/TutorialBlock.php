@@ -2,13 +2,13 @@
 
 namespace Drupal\oit\Plugin\Block;
 
-use Drupal\node\NodeInterface;
 use Drupal\Core\Block\BlockBase;
-use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Cache\Cache;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\node\NodeInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Tutorial Block.
@@ -19,7 +19,14 @@ use Drupal\Core\Cache\Cache;
  * )
  */
 class TutorialBlock extends BlockBase implements
-    ContainerFactoryPluginInterface {
+  ContainerFactoryPluginInterface {
+
+  /**
+   * Logger Factory.
+   *
+   * @var \Drupal\Core\Logger\LoggerChannelFactoryInterface
+   */
+  protected $loggerFactory;
 
   /**
    * Invoke renderer.
@@ -49,8 +56,8 @@ class TutorialBlock extends BlockBase implements
    *
    * @return static
    */
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
-    return new static(
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition): self {
+    return new self(
       $configuration,
       $plugin_id,
       $plugin_definition,
@@ -128,6 +135,7 @@ class TutorialBlock extends BlockBase implements
         ],
       ];
     }
+    return '';
   }
 
   /**

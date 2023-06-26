@@ -2,12 +2,12 @@
 
 namespace Drupal\oit\Plugin\Block;
 
-use Drupal\node\NodeInterface;
 use Drupal\Core\Block\BlockBase;
-use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\node\NodeInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Absolute link shame Block.
@@ -18,7 +18,7 @@ use Drupal\Core\Routing\RouteMatchInterface;
  * )
  */
 class AbsoluteLinkShame extends BlockBase implements
-    ContainerFactoryPluginInterface {
+  ContainerFactoryPluginInterface {
 
   /**
    * Invoke renderer.
@@ -48,8 +48,8 @@ class AbsoluteLinkShame extends BlockBase implements
    *
    * @return static
    */
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
-    return new static(
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition): self {
+    return new self(
       $configuration,
       $plugin_id,
       $plugin_definition,
@@ -88,10 +88,10 @@ class AbsoluteLinkShame extends BlockBase implements
       $node = $this->entityInterface->getStorage('node')->load($nid);
       $body = $node->get('body')->getString();
       if (isset($body)) {
-        preg_match('/\=[\"\']http[s]*\:\/\/oit.colorado.edu/', $body, $matches[], PREG_OFFSET_CAPTURE, 3);
-        preg_match('/\=[\"\']http[s]*\:\/\/w*.?colorado.edu\/oit/', $body, $matches[], PREG_OFFSET_CAPTURE, 3);
-        $match = array_filter($matches);
-        if (!empty($match)) {
+        preg_match('/\=[\"\']http[s]*\:\/\/oit.colorado.edu/', $body, $matches1, PREG_OFFSET_CAPTURE, 3);
+        preg_match('/\=[\"\']http[s]*\:\/\/w*.?colorado.edu\/oit/', $body, $matches2, PREG_OFFSET_CAPTURE, 3);
+        $match = !empty($matches1) || !empty($matches2) ? TRUE : FALSE;
+        if ($match) {
           $fail_img = [
             'http://i.giphy.com/pcC2u7rl89b44.gif',
             'https://media.giphy.com/media/EimNpKJpihLY4/giphy.gif',
@@ -117,7 +117,13 @@ class AbsoluteLinkShame extends BlockBase implements
           ];
         }
       }
+      return [
+        '#markup' => '',
+      ];
     }
+    return [
+      '#markup' => '',
+    ];
   }
 
   /**

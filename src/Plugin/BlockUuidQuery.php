@@ -3,9 +3,11 @@
 namespace Drupal\oit\Plugin;
 
 use Drupal\block_content\Entity\BlockContent;
+use Drupal\Core\Database\Connection;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 
 /**
- * Environment icon to be used on header title.
+ * Load block by uuid.
  *
  * @BlockUuidQuery(
  *   id = "blockuuidquery",
@@ -14,18 +16,41 @@ use Drupal\block_content\Entity\BlockContent;
  * )
  */
 class BlockUuidQuery {
+
   /**
-   * Return icon for environemnt.
+   * Run Database query.
+   *
+   * @var \Drupal\Core\Database\Connection
+   */
+  protected $connection;
+
+  /**
+   * Return block id.
    *
    * @var string
    */
   private $bid;
 
   /**
+   * The entity type manager.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   */
+  protected $entityTypeManager;
+
+  /**
+   * Construct object.
+   */
+  public function __construct(Connection $connection, EntityTypeManagerInterface $entity_type_manager) {
+    $this->connection = $connection;
+    $this->entityTypeManager = $entity_type_manager;
+  }
+
+  /**
    * Query block and pull bid via uuid.
    */
-  public function __construct($uuid) {
-    $query = \Drupal::database()->select('block_content', 'bc');
+  public function getBidByUuid($uuid) {
+    $query = $this->connection->select('block_content', 'bc');
     $query->fields('bc', ['id']);
     $query->condition('bc.uuid', $uuid);
     $results = $query->execute();
@@ -38,7 +63,7 @@ class BlockUuidQuery {
    */
   public function loadBlock() {
     $block = BlockContent::load($this->bid);
-    return \Drupal::entityTypeManager()->getViewBuilder('block_content')->view($block);
+    return $this->entityTypeManager->getViewBuilder('block_content')->view($block);
   }
 
 }

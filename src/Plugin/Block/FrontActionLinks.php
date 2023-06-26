@@ -3,12 +3,12 @@
 namespace Drupal\oit\Plugin\Block;
 
 use Drupal\Core\Block\BlockBase;
-use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\views\Views;
-use Drupal\shortcode_svg\Plugin\ShortcodeIcon;
+use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\oit\Plugin\BlockUuidQuery;
+use Drupal\shortcode_svg\Plugin\ShortcodeIcon;
+use Drupal\views\Views;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Front action links.
@@ -19,7 +19,14 @@ use Drupal\oit\Plugin\BlockUuidQuery;
  * )
  */
 class FrontActionLinks extends BlockBase implements
-    ContainerFactoryPluginInterface {
+  ContainerFactoryPluginInterface {
+
+  /**
+   * Invoke renderer.
+   *
+   * @var \Drupal\oit\Plugin\BlockUuidQuery
+   */
+  protected $blockUuidQuery;
 
   /**
    * Invoke renderer.
@@ -42,12 +49,13 @@ class FrontActionLinks extends BlockBase implements
    *
    * @return static
    */
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
-    return new static(
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition): self {
+    return new self(
       $configuration,
       $plugin_id,
       $plugin_definition,
       $container->get('entity_type.manager'),
+      $container->get('oit.block.uuid.query'),
     );
   }
 
@@ -62,10 +70,13 @@ class FrontActionLinks extends BlockBase implements
    *   Plugin Definition mixed.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_interface
    *   Invokes renderer.
+   * @param \Drupal\oit\Plugin\BlockUuidQuery $block_uuid_query
+   *   Loads block.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_interface) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_interface, BlockUuidQuery $block_uuid_query) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->entityInterface = $entity_interface;
+    $this->blockUuidQuery = $block_uuid_query;
   }
 
   /**
@@ -77,7 +88,8 @@ class FrontActionLinks extends BlockBase implements
     $count = $view->query->query()->countQuery()->execute()->fetchAssoc();
     $count = $count['expression'];
     $icon = new ShortcodeIcon();
-    $render_query = new BlockUuidQuery('bb686d55-fe0c-41ef-8dd4-0257b0a7256a');
+    $render_query = $this->blockUuidQuery;
+    $render_query->getBidByUuid('bb686d55-fe0c-41ef-8dd4-0257b0a7256a');
     $render = $render_query->loadBlock();
     return [
       '#type' => 'inline_template',

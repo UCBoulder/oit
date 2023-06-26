@@ -2,8 +2,10 @@
 
 namespace Drupal\oit\Plugin\Block;
 
-use Drupal\oit\Plugin\ServiceHealth;
 use Drupal\Core\Block\BlockBase;
+use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\oit\Plugin\ServiceHealth;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Service Health block.
@@ -13,13 +15,61 @@ use Drupal\Core\Block\BlockBase;
  *   admin_label = @Translation("Service Health front page block")
  * )
  */
-class FrontServiceHealth extends BlockBase {
+class FrontServiceHealth extends BlockBase implements
+  ContainerFactoryPluginInterface {
+
+  /**
+   * Logger Factory.
+   *
+   * @var \Drupal\oit\Plugin\ServiceHealth
+   */
+  protected $serviceHealth;
+
+  /**
+   * {@inheritdoc}
+   *
+   * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
+   *   Container pulled in.
+   * @param array $configuration
+   *   Configuration added.
+   * @param string $plugin_id
+   *   Plugin_id added.
+   * @param mixed $plugin_definition
+   *   Plugin_definition added.
+   *
+   * @return static
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition): self {
+    return new self(
+      $configuration,
+      $plugin_id,
+      $plugin_definition,
+      $container->get('oit.servicehealth'),
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   *
+   * @param array $configuration
+   *   Configuration array.
+   * @param string $plugin_id
+   *   Plugin id string.
+   * @param mixed $plugin_definition
+   *   Plugin Definition mixed.
+   * @param \Drupal\Core\Entity\ServiceHealth $service_health
+   *   Invokes renderer.
+   */
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, ServiceHealth $service_health) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition);
+    $this->serviceHealth = $service_health;
+  }
 
   /**
    * {@inheritdoc}
    */
   public function build() {
-    $service_dashboard = new ServiceHealth();
+    $service_dashboard = $this->serviceHealth;
     $category = $service_dashboard->serviceHealthLookup();
     krsort($category);
     $clean_category = $service_dashboard->removeDuplicates($category);

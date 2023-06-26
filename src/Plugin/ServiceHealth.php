@@ -2,8 +2,11 @@
 
 namespace Drupal\oit\Plugin;
 
-use Drupal\Core\Url;
+use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Datetime\DateFormatterInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Link;
+use Drupal\Core\Url;
 
 /**
  * Current service health.
@@ -17,9 +20,37 @@ use Drupal\Core\Link;
 class ServiceHealth {
 
   /**
+   * Config factory.
+   *
+   * @var \Drupal\Core\Config\ConfigFactoryInterface
+   */
+  protected $configFactory;
+
+  /**
+   * Date formatter service object.
+   *
+   * @var \Drupal\Core\Datetime\DateFormatterInterface
+   */
+  protected $dateFormatter;
+
+  /**
+   * The entity type manager.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   */
+  protected $entityTypeManager;
+
+  /**
    * Constructs request stuff.
    */
-  public function __construct() {
+  public function __construct(
+    ConfigFactoryInterface $config_factory,
+    DateFormatterInterface $dateFormatter,
+    EntityTypeManagerInterface $entity_type_manager,
+  ) {
+    $this->configFactory = $config_factory;
+    $this->dateFormatter = $dateFormatter;
+    $this->entityTypeManager = $entity_type_manager;
   }
 
   /**
@@ -30,7 +61,7 @@ class ServiceHealth {
     $entityType = 'node';
     $bundle = 'service_alert';
     $fieldName = 'field_service_dashboard_category';
-    $service_alert_dashboard_field = \Drupal::configFactory()->getEditable("field.storage.$entityType.$fieldName");
+    $service_alert_dashboard_field = $this->configFactory->getEditable("field.storage.$entityType.$fieldName");
     $settings = $service_alert_dashboard_field->get('settings');
     // List of categories.
     $dashboard_categories = $settings['allowed_values'];
@@ -40,8 +71,9 @@ class ServiceHealth {
       $dashboard_category = $dashboard_category['label'];
       // Setup array with proper key with category.
       $sa_dashboard_key_category[$dashboard_category_key] = $dashboard_category;
-      $entity_storage = \Drupal::entityTypeManager()->getStorage('node');
+      $entity_storage = $this->entityTypeManager->getStorage('node');
       $query = $entity_storage->getQuery()
+        ->accessCheck(FALSE)
         ->condition('type', $bundle)
         ->condition($fieldName, $dashboard_category_key)
         ->sort('created', 'DESC');
@@ -57,12 +89,12 @@ class ServiceHealth {
       }
       else {
         foreach ($results as $result) {
-          $node_storage = \Drupal::entityTypeManager()->getStorage($entityType);
+          $node_storage = $this->entityTypeManager->getStorage($entityType);
           $sa = $node_storage->load($result);
           $sa_button = $this->nidLink($result, $this->t('View'), ['button']);
           $sa_link = $this->nidLink($result, $dashboard_category . ' - ' . $this->t('View Service Alert'), ['text-color--blue']);
           $created = $sa->get('created')->value;
-          $timeago = \Drupal::service('date.formatter')->formatTimeDiffSince($created);
+          $timeago = $this->dateFormatter->formatTimeDiffSince($created);
           $timeago .= " " . $this->t('ago');
           $status = $sa->get('field_service_alert_status')->value;
           if ($status == 'Service Issue Reported' || $status == 'Service Issue Updated') {

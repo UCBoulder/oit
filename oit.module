@@ -5,23 +5,21 @@
  * Module containing custom oit code.
  */
 
-use Drupal\Core\Entity\EntityInterface;
-use Drupal\oit\Plugin\OitImageStyled;
-use Drupal\oit\Plugin\Util\ArchiveNews;
-use Drupal\oit\Plugin\Util\ServiceMaintenanceCompletion;
-use Drupal\oit\Plugin\Util\ServiceAlertNodeUpdate;
-use Drupal\oit\Plugin\Util\DeleteOldTermNode;
-use Drupal\oit\Plugin\RedirectAddAnalytics;
-use Drupal\Core\Render\BubbleableMetadata;
-use Drupal\Core\Url;
-use Drupal\Core\Link;
-use Drupal\Core\Form\FormStateInterface;
-use Drupal\Component\Utility\Xss;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Drupal\block\Entity\Block;
-use Drupal\Core\Session\AccountInterface;
+use Drupal\Component\Utility\Xss;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Cache\Cache;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Link;
+use Drupal\Core\Render\BubbleableMetadata;
+use Drupal\Core\Session\AccountInterface;
+use Drupal\Core\Url;
+use Drupal\node\NodeInterface;
+use Drupal\oit\Plugin\OitImageStyled;
+use Drupal\oit\Plugin\RedirectAddAnalytics;
+use Drupal\oit\Plugin\Util\ArchiveNews;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 /**
  * Implements hook_form_alter().
@@ -261,7 +259,7 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
       }
       break;
 
-      // Imported from zap_initialize.
+    // Imported from zap_initialize.
     case 'node_webform_form':
     case 'node_webform_edit_form':
       $form['oit_webform_extras'] = [
@@ -439,6 +437,10 @@ function oit_token_info() {
     'name' => t("Service Alert Title"),
     'description' => t('Display the service alert title field.'),
   ];
+  $node['who_i_is'] = [
+    'name' => t("Who I Is"),
+    'description' => t('Displays users name.'),
+  ];
   return [
     'types' => ['oittoken' => $type],
     'tokens' => ['oittoken' => $node],
@@ -450,62 +452,73 @@ function oit_token_info() {
  */
 function oit_tokens($type, $tokens, array $data, array $options, BubbleableMetadata $bubbleable_metadata) {
   $replacements = [];
-  if ($type == 'oittoken' && !empty($data['node'])) {
+  if ($type == 'oittoken') {
 
     foreach ($tokens as $name => $original) {
       // Find the desired token by name.
       switch ($name) {
+        case 'who_i_is':
+          $user = \Drupal\user\Entity\User::load(\Drupal::currentUser()->id());
+          $user_name = $user->get('field_user_name')->getValue()[0]['value'];
+          $replacements[$original] = $user_name;
+          break;
         case 'tweet_pic':
-          $replacements[$original] = '';
-          if ($data['node']->getType() == 'news') {
-            $sa_image = $data['node']->get('field_news_front_image')->getValue()[0]['target_id'];
-            $sa_image_style = new OitImageStyled($sa_image, 'large');
-            $sa_image_styled = $sa_image_style->getImageUrl();
-            $replacements[$original] = $sa_image_styled;
-          }
-          if ($data['node']->getType() == 'service_alert' && count($data['node']->get('field_service_dashboard_category')->getValue()) !== 0) {
-            $set_dashboard = $data['node']->get('field_service_dashboard_category')->getValue()[0]['value'];
-            $translated_dashboard = $set_dashboard - 1;
-            $sa_dashboard = [
-              'buffportal',
-              'canvas',
-              'classcap',
-              'complab',
-              'fedauth',
-              'google',
-              'grouper',
-              'iclicker',
-              'identity',
-              'kaltura',
-              'office365',
-              'mycuinfo',
-              'network',
-              'datacenter',
-              'perscap',
-              'playposit',
-              'proctorio',
-              'qualtrics',
-              'senses',
-              'sympa',
-              'turnitin',
-              'voicethread',
-              'vpn',
-              'zoom',
-              'other',
-            ];
-            $twitter_image = "/sites/default/files/sa_images/sa_$sa_dashboard[$translated_dashboard].png";
-            $replacements[$original] = $twitter_image;
+          if (!empty($data['node'])) {
+            $replacements[$original] = '';
+            if ($data['node']->getType() == 'news') {
+              $sa_image = $data['node']->get('field_news_front_image')->getValue()[0]['target_id'];
+              $sa_image_style = new OitImageStyled($sa_image, 'large');
+              $sa_image_styled = $sa_image_style->getImageUrl();
+              $replacements[$original] = $sa_image_styled;
+            }
+            if ($data['node']->getType() == 'service_alert' && count($data['node']->get('field_service_dashboard_category')->getValue()) !== 0) {
+              $set_dashboard = $data['node']->get('field_service_dashboard_category')->getValue()[0]['value'];
+              $translated_dashboard = $set_dashboard - 1;
+              $sa_dashboard = [
+                'buffportal',
+                'canvas',
+                'classcap',
+                'complab',
+                'fedauth',
+                'google',
+                'grouper',
+                'iclicker',
+                'identity',
+                'kaltura',
+                'office365',
+                'mycuinfo',
+                'network',
+                'datacenter',
+                'perscap',
+                'playposit',
+                'proctorio',
+                'qualtrics',
+                'senses',
+                'sympa',
+                'turnitin',
+                'voicethread',
+                'vpn',
+                'zoom',
+                'other',
+              ];
+              $twitter_image = "/sites/default/files/sa_images/sa_$sa_dashboard[$translated_dashboard].png";
+              $replacements[$original] = $twitter_image;
+            }
           }
           break;
 
         case 'sa_status':
-          $sa_status = $data['node']->get('field_service_alert_status')->getValue() !== NULL ? $data['node']->get('field_service_alert_status')->getValue() : '';
-          $replacements[$original] = $sa_status[0]['value'];
+          if (!empty($data['node'])) {
+            $sa_status = $data['node']->get('field_service_alert_status')->getValue() !== NULL ? $data['node']->get('field_service_alert_status')->getValue() : '';
+            $replacements[$original] = $sa_status[0]['value'];
+          }
           break;
 
         case 'sa_title':
-          $sa_title = $data['node']->get('field_service_alert_title')->getValue() !== NULL ? $data['node']->get('field_service_alert_title')->getValue() : '';
-          $replacements[$original] = $sa_title[0]['value'];
+          if (!empty($data['node'])) {
+            $sa_title = $data['node']->get('field_service_alert_title')->getValue() !== NULL ? $data['node']->get('field_service_alert_title')->getValue() : '';
+            $replacements[$original] = $sa_title[0]['value'];
+          }
           break;
       }
     }
@@ -571,20 +584,25 @@ function oit_cron() {
       // toggle the sticky checkbox to make this work.
       if ($node->isSticky()) {
         $node->setSticky(FALSE);
-      } else {
+      }
+      else {
         $node->setSticky(TRUE);
       }
       $node->save();
     }
     // Add analytics to redirects.
-    new RedirectAddAnalytics();
+    \Drupal::service('oit.redirect.add.analytics');
   }
+  // Archive news older than 90 days.
   $cut_off = strtotime("-90 days");
+  $archivenews = \Drupal::service('oit.archivenews');
+  $archivenews->archive($cut_off);
+  // Archive service maintenance past completion date.
+  \Drupal::service('oit.smc');
+  // Delete old phishing reports that are older than 3 years.
   $phish_cut_off = strtotime("-3 years");
-  new ArchiveNews($cut_off);
-  new ServiceMaintenanceCompletion();
-  new ServiceAlertNodeUpdate();
-  new DeleteOldTermNode(849, $phish_cut_off);
+  $dotn = \Drupal::service('oit.dotn');
+  $dotn->update(849, $phish_cut_off);
 }
 
 /**
@@ -766,6 +784,15 @@ function oit_menu_local_tasks_alter(&$data, $route_name) {
  * Implements hook_block_access().
  */
 function oit_block_access(Block $block, $operation, AccountInterface $account) {
+  // Forbid access to unpublished block on published nodes.
+  if ($block->getPluginId() == 'block_content:b64c8b8f-40f5-492b-9cd9-4261baee0cfd') {
+    $node = \Drupal::routeMatch()->getParameter('node');
+    if ($node instanceof NodeInterface) {
+      if ($node->isPublished()) {
+        return AccessResult::forbidden();
+      }
+    }
+  }
   if ($block->id() == 'mainnavigation') {
     $node = \Drupal::routeMatch()->getParameter('node');
     if (!is_string($node) && isset($node)) {

@@ -2,8 +2,8 @@
 
 namespace Drupal\oit\Plugin;
 
-use Drupal\image\Entity\ImageStyle;
 use Drupal\file\Entity\File;
+use Drupal\image\Entity\ImageStyle;
 
 /**
  * Environment icon to be used on header title.
