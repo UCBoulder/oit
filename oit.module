@@ -17,9 +17,37 @@ use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Url;
 use Drupal\node\NodeInterface;
 use Drupal\oit\Plugin\OitImageStyled;
-use Drupal\oit\Plugin\RedirectAddAnalytics;
-use Drupal\oit\Plugin\Util\ArchiveNews;
+use Drupal\user\Entity\User;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+
+/**
+ * Implements hook_preprocess_HOOK().
+ */
+function oit_preprocess_html(&$variables) {
+  $theme = \Drupal::service('theme.manager')->getActiveTheme()->getName();
+  if ($theme == 'gin') {
+    $title = $variables['head_title'];
+    $getEnv = \Drupal::service('oit.environment.icon');
+    $variables['head_title'] = $getEnv->getEnv() . ' ' . $title['title']->__toString() . ' | ' . $title['name'];
+  }
+}
+
+/**
+ *
+ */
+function oit_preprocess(&$variables, $hook) {
+  $theme = \Drupal::service('theme.manager')->getActiveTheme()->getName();
+  if ($theme == 'gin') {
+    $form_id = $variables['form']['#id'] ?? '';
+    $current_path = \Drupal::service('path.current')->getPath();
+    if ($current_path == '/node/add') {
+      $variables['#attached']['library'][] = 'oit/gingerbread';
+    }
+    if ($form_id == 'node-tutorial-form' || $form_id == 'node-tutorial-edit-form') {
+      $variables['#attached']['library'][] = 'oit/gin_select';
+    }
+  }
+}
 
 /**
  * Implements hook_form_alter().
@@ -458,10 +486,11 @@ function oit_tokens($type, $tokens, array $data, array $options, BubbleableMetad
       // Find the desired token by name.
       switch ($name) {
         case 'who_i_is':
-          $user = \Drupal\user\Entity\User::load(\Drupal::currentUser()->id());
+          $user = User::load(\Drupal::currentUser()->id());
           $user_name = $user->get('field_user_name')->getValue()[0]['value'];
           $replacements[$original] = $user_name;
           break;
+
         case 'tweet_pic':
           if (!empty($data['node'])) {
             $replacements[$original] = '';
