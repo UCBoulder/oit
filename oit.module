@@ -26,9 +26,10 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 function oit_preprocess_html(&$variables) {
   $theme = \Drupal::service('theme.manager')->getActiveTheme()->getName();
   if ($theme == 'gin') {
-    $title = $variables['head_title'];
+    $title[0] = $variables['head_title']['name'] ?? '';
+    $title[1] = isset($variables['head_title']['title']) ? $variables['head_title']['title']->__toString() : '';
     $getEnv = \Drupal::service('oit.environment.icon');
-    $variables['head_title'] = $getEnv->getEnv() . ' ' . $title['title']->__toString() . ' | ' . $title['name'];
+    $variables['head_title'] = $getEnv->getEnv() . ' ' . $title[1] . ' | ' . $title[0];
   }
 }
 
