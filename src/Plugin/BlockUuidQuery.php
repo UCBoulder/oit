@@ -2,7 +2,6 @@
 
 namespace Drupal\oit\Plugin;
 
-use Drupal\block_content\Entity\BlockContent;
 use Drupal\Core\Database\Connection;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 
@@ -62,7 +61,7 @@ class BlockUuidQuery {
    * Return block.
    */
   public function loadBlock() {
-    $block = BlockContent::load($this->bid);
+    $block = $this->entityTypeManager->getStorage('block')->load($this->bid);
     return $this->entityTypeManager->getViewBuilder('block_content')->view($block);
   }
 

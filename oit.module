@@ -17,8 +17,7 @@ use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Url;
 use Drupal\node\NodeInterface;
 use Drupal\oit\Plugin\OitImageStyled;
-use Drupal\oit\Plugin\RedirectAddAnalytics;
-use Drupal\oit\Plugin\Util\ArchiveNews;
+use Drupal\user\Entity\User;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
 /**
@@ -458,10 +457,11 @@ function oit_tokens($type, $tokens, array $data, array $options, BubbleableMetad
       // Find the desired token by name.
       switch ($name) {
         case 'who_i_is':
-          $user = \Drupal\user\Entity\User::load(\Drupal::currentUser()->id());
+          $user = User::load(\Drupal::currentUser()->id());
           $user_name = $user->get('field_user_name')->getValue()[0]['value'];
           $replacements[$original] = $user_name;
           break;
+
         case 'tweet_pic':
           if (!empty($data['node'])) {
             $replacements[$original] = '';

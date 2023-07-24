@@ -5,8 +5,8 @@
  * Install, update and uninstall functions for the sympa_initialize module.
  */
 
-use Drupal\menu_link_content\Entity\MenuLinkContent;
 use Drupal\Component\Utility\Random;
+use Drupal\menu_link_content\Entity\MenuLinkContent;
 use Drupal\user\Entity\User;
 
 /**
