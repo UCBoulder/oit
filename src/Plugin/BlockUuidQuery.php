@@ -61,7 +61,7 @@ class BlockUuidQuery {
    * Return block.
    */
   public function loadBlock() {
-    $block = $this->entityTypeManager->getStorage('block')->load($this->bid);
+    $block = $this->entityTypeManager->getStorage('block_content')->load($this->bid);
     return $this->entityTypeManager->getViewBuilder('block_content')->view($block);
   }
 
