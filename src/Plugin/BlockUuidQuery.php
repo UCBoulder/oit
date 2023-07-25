@@ -29,7 +29,7 @@ class BlockUuidQuery {
    *
    * @var string
    */
-  private $bid;
+  protected $bid;
 
   /**
    * The entity type manager.
@@ -62,7 +62,7 @@ class BlockUuidQuery {
    * Return block.
    */
   public function loadBlock() {
-    $block = BlockContent::load($this->bid);
+    $block = $this->entityTypeManager->getStorage('block_content')->load($this->bid);
     return $this->entityTypeManager->getViewBuilder('block_content')->view($block);
   }
 
