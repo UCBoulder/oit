@@ -714,7 +714,7 @@ function oit_news_update($entity) {
  * Set twitter image and dashboard ordering.
  */
 function oit_servicealert_update($entity) {
-  $meta_info = !empty($entity->get('field_meta_tags')->getValue()) ? unserialize($entity->get('field_meta_tags')->getValue()[0]['value'], ['allowed_classes' => FALSE]) : [];
+  $meta_info = json_decode($entity->get('field_meta_tags')->getValue()[0]['value']) ?? [];
   if (!isset($meta_info->twitter_cards_image) || !isset($meta_info->og_image)) {
     $meta_info["twitter_cards_type"] = "summary";
     $set_dashboard = $entity->get('field_service_dashboard_category')->getValue()[0]['value'];
@@ -748,13 +748,20 @@ function oit_servicealert_update($entity) {
     ];
     $host = \Drupal::request()->getSchemeAndHttpHost();
     $social_image = "$host/sites/default/files/sa_images/sa_$sa_dashboard[$translated_dashboard].png";
+    $meta = [];
     if (!isset($meta_info->twitter_cards_image) || $meta_info->twitter_cards_image != NULL) {
-      $meta_info->twitter_cards_image = $social_image;
+      $meta['twitter_cards_image'] = $social_image;
+    }
+    else {
+      $meta['twitter_cards_image'] = $meta_info->twitter_cards_image;
     }
     if (!isset($meta_info->og_image) || $meta_info->og_image != NULL) {
-      $meta_info->og_image = $social_image;
+      $meta['og_image'] = $social_image;
     }
-    $meta_serial = serialize($meta_info);
+    else {
+      $meta['og_image'] = $meta_info->og_image;
+    }
+    $meta_serial = serialize($meta);
     $entity->set('field_meta_tags', $meta_serial);
   }
 }
