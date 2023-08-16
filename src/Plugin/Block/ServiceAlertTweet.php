@@ -114,7 +114,7 @@ class ServiceAlertTweet extends BlockBase implements
     $current_path = $this->currentPathStack->getPath();
     $tweet = urlencode($node_title . ' ' . $host . $current_path);
     $url = Url::fromUri('https://twitter.com/intent/tweet?text=' . $tweet);
-    $external_link = Link::fromTextAndUrl($this->t('Tweet'), $url)->toString();
+    $external_link = Link::fromTextAndUrl($this->t('𝕏'), $url)->toString();
     return [
       '#markup' => $external_link,
     ];

@@ -96,6 +96,13 @@ class OitController extends ControllerBase {
   protected $entityTypeManager;
 
   /**
+   * Call shortcode svg icon.
+   *
+   * @var \Drupal\shortcode_svg\Plugin\ShortcodeIcon
+   */
+  protected $shortcodeSvgIcon;
+
+  /**
    * Constructs request stuff.
    *
    * @param \Drupal\Core\Session\AccountInterface $account
@@ -118,6 +125,8 @@ class OitController extends ControllerBase {
    *   Load service health.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   Load entity.
+   * @param \Drupal\shortcode_svg\Plugin\ShortcodeIcon $shortcode_svg_icon
+   *   Call shortcode svg icon.
    */
   public function __construct(
     AccountInterface $account,
@@ -129,7 +138,8 @@ class OitController extends ControllerBase {
     ModuleExtensionList $module_extension_list,
     RendererInterface $renderer,
     ServiceHealth $service_health,
-    EntityTypeManagerInterface $entity_type_manager
+    EntityTypeManagerInterface $entity_type_manager,
+    ShortcodeIcon $shortcode_svg_icon
   ) {
     $this->account = $account;
     $this->requestStack = $request_stack;
@@ -141,13 +151,13 @@ class OitController extends ControllerBase {
     $this->renderer = $renderer;
     $this->serviceHealth = $service_health;
     $this->entityTypeManager = $entity_type_manager;
+    $this->shortcodeSvgIcon = $shortcode_svg_icon;
   }
 
   /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container): self {
-    $teamsAlert = $container->get('oit.teamsalert');
     return new self(
       $container->get('current_user'),
       $container->get('oit.block.uuid.query'),
@@ -159,7 +169,7 @@ class OitController extends ControllerBase {
       $container->get('renderer'),
       $container->get('oit.servicehealth'),
       $container->get('entity_type.manager'),
-      $teamsAlert
+      $container->get('shortcode_svg.icon')
     );
   }
 
@@ -239,7 +249,7 @@ class OitController extends ControllerBase {
    * Request Portal page.
    */
   public function requestPortal() {
-    $svg = new ShortcodeIcon();
+    $svg = $this->shortcodeSvgIcon;
     $title = $this->t('Request Portal');
     $search = '<form action="/search/cse" method="get" id="search-request" accept-charset="UTF-8" class="search" data-drupal-form-fields="edit-keys"><label for="edit-keys" class="visually-hidden form-item__label">Search</label> <input title="Enter the terms you wish to search for." placeholder="Get help with..." autocomplete="off" type="search" id="search-keys" name="keys" value="" size="15" maxlength="128" class="form-search form-item__textfield"><input data-drupal-selector="submit-search" type="submit" id="submit-search" value="Search" class="button"></form>';
     $issue_query = $this->blockUuidQuery;

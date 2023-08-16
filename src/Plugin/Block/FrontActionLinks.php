@@ -36,6 +36,13 @@ class FrontActionLinks extends BlockBase implements
   protected $entityInterface;
 
   /**
+   * Call shortcode svg icon.
+   *
+   * @var \Drupal\shortcode_svg\Plugin\ShortcodeIcon
+   */
+  protected $shortcodeSvgIcon;
+
+  /**
    * {@inheritdoc}
    *
    * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
@@ -56,6 +63,7 @@ class FrontActionLinks extends BlockBase implements
       $plugin_definition,
       $container->get('entity_type.manager'),
       $container->get('oit.block.uuid.query'),
+      $container->get('shortcode_svg.icon')
     );
   }
 
@@ -72,11 +80,21 @@ class FrontActionLinks extends BlockBase implements
    *   Invokes renderer.
    * @param \Drupal\oit\Plugin\BlockUuidQuery $block_uuid_query
    *   Loads block.
+   * @param \Drupal\shortcode_svg\Plugin\ShortcodeIcon $shortcode_svg_icon
+   *   Call shortcode svg icon.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_interface, BlockUuidQuery $block_uuid_query) {
+  public function __construct(
+    array $configuration,
+    $plugin_id,
+    $plugin_definition,
+    EntityTypeManagerInterface $entity_interface,
+    BlockUuidQuery $block_uuid_query,
+    ShortcodeIcon $shortcode_svg_icon
+  ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->entityInterface = $entity_interface;
     $this->blockUuidQuery = $block_uuid_query;
+    $this->shortcodeSvgIcon = $shortcode_svg_icon;
   }
 
   /**
@@ -87,7 +105,7 @@ class FrontActionLinks extends BlockBase implements
     $view->build('block_1');
     $count = $view->query->query()->countQuery()->execute()->fetchAssoc();
     $count = $count['expression'];
-    $icon = new ShortcodeIcon();
+    $icon = $this->shortcodeSvgIcon;
     $render_query = $this->blockUuidQuery;
     $render_query->getBidByUuid('bb686d55-fe0c-41ef-8dd4-0257b0a7256a');
     $render = $render_query->loadBlock();
