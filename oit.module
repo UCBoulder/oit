@@ -125,7 +125,6 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
 
     case "node_page_form":
     case "node_page_edit_form":
-      $form['#attached']['library'][] = 'admino/form';
       // Group for page sub-type extra fields.
       $form['page_extras'] = [
         '#title' => t('Page Extras'),
