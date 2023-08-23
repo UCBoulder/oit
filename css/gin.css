@@ -1,0 +1,4 @@
+.admin-item #basic-page-desc ul {
+  position: relative;
+  z-index: 100;
+}

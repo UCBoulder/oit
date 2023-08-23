@@ -21,6 +21,36 @@ use Drupal\user\Entity\User;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
 /**
+ * Implements hook_preprocess_HOOK().
+ */
+function oit_preprocess_html(&$variables) {
+  $theme = \Drupal::service('theme.manager')->getActiveTheme()->getName();
+  if ($theme == 'gin') {
+    $title[0] = $variables['head_title']['name'] ?? '';
+    $title[1] = isset($variables['head_title']['title']) ? $variables['head_title']['title']->__toString() : '';
+    $getEnv = \Drupal::service('oit.environment.icon');
+    $variables['head_title'] = $getEnv->getEnv() . ' ' . $title[1] . ' | ' . $title[0];
+  }
+}
+
+/**
+ *
+ */
+function oit_preprocess(&$variables, $hook) {
+  $theme = \Drupal::service('theme.manager')->getActiveTheme()->getName();
+  if ($theme == 'gin') {
+    $form_id = $variables['form']['#id'] ?? '';
+    $current_path = \Drupal::service('path.current')->getPath();
+    if ($current_path == '/node/add') {
+      $variables['#attached']['library'][] = 'oit/gingerbread';
+    }
+    if ($form_id == 'node-tutorial-form' || $form_id == 'node-tutorial-edit-form') {
+      $variables['#attached']['library'][] = 'oit/gin_select';
+    }
+  }
+}
+
+/**
  * Implements hook_form_alter().
  */
 function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
@@ -95,7 +125,6 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
 
     case "node_page_form":
     case "node_page_edit_form":
-      $form['#attached']['library'][] = 'admino/form';
       // Group for page sub-type extra fields.
       $form['page_extras'] = [
         '#title' => t('Page Extras'),

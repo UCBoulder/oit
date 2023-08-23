@@ -59,3 +59,12 @@ listjs:
 downloads_search:
   js:
     js/oit_downloads_search.js: {}
+gingerbread:
+  css:
+    theme:
+      css/gin.css: {}
+gin_select:
+  js:
+    js/gin_add_select2.js: {}
+  dependencies:
+    - webform/libraries.jquery.select2
