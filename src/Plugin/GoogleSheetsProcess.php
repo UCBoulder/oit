@@ -91,14 +91,20 @@ class GoogleSheetsProcess {
       }
 
       $format = "rich_text";
-      foreach ($gsheet_returned_data as $key => $value) {
-        // Skip first header row.
-        if ($key != 0) {
-          foreach ($sheet_items as $key => $header) {
-            $item[$key]['data']['#markup'] = isset($value[$header]) ? check_markup($value[$header], $format) : '';
+      $rows_exist = isset($gsheet_returned_data[1]) ? TRUE : FALSE;
+      if ($rows_exist) {
+        foreach ($gsheet_returned_data as $key => $value) {
+          // Skip first header row.
+          if ($key != 0) {
+            foreach ($sheet_items as $key => $header) {
+              $item[$key]['data']['#markup'] = isset($value[$header]) ? check_markup($value[$header], $format) : '';
+            }
+            $rows[] = $item;
           }
-          $rows[] = $item;
         }
+      } else {
+        // Be sure not to submit empty rows.
+        $rows[] = $headers;
       }
     }
     $data['rows'] = $rows;
