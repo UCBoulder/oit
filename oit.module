@@ -697,12 +697,12 @@ function oit_news_update($entity) {
     $image_style = new OitImageStyled($image_id, 'large', 'front_news');
     $image_styled = $image_style->getImageUrl();
     if (!isset($meta_info->twitter_cards_image) || $meta_info->twitter_cards_image != NULL) {
-      $meta_info->twitter_cards_image = $image_styled;
+      $meta_info['twitter_cards_image'] = $image_styled;
     }
     if (!isset($meta_info->og_image) || $meta_info->og_image != NULL) {
-      $meta_info->og_image = $image_styled;
+      $meta_info['og_image'] = $image_styled;
     }
-    $meta_serial = serialize($meta_info);
+    $meta_serial = json_encode($meta_info);
     $entity->set('field_meta_tags', $meta_serial);
   }
   if ($entity->getType() == 'news' && $entity->get('field_news_archive')->getValue()[0]['value'] == 2) {
