@@ -102,7 +102,8 @@ class GoogleSheetsProcess {
             $rows[] = $item;
           }
         }
-      } else {
+      }
+      else {
         // Be sure not to submit empty rows.
         $rows[] = $headers;
       }
