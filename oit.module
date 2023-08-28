@@ -588,7 +588,7 @@ function oit_entity_view(array &$build, EntityInterface $entity, EntityViewDispl
       $webform = \Drupal::entityTypeManager()->getStorage('webform')->load($webform_id);
       // Report error if webform node is pointing to a deleted webform.
       if ($webform == NULL && $webform_id != 0) {
-        \drupal::service('oit.teamsalert')->sendMessage('Webform no longer exists but is set on node: ' . $entity->id(), ['prod']);
+        \Drupal::service('oit.teamsalert')->sendMessage('Webform no longer exists but is set on node: ' . $entity->id(), ['prod']);
         \Drupal::logger('oit')->error('Webform no longer exists but is set on node: ' . $entity->id());
       }
     }
