@@ -9,6 +9,7 @@ use Drupal\block\Entity\Block;
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Cache\Cache;
+use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
@@ -580,14 +581,14 @@ function oit_page_attachments_alter(array &$attachments) {
 /**
  * Implements hook_entity_view().
  */
-function oit_entity_view(array &$build, \Drupal\Core\Entity\EntityInterface $entity, \Drupal\Core\Entity\Display\EntityViewDisplayInterface $display, $view_mode) {
+function oit_entity_view(array &$build, EntityInterface $entity, EntityViewDisplayInterface $display, $view_mode) {
   if ($entity->getEntityType()->getBundleEntityType() == 'node_type' && $entity->getType() == 'webform') {
     if ($webform_id = $entity->get('webform')->getValue()) {
       $webform_id = $webform_id[0]['target_id'];
       $webform = \Drupal::entityTypeManager()->getStorage('webform')->load($webform_id);
       // Report error if webform node is pointing to a deleted webform.
       if ($webform == NULL && $webform_id != 0) {
-        \drupal::service('oit.teamsalert')->sendMessage('Webform no longer exists but is set on node: ' . $entity->id(), ['local']);
+        \drupal::service('oit.teamsalert')->sendMessage('Webform no longer exists but is set on node: ' . $entity->id(), ['prod']);
         \Drupal::logger('oit')->error('Webform no longer exists but is set on node: ' . $entity->id());
       }
     }
