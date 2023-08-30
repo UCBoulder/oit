@@ -1,10 +1,13 @@
-name: (A) PHPCS
+name: (A) Tests
 on:
   push:
     branches:
       - '*'
 jobs:
   deploy:
-    uses: UCBoulder/oitid_reusable_actions/.github/workflows/phpcs.yml@main
+    uses: UCBoulder/oitid_reusable_actions/.github/workflows/testing.yml@main
     secrets:
       phpstan_level: "0"
+      ralphie_token: ${{ secrets.RALPHIE_TOKEN }}
+      repo: ${{ github.event.repository.name }}
+      branch: $(echo $GITHUB_REF | awk -F / '{print $3}')
