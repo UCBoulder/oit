@@ -9,4 +9,3 @@ jobs:
     secrets:
       phpstan_level: "0"
       ralphie_token: ${{ secrets.RALPHIE_TOKEN }}
-      repo: ${{ github.event.repository.name }}
