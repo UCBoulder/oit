@@ -7,7 +7,7 @@ jobs:
   deploy:
     uses: UCBoulder/oitid_reusable_actions/.github/workflows/testing.yml@main
     secrets:
-      phpstan_level: "0"
+      phpstan_level: "1"
       ralphie_token: ${{ secrets.RALPHIE_TOKEN }}
       repo: ${{ github.event.repository.name }}
       branch: $GITHUB_REF
