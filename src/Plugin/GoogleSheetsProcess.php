@@ -71,7 +71,7 @@ class GoogleSheetsProcess {
         $headers[] = $sheet_header[$value];
       }
 
-      $format = "rich_text";
+      $format = "markdown";
       foreach ($gsheet_returned_data as $key => $value) {
         foreach ($headers as $key => $header) {
           $item[$key] = isset($value[$header]) ? check_markup($value[$header], $format) : '';
@@ -90,7 +90,7 @@ class GoogleSheetsProcess {
         $headers[] = $sheet_header[$value];
       }
 
-      $format = "rich_text";
+      $format = "markdown";
       $rows_exist = isset($gsheet_returned_data[1]) ? TRUE : FALSE;
       if ($rows_exist) {
         foreach ($gsheet_returned_data as $key => $value) {

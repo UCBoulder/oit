@@ -329,6 +329,7 @@ function oit_hide_format($form_element, FormStateInterface $form_state) {
   if (isset($form_element[0]['format'])) {
     unset($form_element[0]['format']['format']['#options']['restricted_html']);
     unset($form_element[0]['format']['format']['#options']['www_unfiltered_']);
+    unset($form_element[0]['format']['format']['#options']['markdown']);
     // All this stuff is needed to hide the help text.
     unset($form_element[0]['format']['guidelines']);
     unset($form_element[0]['format']['help']);
