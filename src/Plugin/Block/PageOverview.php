@@ -91,18 +91,6 @@ class PageOverview extends BlockBase implements
       $summary = isset($content[0]['summary']) ? check_markup($content[0]['summary'], 'rich_text') : '';
       // Add this to phish category.
       if ($node->getType() == 'page') {
-        if (!empty($node->get('field_oit_category')->getValue())) {
-          if ($node->get('field_oit_category')->getValue()[0]['target_id'] == 849) {
-            $summary .= "<div class='flex phish-indicator'>
-                <div class='flex-one-half'>
-                  <div style='position: absolute;'>";
-            $summary .= check_markup("[svg name=phish width=25 color=000][/svg]", 'rich_text');
-            $summary .= "</div> &nbsp;
-                  <a href='/it-security/email-phishing' style='padding-left: 25px;'>Campus Phishing Email</a>
-                  </div>
-                </div>";
-          }
-        }
         if (!empty($comp_type = $node->get('field_tut_comp_type_d7')->getValue())) {
           $icon_key = [
             68 => 'sw-faculty',

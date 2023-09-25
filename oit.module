@@ -59,7 +59,6 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
     if ($form_id != 'block_content_shortcode_embed_form' && $form_id != 'block_content_shortcode_embed_edit_form') {
       $form['body']['widget']['#after_build'][] = 'oit_hide_format';
     }
-    $form['body']['widget']['#after_build'][] = 'oit_hide_format_phish';
   }
 
   if (($form_id == 'views_exposed_form' && $form['#id'] == 'views-exposed-form-service-pages-tutorials-page-1') || ($form['#id'] == 'views-exposed-form-service-pages-tutorials-block-1')) {
@@ -179,20 +178,6 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
         if ($request_type == "accessibility") {
           $form['field_oit_category']['widget']['#default_value'][] = 847;
           $form['type_service']['#access'] = FALSE;
-        }
-        if ($request_type == "phish") {
-          $form['field_oit_category']['widget']['#default_value'][] = 849;
-          $form['type_service']['#access'] = FALSE;
-          $form['field_faq']['#access'] = FALSE;
-          $form['field_faq_section_title']['#access'] = FALSE;
-          $form['#title'] = t('Create Phish Page');
-        }
-      }
-      // If page type is phish.
-      if (!empty($form['field_oit_category']['widget']['#default_value'])) {
-        if ($form['field_oit_category']['widget']['#default_value'][0] == 849) {
-          $phish_format_key = array_search('oit_hide_format_phish', $form['body']['widget']['#after_build']);
-          unset($form['body']['widget']['#after_build'][$phish_format_key]);
         }
       }
       $form['#attached']['library'][] = 'oit/oit_clipboard';
@@ -317,7 +302,6 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
       $form['field_tut_comp_type_d7']['#group'] = 'oit_page_extras';
       $form['upload']['#group'] = 'oit_page_extras';
       $form['field_tut_footer']['widget']['#after_build'][] = 'oit_hide_format';
-      $form['field_tut_footer']['widget']['#after_build'][] = 'oit_hide_format_phish';
       break;
   }
 }
@@ -333,16 +317,6 @@ function oit_hide_format($form_element, FormStateInterface $form_state) {
     // All this stuff is needed to hide the help text.
     unset($form_element[0]['format']['guidelines']);
     unset($form_element[0]['format']['help']);
-  }
-  return $form_element;
-}
-
-/**
- * After build callback for text_format element.
- */
-function oit_hide_format_phish($form_element, FormStateInterface $form_state) {
-  if (isset($form_element[0]['format'])) {
-    unset($form_element[0]['format']['format']['#options']['phish']);
   }
   return $form_element;
 }
@@ -629,10 +603,6 @@ function oit_cron() {
   $archivenews->archive($cut_off);
   // Archive service maintenance past completion date.
   \Drupal::service('oit.smc');
-  // Delete old phishing reports that are older than 3 years.
-  $phish_cut_off = strtotime("-3 years");
-  $dotn = \Drupal::service('oit.dotn');
-  $dotn->update(849, $phish_cut_off);
 }
 
 /**

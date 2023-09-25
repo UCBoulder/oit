@@ -119,3 +119,16 @@ function oit_update_9006() {
   $config = \Drupal::configFactory()->getEditable('oit.settings');
   $config->set('show_login_form', TRUE)->save();
 }
+
+/**
+ * Death to phishing nodes.
+ */
+function oit_update_9007() {
+  $phish_cut_off = strtotime("today");
+  $dotn = \Drupal::service('oit.dotn');
+  $dotn->update(849, $phish_cut_off);
+  // Delete taxonomy term 849, page type of phishing.
+  $controller = \Drupal::entityTypeManager()->getStorage('taxonomy_term');
+  $entities = $controller->loadMultiple([849]);
+  $controller->delete($entities);
+}
