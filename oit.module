@@ -44,6 +44,16 @@ function oit_webform_access_rules_alter(array &$access_rules) {
 }
 
 /**
+ * Implements oit_webform_access_rules_alter().
+ */
+function oit_entity_create(EntityInterface $entity) {
+  if ($entity->getEntityType()->getBundleEntityType() == 'node_type' && $entity->getType() == 'webform') {
+    // Set access control set to Authenticated.
+    $entity->set('field_access_control_2', '475');
+  }
+}
+
+/**
  *
  */
 function oit_preprocess(&$variables, $hook) {
