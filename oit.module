@@ -35,6 +35,15 @@ function oit_preprocess_html(&$variables) {
 }
 
 /**
+ * Implements hook_webform_access_rules_alter().
+ */
+function oit_webform_access_rules_alter(array &$access_rules) {
+  if (isset($access_rules['create'])) {
+    $access_rules['create']['roles'] = ['authenticated'];
+  }
+}
+
+/**
  *
  */
 function oit_preprocess(&$variables, $hook) {
