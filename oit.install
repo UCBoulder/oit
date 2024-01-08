@@ -132,3 +132,13 @@ function oit_update_9007() {
   $entities = $controller->loadMultiple([849]);
   $controller->delete($entities);
 }
+
+/**
+ * Remove oitbik config.
+ */
+function oit_update_9008() {
+  $connection = \Drupal::database();
+  $connection->delete('config')
+    ->condition('name', 'oitbik.settings')
+    ->execute();
+}
