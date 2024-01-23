@@ -625,31 +625,6 @@ function oit_cron() {
 }
 
 /**
- * Implements hook_preprocess_node().
- */
-function oit_preprocess_node(&$variables) {
-  $node = $variables['node'];
-  $body = $node->get('body')->getValue();
-  $body = $body[0]['value'] ?? '';
-  // Check the node body and if the <details> element exists add the details
-  // polyfill to the page. Currently not supported by edge or ie, may remove in
-  // the future.
-  if (strpos($body, '</details>') !== FALSE) {
-    $variables['#attached']['library'][] = 'oit/details';
-  }
-}
-
-/**
- * Implements hook_preprocess_block().
- */
-function oit_preprocess_block(&$variables) {
-  // Disable caching on certain blocks.
-  if ($variables['base_plugin_id'] == 'page_overview') {
-    $variables['#cache']['max-age'] = 0;
-  }
-}
-
-/**
  * Alter the off-canvas menu tree.
  *
  * @param array $rendered_tree
