@@ -598,21 +598,6 @@ function oit_cron() {
     $midnight = TRUE;
   }
   if ($midnight) {
-    $nodes = [10687, 13639];
-    foreach ($nodes as $nid) {
-      $node = \Drupal::entityTypeManager()->getStorage('node')->load($nid);
-      $node->setNewRevision(TRUE);
-      $node->setRevisionLogMessage('Cron update - no actual changes');
-      // D8 is smarter and won't actually update without a change, so we'll
-      // toggle the sticky checkbox to make this work.
-      if ($node->isSticky()) {
-        $node->setSticky(FALSE);
-      }
-      else {
-        $node->setSticky(TRUE);
-      }
-      $node->save();
-    }
     // Add analytics to redirects.
     \Drupal::service('oit.redirect.add.analytics');
   }
