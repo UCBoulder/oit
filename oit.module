@@ -598,21 +598,6 @@ function oit_cron() {
     $midnight = TRUE;
   }
   if ($midnight) {
-    $nodes = [10687, 13639];
-    foreach ($nodes as $nid) {
-      $node = \Drupal::entityTypeManager()->getStorage('node')->load($nid);
-      $node->setNewRevision(TRUE);
-      $node->setRevisionLogMessage('Cron update - no actual changes');
-      // D8 is smarter and won't actually update without a change, so we'll
-      // toggle the sticky checkbox to make this work.
-      if ($node->isSticky()) {
-        $node->setSticky(FALSE);
-      }
-      else {
-        $node->setSticky(TRUE);
-      }
-      $node->save();
-    }
     // Add analytics to redirects.
     \Drupal::service('oit.redirect.add.analytics');
   }
@@ -622,31 +607,6 @@ function oit_cron() {
   $archivenews->archive($cut_off);
   // Archive service maintenance past completion date.
   \Drupal::service('oit.smc');
-}
-
-/**
- * Implements hook_preprocess_node().
- */
-function oit_preprocess_node(&$variables) {
-  $node = $variables['node'];
-  $body = $node->get('body')->getValue();
-  $body = $body[0]['value'] ?? '';
-  // Check the node body and if the <details> element exists add the details
-  // polyfill to the page. Currently not supported by edge or ie, may remove in
-  // the future.
-  if (strpos($body, '</details>') !== FALSE) {
-    $variables['#attached']['library'][] = 'oit/details';
-  }
-}
-
-/**
- * Implements hook_preprocess_block().
- */
-function oit_preprocess_block(&$variables) {
-  // Disable caching on certain blocks.
-  if ($variables['base_plugin_id'] == 'page_overview') {
-    $variables['#cache']['max-age'] = 0;
-  }
 }
 
 /**

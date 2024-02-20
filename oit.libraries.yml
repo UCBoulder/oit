@@ -29,14 +29,6 @@ spacemonkey:
   dependencies:
     - core/jquery
     - core/drupalSettings
-details:
-  remote: https://github.com/javan/details-element-polyfill
-  version: 2.4.0
-  license:
-    name: MIT
-    gpl-compatible: false
-  js:
-    /libraries/details-element-polyfill/dist/details-element-polyfill.js: { minified: false }
 gsap:
   remote: https://github.com/greensock/GSAP
   version: 3.4.0
