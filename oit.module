@@ -618,7 +618,7 @@ function oit_cron() {
 function oit_responsive_menu_off_canvas_tree_alter(array &$rendered_tree) {
   $feedback = "<a href='mailto:oithelp@colorado.edu' title='email feedback' class='button'>Feedback</a>";
   $close = "<a href='#mm-0' class='button'>close menu</a>";
-  $twitter = oit_social_links(t('twitter'), 'http://www.twitter.com/CUBoulderOIT');
+  $twitter = oit_social_links(t('twitter'), 'http://www.x.com/CUBoulderOIT');
   $facebook = oit_social_links(t('facebook'), 'https://www.facebook.com/CUBoulderOIT');
   $youtube = oit_social_links(t('youtube'), 'https://www.youtube.com/CUBoulderOIT');
 
