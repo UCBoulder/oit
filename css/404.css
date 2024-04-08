@@ -1,0 +1,128 @@
+#containAll404 {
+  min-height: 550px;
+}
+#mainbox-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 375px;
+  overflow: hidden;
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+  outline: none;
+  font-family: Roboto Condensed;
+}
+.mainbox {
+  box-sizing: border-box;
+  position: relative;
+  width: 350px;
+  height: 350px;
+}
+.mainbox:after {
+  position: absolute;
+  content: '';
+  width: 35px;
+  height: 35px;
+  background: url('../images/404/wheel-arrow.png') no-repeat;
+  background-size: 35px;
+  right: -7px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 3;
+}
+.box {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  border-radius: 50%;
+  border: 10px solid #fff;
+  overflow: hidden;
+  transition: all ease 3s;
+  box-sizing: border-box;
+  z-index: -1;
+  background: url('../images/404/inner_wheel.png') no-repeat;
+  background-size: contain;
+}
+.wheel-check {
+  position: absolute;
+  background-color: #000;
+  top: 50%;
+  right: 15px;
+  height: 5px;
+  width: 5px;
+}
+.spin {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  border: 4px solid #424242;
+  background-color: #000;
+  color: #fff;
+  box-shadow: 0 5px 20px #000;
+  font-weight: bold;
+  font-size: 18px;
+  cursor: pointer;
+  z-index: 0;
+  font-family: Roboto Condensed;
+}
+.spin:active {
+  width: 50px;
+  height: 50px;
+  font-size: 16px;
+}
+.spin-outer {
+  width: 350px;
+  position: absolute;
+  top: 0;
+  z-index: -1;
+}
+#prize {
+  display: inline-block;
+  width: 100%;
+  text-align: center;
+}
+#prize,
+#buff404 h3 {
+  margin: 20px 0;
+  font: 700 1.5em "Roboto Condensed";
+  text-align: center;
+}
+#show-host {
+  text-align: center;
+}
+#show-host img {
+  max-width: 100%;
+  top: 30px;
+  max-height: 350px;
+  position: relative;
+  display: inline-block;
+}
+.flex-one-third {
+  text-align: center;
+  z-index: 1;
+  position: relative;
+}
+
+/* 404 BUFF */
+#buff404 {
+  max-width: 775px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 0;
+}
+#buff404 img {
+  max-width: 100%;
+}
+.spin-contain {
+  margin-top: 25px!important;
+}
+
+/* PAGE HIDES */
+.breadcrumb {
+  display: none;
+}

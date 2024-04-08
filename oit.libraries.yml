@@ -1,3 +1,9 @@
+404:
+  js:
+    js/404.js: {}
+  css:
+    theme:
+      css/404.css: {}
 oit_node_news_form:
   js:
     js/oit_node_news_form.js: {}

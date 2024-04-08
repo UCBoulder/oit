@@ -96,7 +96,7 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
     ];
   }
   if ($form_id == 'search_form') {
-    $search_key = Xss::filter(strtolower($form['basic']['keys']['#default_value']));
+    $search_key = $form['basic']['keys']['#default_value']?Xss::filter(strtolower($form['basic']['keys']['#default_value'])):0;
     $space = [
       'space monkey',
       'space+monkey',

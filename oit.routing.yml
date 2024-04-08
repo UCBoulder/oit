@@ -12,6 +12,13 @@ oit.request:
     _title: ''
   requirements:
     _permission: 'access content'
+oit.404:
+  path: '/404'
+  defaults:
+    _controller: '\Drupal\oit\Controller\OitController::oit404'
+    _title: 'Page Not Found'
+  requirements:
+    _permission: 'access content'
 oit.denied:
   path: '/denied'
   defaults:

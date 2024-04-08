@@ -1,0 +1,5 @@
+services:
+  oit.commands:
+    class: \Drupal\oit\Commands\OitCommands
+    tags:
+      - { name: drush.command }

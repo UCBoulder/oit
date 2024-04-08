@@ -142,7 +142,7 @@ class OitController extends ControllerBase {
     ShortcodeIcon $shortcode_svg_icon
   ) {
     $this->account = $account;
-    $this->requestStack = $request_stack;
+    $this->requestStack = $request_stack->getCurrentRequest();
     $this->blockUuidQuery = $block_uuid_query;
     $this->loggerFactory = $logger_factory->get('oit');
     $this->killSwitch = $killSwitch;
@@ -171,6 +171,92 @@ class OitController extends ControllerBase {
       $container->get('entity_type.manager'),
       $container->get('shortcode_svg.icon')
     );
+  }
+
+  /**
+   * Custom 404 page.
+   */
+  public function oit404() {
+    // Get path to oit module.
+    $module_path = $this->moduleExtensionList->getPath('oit');
+    $location = $_SERVER['REQUEST_URI'];
+    $carey = 0;
+    if (date('m-d') == '11-02' || $location == '/ohio') {
+      $carey = 1;
+    }
+    // Get users ip address.
+    $ip = $ip = $this->requestStack->getClientIp();
+    $host = $carey ? "404_carey.png" : "404_barker.png";
+    $custom['string'] = [
+      '#type' => 'inline_template',
+      '#attached' => [
+        'library' => [
+          'oit/404',
+        ],
+      ],
+      '#template' => '
+        <div id="containAll404">
+        <div id="buff404">
+            <img src="{{ module_path }}/404_buff.jpg" />
+            <h3>{{ title }}</h3>
+          </div>
+          <div class="flex">
+            <div class="flex-one-third">
+              <a class="icon button" href="/search/cse"><span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 34 34" class="svg-icon search" width="20">
+                <use fill="#fff" xlink:href="/sites/default/files/svg/sprite_5.svg#search"></use>
+                </svg></span>&nbsp;&nbsp; {{ button_search }}</a>
+            </div>
+            <div class="flex-one-third">
+              <a class="icon button" href="/node/24951"><span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 34 34" class="svg-icon megaphone" width="20">
+                <use fill="#fff" xlink:href="/sites/default/files/svg/sprite_5.svg#megaphone"></use>
+                </svg></span>&nbsp;&nbsp; {{ button_report }}</a>
+            </div>
+            <div class="flex-one-third">
+              <div class="icon button" id="toggle404"><span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 34 34" class="svg-icon circleoflife" width="20">
+                <use fill="#fff" xlink:href="/sites/default/files/svg/sprite_5.svg#circleoflife"></use>
+                </svg></span>&nbsp;&nbsp; {{ button_spin }}!</div>
+            </div>
+          </div>
+          <div class="flex spin-contain" style="display:none;">
+            <div class="flex-one-half">
+              <div id="mainbox-container">
+                <div id="mainbox" class="mainbox">
+                  <div id="box" class="box">
+                  </div>
+                  <button class="spin">{{ spin }}</button>
+                  <img src="{{ module_path }}/spin-wheel-outer.png" style="width:350px; position: absolute; top:0; z-index: -1;" />
+                </div>
+              </div>
+            </div>
+            <div class="flex-one-half">
+              <div id="show-host">
+                <img src="{{ module_path }}/{{ host }}" />
+              </div>
+            </div>
+            <div id="prize">{{ spint_text }}!</div>
+          </div>
+        </div>
+        <h2>Your IP Address: {{ ip }}</h2>
+        <h2>Your Long IP Address: {{ iplong }}</h2>
+        <h2>Location: {{ location }}</h2>
+        ',
+      '#context' => [
+        'title' => $this->t('Hmm...looks like something went wrong.'),
+        'module_path' => "/$module_path/images/404",
+        'host' => $host,
+        'ip' => $ip,
+        'iplong' => ip2long($ip),
+        'button_search' => $this->t('Search OIT Site'),
+        'button_report' => $this->t('Report an Issue'),
+        'button_spin' => $this->t('Spin the Wheel'),
+        'spin' => $this->t('Spin'),
+        'spint_text' => $this->t('Spin the wheel to go to a random page in the service area the spinner lands on'),
+        'location' => $location,
+      ],
+    ];
+    return [
+      '#markup' => $this->renderer->render($custom),
+    ];
   }
 
   /**
