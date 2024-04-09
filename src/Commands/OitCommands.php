@@ -46,7 +46,6 @@ class OitCommands extends DrushCommands {
   public function reloadPrincess() {
     $this->princessList->reload();
     $this->messenger->addMessage('Princess List reloaded.');
-    $this->loadPrincess();
   }
 
 
