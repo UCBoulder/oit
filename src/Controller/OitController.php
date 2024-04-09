@@ -179,7 +179,7 @@ class OitController extends ControllerBase {
   public function oit404() {
     // Get path to oit module.
     $module_path = $this->moduleExtensionList->getPath('oit');
-    $location = $_SERVER['REQUEST_URI'];
+    $location = Xss::filter($_SERVER['REQUEST_URI']);
     $carey = 0;
     if (date('m-d') == '11-02' || $location == '/ohio') {
       $carey = 1;
