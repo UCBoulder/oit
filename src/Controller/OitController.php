@@ -180,10 +180,14 @@ class OitController extends ControllerBase {
     // Get path to oit module.
     $module_path = $this->moduleExtensionList->getPath('oit');
     $location = Xss::filter($_SERVER['REQUEST_URI']);
+    $host_alt = $this->t('Bob Barker as your 404 host');
     $carey = 0;
     if (date('m-d') == '04-23' || date('m-d') == '11-02' || $location == '/ohio') {
       $carey = 1;
+      $host_alt = $this->t('Drew Carrey as your 404 host');
     }
+    $location = substr($location, 1);
+    $location = str_replace('/', ' ', $location);
     // Get users ip address.
     $ip = $ip = $this->requestStack->getClientIp();
     $host = $carey ? "404_carey.png" : "404_barker.png";
@@ -197,12 +201,12 @@ class OitController extends ControllerBase {
       '#template' => '
         <div id="containAll404">
         <div id="buff404">
-            <img src="{{ module_path }}/404_buff.jpg" />
+            <img src="{{ module_path }}/404_buff.jpg" alt="{{ buffimg_alt }}" />
             <h3>{{ title }}</h3>
           </div>
           <div class="flex">
             <div class="flex-one-third">
-              <a class="icon button" href="/search/cse"><span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 34 34" class="svg-icon search" width="20">
+              <a class="icon button" href="/search/cse?keys={{ location }}"><span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 34 34" class="svg-icon search" width="20">
                 <use fill="#fff" xlink:href="/sites/default/files/svg/sprite_5.svg#search"></use>
                 </svg></span>&nbsp;&nbsp; {{ button_search }}</a>
             </div>
@@ -224,34 +228,32 @@ class OitController extends ControllerBase {
                   <div id="box" class="box">
                   </div>
                   <button class="spin">{{ spin }}</button>
-                  <img src="{{ module_path }}/spin-wheel-outer.png" style="width:350px; position: absolute; top:0; z-index: -1;" />
+                  <img src="{{ module_path }}/spin-wheel-outer.png" alt="{{ wheel_img }}" style="width:350px; position: absolute; top:0; z-index: -1;" />
                 </div>
               </div>
             </div>
             <div class="flex-one-half">
               <div id="show-host">
-                <img src="{{ module_path }}/{{ host }}" />
+                <img src="{{ module_path }}/{{ host }}" alt="{{ host_alt }}" />
               </div>
             </div>
             <div id="prize">{{ spint_text }}!</div>
           </div>
         </div>
-        <h2>Your IP Address: {{ ip }}</h2>
-        <h2>Your Long IP Address: {{ iplong }}</h2>
-        <h2>Location: {{ location }}</h2>
         ',
       '#context' => [
         'title' => $this->t('Hmm...looks like something went wrong.'),
         'module_path' => "/$module_path/images/404",
         'host' => $host,
-        'ip' => $ip,
-        'iplong' => ip2long($ip),
+        'location' => $location,
+        'buffimg_alt' => $this->t('Buffalo holding broken plug - text 404'),
+        'wheel_img' => $this->t('Wheel'),
+        'host_alt' => $host_alt,
         'button_search' => $this->t('Search OIT Site'),
         'button_report' => $this->t('Report an Issue'),
         'button_spin' => $this->t('Spin the Wheel'),
         'spin' => $this->t('Spin'),
         'spint_text' => $this->t('Spin the wheel to go to a random page in the service area the spinner lands on'),
-        'location' => $location,
       ],
     ];
     return [

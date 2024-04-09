@@ -8,3 +8,6 @@
   right: 0;
   z-index: 10;
 }
+#space a svg.ext {
+  display: none;
+}
