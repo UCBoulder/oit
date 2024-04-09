@@ -181,7 +181,7 @@ class OitController extends ControllerBase {
     $module_path = $this->moduleExtensionList->getPath('oit');
     $location = Xss::filter($_SERVER['REQUEST_URI']);
     $carey = 0;
-    if (date('m-d') == '11-02' || $location == '/ohio') {
+    if (date('m-d') == '04-23' || date('m-d') == '11-02' || $location == '/ohio') {
       $carey = 1;
     }
     // Get users ip address.
