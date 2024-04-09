@@ -2,9 +2,9 @@
 
 namespace Drupal\oit\Commands;
 
-use Drush\Commands\DrushCommands;
 use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\servicenow\Plugin\PrincessList;
+use Drush\Commands\DrushCommands;
 
 /**
  * Various utility commands for OIT.
@@ -47,7 +47,6 @@ class OitCommands extends DrushCommands {
     $this->princessList->reload();
     $this->messenger->addMessage('Princess List reloaded.');
   }
-
 
   /**
    * Load Princess List.
