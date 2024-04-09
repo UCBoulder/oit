@@ -88,9 +88,8 @@
 }
 #prize,
 #buff404 h3 {
-  margin: 20px 0;
+  margin: 20px auto;
   font: 700 1.5em "Roboto Condensed";
-  text-align: center;
 }
 #show-host {
   text-align: center;
