@@ -10,6 +10,25 @@ use Drupal\menu_link_content\Entity\MenuLinkContent;
 use Drupal\user\Entity\User;
 
 /**
+ * Helper function to update node body text.
+ */
+function update_node_body($nid, $body, $format) {
+  $query = \Drupal::entityQuery('node')
+    ->condition('nid', $nid)
+    ->accessCheck(FALSE);
+
+  $nids = $query->execute();
+  foreach ($nids as $nid) {
+    $node = Node::load($nid);
+    $node->set('body', [
+      'format' => $format,
+      'value' => $body,
+    ]);
+    $node->save();
+  }
+}
+
+/**
  * Add missing manage_webform users.
  */
 function oit_update_9000() {
@@ -142,3 +161,21 @@ function oit_update_9008() {
     ->condition('name', 'oitbik.settings')
     ->execute();
 }
+
+/**
+ * Update Services page.
+ */
+function oit_update_10001() {
+  $nid = 329;
+  $format = 'rich_text';
+  $body = <<<EOT
+  <div class="flex">
+    <a class="button ml-auto" href="/services/search">Services Search</a>
+</div>
+<p>
+    [block id="86"][/block]
+</p>
+EOT;
+  update_node_body($nid, $body, $format);
+}
+
