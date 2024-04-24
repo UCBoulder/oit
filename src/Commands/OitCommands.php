@@ -53,9 +53,10 @@ class OitCommands extends DrushCommands {
    *
    * @command oit:load-princess
    * @aliases oit:lp
+   * @param $incremental set to 1 or 0 to incrementally load.
    */
-  public function loadPrincess() {
-    $this->princessList->cron(0);
+  public function loadPrincess($incremental = 0) {
+    $this->princessList->cron($incremental);
     $this->messenger->addMessage('Princess List Loaded.');
   }
 
