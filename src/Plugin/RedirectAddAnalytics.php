@@ -36,7 +36,7 @@ class RedirectAddAnalytics {
    */
   public function __construct(
     Connection $connection,
-    LoggerChannelFactoryInterface $channelFactory
+    LoggerChannelFactoryInterface $channelFactory,
   ) {
     $this->connection = $connection;
     $this->logger = $channelFactory->get('oit');

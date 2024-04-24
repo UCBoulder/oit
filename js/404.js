@@ -67,8 +67,7 @@
     });
 
     //GET SPINNER ROTATION
-    function getRotationAngle(target)
-    {
+    function getRotationAngle(target) {
       const obj = window.getComputedStyle(target);
       const matrix = obj.getPropertyValue('-webkit-transform') ||
         obj.getPropertyValue('-moz-transform') ||

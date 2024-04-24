@@ -89,7 +89,7 @@ class FrontActionLinks extends BlockBase implements
     $plugin_definition,
     EntityTypeManagerInterface $entity_interface,
     BlockUuidQuery $block_uuid_query,
-    ShortcodeIcon $shortcode_svg_icon
+    ShortcodeIcon $shortcode_svg_icon,
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->entityInterface = $entity_interface;

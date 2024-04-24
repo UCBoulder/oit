@@ -30,7 +30,7 @@ class OitCommands extends DrushCommands {
    */
   public function __construct(
     PrincessList $princess_list,
-    MessengerInterface $messenger
+    MessengerInterface $messenger,
   ) {
     parent::__construct();
     $this->princessList = $princess_list;
@@ -51,9 +51,14 @@ class OitCommands extends DrushCommands {
   /**
    * Load Princess List.
    *
+   * @param bool $incremental
+   *   Set to 1 or 0 to incrementally load.
+   *
+   * @usage oit:lp 1
+   *   Loads users into princess list incrementally.
+   *
    * @command oit:load-princess
    * @aliases oit:lp
-   * @param $incremental set to 1 or 0 to incrementally load.
    */
   public function loadPrincess($incremental = 0) {
     $this->princessList->cron($incremental);

@@ -65,7 +65,7 @@ class TeamsAlert {
   public function __construct(
     KeyRepositoryInterface $key_repository,
     EncryptServiceInterface $encrypt_service,
-    LoggerChannelFactoryInterface $channelFactory
+    LoggerChannelFactoryInterface $channelFactory,
   ) {
     $this->keyRepository = $key_repository;
     $this->encryptService = $encrypt_service;
@@ -81,7 +81,7 @@ class TeamsAlert {
    */
   public function sendMessage(
     $message,
-    $environment = ['prod', 'dev', 'test', 'local']
+    $environment = ['prod', 'dev', 'test', 'local'],
   ) {
     if (!in_array($this->env, $environment)) {
       return;

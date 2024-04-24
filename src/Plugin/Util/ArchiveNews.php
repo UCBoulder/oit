@@ -44,7 +44,7 @@ class ArchiveNews {
   public function __construct(
     Connection $connection,
     EntityTypeManagerInterface $entity_type_manager,
-    TeamsAlert $teams_alert
+    TeamsAlert $teams_alert,
   ) {
     $this->connection = $connection;
     $this->entityTypeManager = $entity_type_manager;

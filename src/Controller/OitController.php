@@ -139,7 +139,7 @@ class OitController extends ControllerBase {
     RendererInterface $renderer,
     ServiceHealth $service_health,
     EntityTypeManagerInterface $entity_type_manager,
-    ShortcodeIcon $shortcode_svg_icon
+    ShortcodeIcon $shortcode_svg_icon,
   ) {
     $this->account = $account;
     $this->requestStack = $request_stack->getCurrentRequest();
