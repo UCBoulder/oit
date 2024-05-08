@@ -166,16 +166,26 @@ function oit_update_9008() {
 /**
  * Update Services page.
  */
-function oit_update_10001() {
+function oit_update_10002() {
   $nid = 329;
   $format = 'rich_text';
   $body = <<<EOT
-  <div class="flex">
-    <a class="button ml-auto" href="/services/search">Services Search</a>
+  <div class="no-list-style">
+    <ul class="flex flex-start">
+        <li>
+            <a class="button-internal button-internal--active" href="/services">Services by Category</a>
+        </li>
+        <li>
+            <a class="button-internal" href="/services/search">Filter Services</a>
+        </li>
+        <li>
+            <a class="button-internal" href="/tutorial/search">Filter Tutorials</a>
+        </li>
+    </ul>
+    <p>
+        [block id="86"][/block]
+    </p>
 </div>
-<p>
-    [block id="86"][/block]
-</p>
 EOT;
   update_node_body($nid, $body, $format);
 }
