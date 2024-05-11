@@ -33,7 +33,7 @@ class Domain {
    * Get current domain.
    */
   public function getDomain() {
-    $domainName = $this->token->replace(t('[domain:name]'));
+    $domainName = $this->token->replace('[domain:name]');
     $domain = 'na';
     if ($domainName == 'Office of Information Technology') {
       $domain = 'oit';
