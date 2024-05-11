@@ -77,6 +77,26 @@ function oit_preprocess(&$variables, $hook) {
  * Implements hook_form_alter().
  */
 function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  if ($form_id == "views_form_content_page_1") {
+    $domain = \Drupal::service('oit.domain')->getDomain();
+    if ($domain == 'oit') {
+      // Get query string.
+      $query = \Drupal::request()->query->all();
+      $domain_set = FALSE;
+      foreach ($query as $key => $value) {
+        if ($key == 'field_domain_access_target_id') {
+          $domain_set = TRUE;
+        }
+      }
+      if (!$domain_set) {
+        // Redirect to query string "field_domain_access_target_id=oit_colorado_edu".
+        $query['field_domain_access_target_id'] = 'oit_colorado_edu';
+        $query = http_build_query($query);
+        $response = new RedirectResponse('/admin/content?' . $query);
+        $response->send();
+      }
+    }
+  }
   if (isset($form['body'])) {
     if ($form_id != 'block_content_shortcode_embed_form' && $form_id != 'block_content_shortcode_embed_edit_form') {
       $form['body']['widget']['#after_build'][] = 'oit_hide_format';
@@ -147,6 +167,16 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
 
     case "node_page_form":
     case "node_page_edit_form":
+      // Only Show oit menu.
+      $menu = [];
+      foreach ($form['menu']['link']['menu_parent']['#options'] as $key => $value) {
+        // If key starts with "main".
+        if (strpos($key, 'main:menu') !== FALSE) {
+          $menu[$key] = $value;
+        }
+      }
+      $form['menu']['link']['menu_parent']['#options'] = $menu;
+
       // Group for page sub-type extra fields.
       $form['page_extras'] = [
         '#title' => t('Page Extras'),
