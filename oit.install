@@ -184,17 +184,6 @@ EOT;
  * Update all nodes field_domain_access to oit_colorado_edu.
  */
 function oit_update_10002() {
-  // Entity query to get nodes that don't have field_domain_access set.
-  $query = \Drupal::entityTypeManager()->getStorage('node')->getQuery();
-  $query->notExists('field_domain_access');
-  $query->sort('title', 'ASC');
-  //$query->range(0, 500);
-  $query->accessCheck(FALSE);
-  $nids = $query->execute();
-  foreach ($nids as $nid) {
-    $node = \Drupal::entityTypeManager()->getStorage('node')->load($nid);
-    $node->set('field_domain_access', 'oit_colorado_edu');
-    $node->save();
-  }
+  \Drupal::state()->set('domain_update', 0);
 }
 
