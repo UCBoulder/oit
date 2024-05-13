@@ -167,15 +167,18 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
 
     case "node_page_form":
     case "node_page_edit_form":
-      // Only Show oit menu.
-      $menu = [];
-      foreach ($form['menu']['link']['menu_parent']['#options'] as $key => $value) {
-        // If key starts with "main".
-        if (strpos($key, 'main:menu') !== FALSE) {
-          $menu[$key] = $value;
+      $domain = \Drupal::service('oit.domain')->getDomain();
+      if ($domain == 'oit') {
+        // Only Show oit menu.
+        $menu = [];
+        foreach ($form['menu']['link']['menu_parent']['#options'] as $key => $value) {
+          // If key starts with "main".
+          if (strpos($key, 'main:menu') !== FALSE) {
+            $menu[$key] = $value;
+          }
         }
+        $form['menu']['link']['menu_parent']['#options'] = $menu;
       }
-      $form['menu']['link']['menu_parent']['#options'] = $menu;
 
       // Group for page sub-type extra fields.
       $form['page_extras'] = [
