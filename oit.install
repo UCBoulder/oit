@@ -190,3 +190,81 @@ EOT;
   update_node_body($nid, $body, $format);
 }
 
+/**
+ * Clean out old menus.
+ */
+function oit_update_10003() {
+  $menu_items = [
+    // md-about-oit
+    25353,
+    25361,
+    // md-about-oit-tp
+    25371,
+    25399,
+    // md-accounts-related-service
+    25355,
+    25373,
+    25375,
+    // md-accounts-top-pages
+    25389,
+    25391,
+    25393,
+    25397,
+    // md-services-suggested
+    25309,
+    25311,
+    25345,
+    25347,
+    25385,
+    // md-services-viewby
+    25313,
+    // md-shware-software
+    25295,
+    25297,
+    25299,
+    25305,
+    25307,
+    // md-shware-top-downloads
+    25301,
+    25303,
+    25319,
+    // md-shware-top-pages
+    25333,
+    25335,
+    25339,
+    25341,
+    // md-top-support-training
+    25323,
+    // oit-footer-avc
+    26635,
+    26637,
+    26639,
+    26641,
+    // oit-footer-resources
+    26629,
+    28919,
+    30899,
+    36341,
+    // Navigation
+    11,
+    29563,
+    36956,
+    // tab-security-resources
+    25423,
+    25429,
+    // tab-technology-tools
+    25407,
+    25409,
+    25411,
+    25413,
+    25415,
+    25417,
+    25669,
+  ];
+  // Delete menu items.
+  foreach ($menu_items as $menu_item) {
+    $menu_link = \Drupal::entityTypeManager()->getStorage('menu_link_content')->load($menu_item);
+    $menu_link->delete();
+  }
+}
+
