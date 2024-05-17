@@ -178,6 +178,9 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
           }
         }
         $form['menu']['link']['menu_parent']['#options'] = $menu;
+        if ($form_id == 'node_page_form') {
+          $form['body']['widget'][0]['#format'] = 'rich_text';
+        }
       }
 
       // Group for page sub-type extra fields.
