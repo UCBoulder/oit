@@ -119,13 +119,15 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
     ];
   }
   if ($form_id == 'search_form') {
-    $search_key = $form['basic']['keys']['#default_value']?Xss::filter(strtolower($form['basic']['keys']['#default_value'])):0;
+    // Get query string.
+    $query = \Drupal::request()->query->all();
+    $search_key = $query['keys']? Xss::filter(strtolower($query['keys'])) : 0;
     $space = [
       'space monkey',
       'space+monkey',
       'spacemonkey',
     ];
-    if (in_array($search_key, $space)) {
+    if ($search_key == 'space monkey' || $search_key == 'space+monkey' || $search_key == 'spacemonkey') {
       $form['#attached']['library'][] = 'oit/spacemonkey';
     }
   }
