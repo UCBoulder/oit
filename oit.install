@@ -191,13 +191,6 @@ EOT;
 }
 
 /**
- * Update all nodes field_domain_access to oit_colorado_edu.
- */
-function oit_update_10002() {
-  \Drupal::state()->set('domain_update', 0);
-}
-
-/**
  * Clean out old menus.
  */
 function oit_update_10003() {
@@ -274,3 +267,11 @@ function oit_update_10003() {
     $menu_link->delete();
   }
 }
+
+/**
+ * Update all nodes field_domain_access to oit_colorado_edu.
+ */
+function oit_update_10004() {
+  \Drupal::state()->set('domain_update', 0);
+}
+
