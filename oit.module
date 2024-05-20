@@ -121,7 +121,7 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
   if ($form_id == 'search_form') {
     // Get query string.
     $query = \Drupal::request()->query->all();
-    $search_key = $query['keys']? Xss::filter(strtolower($query['keys'])) : 0;
+    $search_key = isset($query['keys']) ? Xss::filter(strtolower($query['keys'])) : 0;
     $space = [
       'space monkey',
       'space+monkey',
@@ -163,7 +163,10 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
       break;
 
     case "search_block_form":
-      $form['keys']['#attributes']['placeholder'] = t('Search OIT');
+      $domain = \Drupal::service('oit.domain')->getDomain();
+      if ($domain == 'oit') {
+        $form['keys']['#attributes']['placeholder'] = t('Search OIT');
+      }
       $form['keys']['#attributes']['autocomplete'] = 'off';
       break;
 
