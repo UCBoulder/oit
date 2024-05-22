@@ -64,7 +64,7 @@ class ServiceMaintenanceCompletion {
         $node->set('field_sympa_send', 0);
         $node->set('field_service_alert_status', 'Service Maintenance Completed');
         $node->save();
-        $this->teamsAlert->sendMessage("Service maintenance set to completed. nid: $nid", ['prod']);
+        $this->teamsAlert->sendMessage("Service maintenance set to completed. nid: $nid", ['live']);
       }
     }
   }

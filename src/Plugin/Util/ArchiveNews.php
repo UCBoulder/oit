@@ -74,7 +74,7 @@ class ArchiveNews {
     if ($updated_nid) {
       $updated_nid = substr($updated_nid, 0, -2);
       $teams = $this->teamsAlert;
-      $teams->sendMessage("Archived news nid: $updated_nid", ['prod']);
+      $teams->sendMessage("Archived news nid: $updated_nid", ['live']);
     }
   }
 
