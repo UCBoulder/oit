@@ -77,6 +77,26 @@ function oit_preprocess(&$variables, $hook) {
  * Implements hook_form_alter().
  */
 function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  if ($form_id == "views_form_content_page_1") {
+    $domain = \Drupal::service('oit.domain')->getDomain();
+    if ($domain == 'oit') {
+      // Get query string.
+      $query = \Drupal::request()->query->all();
+      $domain_set = FALSE;
+      foreach ($query as $key => $value) {
+        if ($key == 'field_domain_access_target_id') {
+          $domain_set = TRUE;
+        }
+      }
+      if (!$domain_set) {
+        // Redirect to query string "field_domain_access_target_id=oit_colorado_edu".
+        $query['field_domain_access_target_id'] = 'oit_colorado_edu';
+        $query = http_build_query($query);
+        $response = new RedirectResponse('/admin/content?' . $query);
+        $response->send();
+      }
+    }
+  }
   if (isset($form['body'])) {
     if ($form_id != 'block_content_shortcode_embed_form' && $form_id != 'block_content_shortcode_embed_edit_form') {
       $form['body']['widget']['#after_build'][] = 'oit_hide_format';
@@ -99,13 +119,15 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
     ];
   }
   if ($form_id == 'search_form') {
-    $search_key = $form['basic']['keys']['#default_value']?Xss::filter(strtolower($form['basic']['keys']['#default_value'])):0;
+    // Get query string.
+    $query = \Drupal::request()->query->all();
+    $search_key = isset($query['keys']) ? Xss::filter(strtolower($query['keys'])) : 0;
     $space = [
       'space monkey',
       'space+monkey',
       'spacemonkey',
     ];
-    if (in_array($search_key, $space)) {
+    if ($search_key == 'space monkey' || $search_key == 'space+monkey' || $search_key == 'spacemonkey') {
       $form['#attached']['library'][] = 'oit/spacemonkey';
     }
   }
@@ -141,12 +163,31 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
       break;
 
     case "search_block_form":
-      $form['keys']['#attributes']['placeholder'] = t('Search OIT');
+      $domain = \Drupal::service('oit.domain')->getDomain();
+      if ($domain == 'oit') {
+        $form['keys']['#attributes']['placeholder'] = t('Search OIT');
+      }
       $form['keys']['#attributes']['autocomplete'] = 'off';
       break;
 
     case "node_page_form":
     case "node_page_edit_form":
+      $domain = \Drupal::service('oit.domain')->getDomain();
+      if ($domain == 'oit') {
+        // Only Show oit menu.
+        $menu = [];
+        foreach ($form['menu']['link']['menu_parent']['#options'] as $key => $value) {
+          // If key starts with "main".
+          if (strpos($key, 'main:menu') !== FALSE) {
+            $menu[$key] = $value;
+          }
+        }
+        $form['menu']['link']['menu_parent']['#options'] = $menu;
+        if ($form_id == 'node_page_form') {
+          $form['body']['widget'][0]['#format'] = 'rich_text';
+        }
+      }
+
       // Group for page sub-type extra fields.
       $form['page_extras'] = [
         '#title' => t('Page Extras'),
@@ -610,6 +651,33 @@ function oit_cron() {
   $archivenews->archive($cut_off);
   // Archive service maintenance past completion date.
   \Drupal::service('oit.smc');
+
+  # Set Domains
+  // Entity query to get nodes that don't have field_domain_access set.
+  $domain_update_start = \Drupal::state()->get('domain_update') >= 0 ? \Drupal::state()->get('domain_update') : NULL;
+  if ($domain_update_start !== NULL) {
+    $domain_update_end = $domain_update_start + 250;
+    $query = \Drupal::entityTypeManager()->getStorage('node')->getQuery();
+    $query->notExists('field_domain_access');
+    $query->sort('title', 'ASC');
+    $query->range($domain_update_start, $domain_update_end);
+    $query->accessCheck(FALSE);
+    $nids = $query->execute();
+    if (!empty($nids)) {
+      foreach ($nids as $nid) {
+        $node = \Drupal::entityTypeManager()->getStorage('node')->load($nid);
+        if ($node->getType() == 'news' || $node->getType() == 'service_alert') {
+          $node->set('field_sympa_send', 0);
+        }
+        $node->set('field_domain_access', 'oit_colorado_edu');
+        $node->save();
+      }
+      \Drupal::state()->set('domain_update', $domain_update_end);
+    }
+    else {
+      \Drupal::state()->delete('domain_update');
+    }
+  }
 }
 
 /**
@@ -625,7 +693,10 @@ function oit_responsive_menu_off_canvas_tree_alter(array &$rendered_tree) {
   $facebook = oit_social_links(t('facebook'), 'https://www.facebook.com/CUBoulderOIT');
   $youtube = oit_social_links(t('youtube'), 'https://www.youtube.com/CUBoulderOIT');
 
-  $rendered_tree['#suffix'] = "<div class='feedback-social'><ul class='feedback-social-inner'><li>$facebook</li><li>$twitter</li><li>$youtube</li><li>$feedback</li><li>$close</li></ul></div>";
+  $domain = \Drupal::service('oit.domain')->getDomain();
+  if ($domain == 'oit') {
+    $rendered_tree['#suffix'] = "<div class='feedback-social'><ul class='feedback-social-inner'><li>$facebook</li><li>$twitter</li><li>$youtube</li><li>$feedback</li><li>$close</li></ul></div>";
+  }
 }
 
 /**
@@ -678,10 +749,10 @@ function oit_news_update($entity) {
     $image_id = $entity->get('field_news_front_image')->getValue()[0]['target_id'];
     $image_style = new OitImageStyled($image_id, 'large', 'front_news');
     $image_styled = $image_style->getImageUrl();
-    if (!isset($meta_info->twitter_cards_image) || $meta_info->twitter_cards_image != NULL) {
+    if ($image_styled && (!isset($meta_info->twitter_cards_image) || $meta_info->twitter_cards_image != NULL)) {
       $meta_info['twitter_cards_image'] = $image_styled;
     }
-    if (!isset($meta_info->og_image) || $meta_info->og_image != NULL) {
+    if ($image_styled && (!isset($meta_info->og_image) || $meta_info->og_image != NULL)) {
       $meta_info['og_image'] = $image_styled;
     }
     $meta_serial = json_encode($meta_info);
@@ -697,7 +768,7 @@ function oit_news_update($entity) {
  */
 function oit_servicealert_update($entity) {
   $meta_info = json_decode($entity->get('field_meta_tags')->getValue()[0]['value']) ?? [];
-  if (!isset($meta_info->twitter_cards_image) || !isset($meta_info->og_image)) {
+  if ((!isset($meta_info->twitter_cards_image) || !isset($meta_info->og_image)) && $entity->get('field_service_dashboard_category')) {
     $meta_info["twitter_cards_type"] = "summary";
     $set_dashboard = $entity->get('field_service_dashboard_category')->getValue()[0]['value'];
     $translated_dashboard = $set_dashboard - 1;

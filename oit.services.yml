@@ -23,3 +23,6 @@ services:
   oit.block.uuid.query:
     class: Drupal\oit\Plugin\BlockUuidQuery
     arguments: ['@database', '@entity_type.manager']
+  oit.domain:
+    class: Drupal\oit\Plugin\Domain
+    arguments: ['@token']
