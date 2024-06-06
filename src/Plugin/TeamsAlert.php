@@ -73,7 +73,7 @@ class TeamsAlert {
     $key_encrypted = trim($this->keyRepository->getKey('ms_teams')->getKeyValue());
     $encryption_profile = EncryptionProfile::load('key_encryption');
     $this->teamsUrl = $this->encryptService->decrypt($key_encrypted, $encryption_profile);
-    $this->env = getenv('AH_SITE_ENVIRONMENT');
+    $this->env = getenv('PANTHEON_ENVIRONMENT');
   }
 
   /**
