@@ -35,7 +35,7 @@ class EnvironmentIcon {
   public function __construct(AccountProxyInterface $account) {
     $this->account = $account;
     // Add icon to title per environment.
-    $env = getenv('AH_SITE_ENVIRONMENT');
+    $env = getenv('PANTHEON_ENVIRONMENT');
     $user = $this->account->getRoles();
     $env_icon = '';
     if ($env == 'local' || $env == 'LANDO') {
@@ -47,7 +47,7 @@ class EnvironmentIcon {
     if ($env == 'test') {
       $env_icon = '🟡🐕 ';
     }
-    if (($env == 'prod') && (in_array('administrator', $user))) {
+    if (($env == 'live') && (in_array('administrator', $user))) {
       $env_icon = '🔴🐕 ';
     }
     $this->env = $env_icon;

@@ -81,7 +81,7 @@ class TeamsAlert {
    */
   public function sendMessage(
     $message,
-    $environment = ['prod', 'dev', 'test', 'local'],
+    $environment = ['live', 'dev', 'test', 'local'],
   ) {
     if (!in_array($this->env, $environment)) {
       return;

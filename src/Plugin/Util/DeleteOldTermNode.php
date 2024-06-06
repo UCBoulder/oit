@@ -74,7 +74,7 @@ class DeleteOldTermNode {
     if ($updated_nid) {
       $updated_nid = substr($updated_nid, 0, -2);
       $teams = $this->teamsAlert;
-      $teams->sendMessage("Deleted old node nid: $updated_nid with term id: $term_id \n <b>service:</b> oit.dotn", ['prod']);
+      $teams->sendMessage("Deleted old node nid: $updated_nid with term id: $term_id \n <b>service:</b> oit.dotn", ['live']);
     }
   }
 
