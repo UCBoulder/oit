@@ -1,0 +1,29 @@
+{#
+/**
+ * @file
+ * Default theme implementation to display a two-column layout.
+ *
+ * Available variables:
+ * - in_preview: Whether the plugin is being rendered in preview mode.
+ * - content: The content for this layout.
+ * - attributes: HTML attributes for the layout <div>.
+ *
+ * @ingroup themeable
+ */
+#}
+{% if content %}
+  <div{{ attributes.addClass('dingo-layout layout--left-sidebar') }}>
+    {% if content.content %}
+      <div {{ region_attributes.content.addClass('layout__region', 'layout__region--content') }}>
+        {{ content.content }}
+      </div>
+    {% endif %}
+
+    {% if content.left_sidebar %}
+      <div {{ region_attributes.left_sidebar.addClass('layout__region', 'layout__region--left-sidebar') }}>
+        {{ content.left_sidebar }}
+      </div>
+    {% endif %}
+
+  </div>
+{% endif %}

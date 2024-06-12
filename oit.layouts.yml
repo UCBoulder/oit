@@ -1,0 +1,44 @@
+layout_right_sidebar_section:
+  label: 'Right sidebar'
+  path: layouts/right_sidebar_section
+  template: layout--right-sidebar-section
+  library: oit/right_sidebar_section
+  category: 'Columns: 2'
+  default_region: content
+  icon_map:
+    - [content, right_sidebar]
+  regions:
+    content:
+      label: Content area
+    right_sidebar:
+      label: Right sidebar
+layout_left_sidebar_section:
+  label: 'Left sidebar'
+  path: layouts/left_sidebar_section
+  template: layout--left-sidebar-section
+  library: oit/left_sidebar_section
+  category: 'Columns: 2'
+  default_region: content
+  icon_map:
+    - [content, left_sidebar]
+  regions:
+    left_sidebar:
+      label: Left sidebar
+    content:
+      label: Content area
+layout_both_sidebar_section:
+  label: 'Both sidebar'
+  path: layouts/both_sidebar_section
+  template: layout--both-sidebar-section
+  library: oit/both_sidebar_section
+  category: 'Columns: 3'
+  default_region: content
+  icon_map:
+    - [content, left_sidebar, right_sidebar]
+  regions:
+    left_sidebar:
+      label: Left sidebar
+    content:
+      label: Content area
+    right_sidebar:
+      label: Right sidebar

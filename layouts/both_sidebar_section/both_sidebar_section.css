@@ -1,0 +1,35 @@
+/*
+ * @file
+ * Provides the layout styles for right-sidebar layout section.
+ */
+
+.dingo-layout {
+  display: grid;
+  grid-template-columns: repeat(16, 1fr);
+  grid-gap: 1rem;
+}
+
+.dingo-layout > .layout__region--content {
+  grid-column: 1 / 17;
+}
+.dingo-layout > .layout__region--left-sidebar {
+  grid-column: 1 / 17;
+}
+.dingo-layout > .layout__region--right-sidebar {
+  grid-column: 1 / 17;
+}
+
+@media (min-width: 920px) {
+  .dingo-layout > .layout__region--content {
+    grid-row: 1;
+    grid-column: 4 / 14;
+  }
+  .dingo-layout > .layout__region--left-sidebar {
+    grid-row: 1;
+    grid-column: 1 / 4;
+  }
+  .dingo-layout > .layout__region--right-sidebar {
+    grid-row: 1;
+    grid-column: 14 / 17;
+  }
+}

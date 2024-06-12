@@ -66,3 +66,22 @@ gin_select:
     js/gin_add_select2.js: {}
   dependencies:
     - webform/libraries.jquery.select2
+# CSS libraries for Layout plugins.
+right_sidebar_section:
+  version: VERSION
+  css:
+    theme:
+      layouts/right_sidebar_section/right_sidebar_section.css: {}
+
+left_sidebar_section:
+  version: VERSION
+  css:
+    theme:
+      layouts/left_sidebar_section/left_sidebar_section.css: {}
+
+both_sidebar_section:
+  version: VERSION
+  css:
+    theme:
+      layouts/both_sidebar_section/both_sidebar_section.css: {}
+
