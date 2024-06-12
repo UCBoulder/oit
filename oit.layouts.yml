@@ -27,7 +27,7 @@ layout_left_sidebar_section:
     content:
       label: Content area
 layout_both_sidebar_section:
-  label: 'Both sidebar'
+  label: 'Both sidebars'
   path: layouts/both_sidebar_section
   template: layout--both-sidebar-section
   library: oit/both_sidebar_section
