@@ -651,33 +651,6 @@ function oit_cron() {
   $archivenews->archive($cut_off);
   // Archive service maintenance past completion date.
   \Drupal::service('oit.smc');
-
-  # Set Domains
-  // Entity query to get nodes that don't have field_domain_access set.
-  $domain_update_start = \Drupal::state()->get('domain_update') >= 0 ? \Drupal::state()->get('domain_update') : NULL;
-  if ($domain_update_start !== NULL) {
-    $domain_update_end = $domain_update_start + 250;
-    $query = \Drupal::entityTypeManager()->getStorage('node')->getQuery();
-    $query->notExists('field_domain_access');
-    $query->sort('title', 'ASC');
-    $query->range($domain_update_start, $domain_update_end);
-    $query->accessCheck(FALSE);
-    $nids = $query->execute();
-    if (!empty($nids)) {
-      foreach ($nids as $nid) {
-        $node = \Drupal::entityTypeManager()->getStorage('node')->load($nid);
-        if ($node->getType() == 'news' || $node->getType() == 'service_alert') {
-          $node->set('field_sympa_send', 0);
-        }
-        $node->set('field_domain_access', 'oit_colorado_edu');
-        $node->save();
-      }
-      \Drupal::state()->set('domain_update', $domain_update_end);
-    }
-    else {
-      \Drupal::state()->delete('domain_update');
-    }
-  }
 }
 
 /**
