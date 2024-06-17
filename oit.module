@@ -815,7 +815,6 @@ function oit_menu_local_tasks_alter(&$data, $route_name) {
 
 /**
  * Implements hook_layouts_alter().
- */
 function oit_layout_alter(&$definitions) {
     // an array of layouts to keep
     $layoutsWhitelist = ['layout_onecol'];
@@ -831,6 +830,7 @@ function oit_layout_alter(&$definitions) {
         ARRAY_FILTER_USE_KEY
     );
 }
+ */
 
 /**
  * Implements hook_block_access().
