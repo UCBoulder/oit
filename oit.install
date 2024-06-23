@@ -275,3 +275,12 @@ function oit_update_10004() {
   \Drupal::state()->set('domain_update', 0);
 }
 
+/**
+ * Remove Liaison key.
+ */
+function oit_update_10005() {
+  $connection = \Drupal::database();
+  $connection->delete('key_value')
+    ->condition('name', 'liaison')
+    ->execute();
+}
