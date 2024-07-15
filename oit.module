@@ -693,25 +693,6 @@ function oit_menu_local_tasks_alter(&$data, $route_name) {
 }
 
 /**
- * Implements hook_layouts_alter().
-function oit_layout_alter(&$definitions) {
-    // an array of layouts to keep
-    $layoutsWhitelist = ['layout_onecol'];
-
-    // layouts that are required and cannot be removed
-    $requiredLayouts = ['layout_right_sidebar_section', 'layout_left_sidebar_section', 'layout_both_sidebar_section'];
-
-    $layouts = array_merge($requiredLayouts, $layoutsWhitelist);
-
-    $definitions = array_filter(
-        $definitions,
-        static fn(string $id) => in_array($id, $layouts, true),
-        ARRAY_FILTER_USE_KEY
-    );
-}
- */
-
-/**
  * Implements hook_block_access().
  */
 function oit_block_access(Block $block, $operation, AccountInterface $account) {
