@@ -57,7 +57,7 @@ function oit_entity_create(EntityInterface $entity) {
 }
 
 /**
- *
+ * hook_preprocess().
  */
 function oit_preprocess(&$variables, $hook) {
   $theme = \Drupal::service('theme.manager')->getActiveTheme()->getName();
@@ -77,6 +77,7 @@ function oit_preprocess(&$variables, $hook) {
  * Implements hook_form_alter().
  */
 function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  // Set to oit domain on oit site when viewing the content pate.
   if ($form_id == "views_form_content_page_1") {
     $domain = \Drupal::service('oit.domain')->getDomain();
     if ($domain == 'oit') {
@@ -97,11 +98,7 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
       }
     }
   }
-  if (isset($form['body'])) {
-    if ($form_id != 'block_content_shortcode_embed_form' && $form_id != 'block_content_shortcode_embed_edit_form') {
-      $form['body']['widget']['#after_build'][] = 'oit_hide_format';
-    }
-  }
+
 
   if (($form_id == 'views_exposed_form' && $form['#id'] == 'views-exposed-form-service-pages-tutorials-page-1') || ($form['#id'] == 'views-exposed-form-service-pages-tutorials-block-1')) {
     $form['#attributes']['class'][] = 'flex';
@@ -348,24 +345,8 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
       $form['taxonomy_vocabulary_11']['#group'] = 'oit_page_extras';
       $form['field_tut_comp_type_d7']['#group'] = 'oit_page_extras';
       $form['upload']['#group'] = 'oit_page_extras';
-      $form['field_tut_footer']['widget']['#after_build'][] = 'oit_hide_format';
       break;
   }
-}
-
-/**
- * After build callback for text_format element.
- */
-function oit_hide_format($form_element, FormStateInterface $form_state) {
-  if (isset($form_element[0]['format'])) {
-    unset($form_element[0]['format']['format']['#options']['restricted_html']);
-    unset($form_element[0]['format']['format']['#options']['www_unfiltered_']);
-    unset($form_element[0]['format']['format']['#options']['markdown']);
-    // All this stuff is needed to hide the help text.
-    unset($form_element[0]['format']['guidelines']);
-    unset($form_element[0]['format']['help']);
-  }
-  return $form_element;
 }
 
 /**
