@@ -487,9 +487,6 @@ function oit_page_attachments_alter(array &$attachments) {
       $attachments['#attached']['library'][] = 'oit/listjs';
       $attachments['#attached']['library'][] = 'oit/downloads_search';
     }
-    if ($id == 329 || $id == 1485) {
-      $attachments['#attached']['library'][] = 'oit/listjs';
-    }
     if (!is_string($node)) {
       if ($node->getType() == 'tutorial') {
         $attachments['#attached']['library'][] = 'dingo/tutorial';
