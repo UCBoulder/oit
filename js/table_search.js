@@ -26,16 +26,16 @@
     var table = $('#gdoc-table');
     table.find('tr').each(function (index, row) {
       var allCells = $(row).find('td');
-      var found = false; // Declare found here, outside the inner each function
+      var found = 0; // Declare found here, outside the inner each function
       if (allCells.length > 0) {
         allCells.each(function (index, td) {
           var regExp = new RegExp(inputVal, 'i');
           if (regExp.test($(td).text())) {
-            found = true; // Set found to true if a match is found
-            return false; // Break out of the each loop
+            found = 1; // Set found to true if a match is found
+            return 0; // Break out of the each loop
           }
         });
-        if (found == true) {
+        if (found == 1) {
           $(row).show();
         } else {
           $(row).hide();
