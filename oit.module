@@ -99,22 +99,7 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
     }
   }
 
-
-  if (($form_id == 'views_exposed_form' && $form['#id'] == 'views-exposed-form-service-pages-tutorials-page-1') || ($form['#id'] == 'views-exposed-form-service-pages-tutorials-block-1')) {
-    $form['#attributes']['class'][] = 'flex';
-    $form['actions']['#attributes']['class'][] = 'flex-full';
-    $form['service_tutorial_types'] = [
-      '#type' => 'select',
-      '#title' => t('Services & Tutorials'),
-      '#weight' => 0,
-      '#options' => [
-        0 => t('Services and Tutorials'),
-        1 => t('Services A to Z'),
-        2 => t('Services'),
-        3 => t('Tutorials'),
-      ],
-    ];
-  }
+  // Add spacemonkey to search.
   if ($form_id == 'search_form') {
     // Get query string.
     $query = \Drupal::request()->query->all();
@@ -128,10 +113,7 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
       $form['#attached']['library'][] = 'oit/spacemonkey';
     }
   }
-  if (isset($form['field_oit_page_category'])) {
-    $form['#attached']['library'][] = 'zap_initialize/zap.selectivity';
-    $form['#attached']['library'][] = 'zap_initialize/zap.pages';
-  }
+
   switch ($form_id) {
     case "node_service_alert_form":
     case "node_service_alert_edit_form":
@@ -160,6 +142,7 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
       break;
 
     case "search_block_form":
+      // Set search placeholder on oit.
       $domain = \Drupal::service('oit.domain')->getDomain();
       if ($domain == 'oit') {
         $form['keys']['#attributes']['placeholder'] = t('Search OIT');
@@ -381,72 +364,6 @@ function oit_news_types_categories(&$form, FormStateInterface $form_state) {
   if (!empty($cat_type)) {
     $form_state->setErrorByName('field_oit_category', t('Please select a @type category', ['@type' => $cat_type]));
   }
-}
-
-/**
- * Implements hook_form_FORM_ID_alter().
- *
- * Add custom messages for 403 redirects.
- *
- * @see oit_form_system_site_information_settings_form_submit()
- */
-function oit_form_user_login_form_alter(&$form, FormStateInterface $form_state, $form_id) {
-  $form['#cache'] = ['max-age' => 0];
-  $destination = Url::fromRoute('route_name', [], ['query' => \Drupal::service('redirect.destination')->getAsArray()]);
-  $destination = $destination->getOptions();
-  $dest_set = $destination['query']['destination'];
-  $config = \Drupal::config('oit.settings');
-  $oit_403 = $config->get('oit_403_message');
-  if (isset($oit_403[$dest_set])) {
-    $messenger = \Drupal::messenger();
-    $messenger->addMessage($oit_403[$dest_set]);
-  }
-}
-
-/**
- * Implements hook_form_FORM_ID_alter().
- *
- * Add custom messages for 403 redirects.
- *
- * @see oit_form_system_site_information_settings_form_submit()
- */
-function oit_form_system_site_information_settings_alter(&$form, FormStateInterface $form_state, $form_id) {
-  $config = \Drupal::config('oit.settings');
-  $oit_403 = $config->get('oit_403_message');
-  $oit_403_message = '';
-  foreach ($oit_403 as $path => $message) {
-    $oit_403_message .= "$path: $message\r";
-  }
-  $oit_403_message = rtrim($oit_403_message);
-  $form['error_page']['oit_user_403_messages'] = [
-    '#type' => 'textarea',
-    '#weight' => 13,
-    '#title' => t("Custom 403 message"),
-    '#description' => t('Seperate each path and message into seperate lines. Write the path/message as follows: path/that/gives/403: Custom message'),
-    '#default_value' => $oit_403_message,
-  ];
-  $form['actions']['submit']['#submit'][] = 'oit_general_user_403_message';
-}
-
-/**
- * Custom submit handler to save 403 user/login messages for users.
- */
-function oit_general_user_403_message($form, FormStateInterface $form_state) {
-  $message_text = Xss::filter($form_state->getValue('oit_user_403_messages'));
-  $message_text = explode(PHP_EOL, $message_text);
-  $mess = [];
-  foreach ($message_text as $message) {
-    if (!empty(rtrim($message))) {
-      $parts = explode(':', $message);
-      $path = $parts[0];
-      $msg = ltrim($parts[1]);
-      $msg = rtrim($msg);
-      $mess[$path] = $msg;
-    }
-  }
-  $config = \Drupal::service('config.factory')->getEditable('oit.settings');
-  $config->set('oit_403_message', $mess);
-  $config->save();
 }
 
 /**
