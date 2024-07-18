@@ -285,6 +285,7 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
       $form['login_words']['#markup'] = '<div class="login_text"></div>';
       $form['login_words']['#weight'] = -10;
       if (!$show_login_form) {
+        $form['#cache'] = ['max-age' => 0];
         $dest_get = Xss::filter(\Drupal::request()->get('destination'));
         $destination = !empty($dest_get) ? '?destination=' . $dest_get : '';
         $response = new RedirectResponse('/saml_login' . $destination, 301);
