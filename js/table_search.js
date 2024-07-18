@@ -32,7 +32,7 @@
           var regExp = new RegExp(inputVal, 'i');
           if (regExp.test($(td).text())) {
             found = 1; // Set found to true if a match is found
-            return ; // Break out of the each loop
+            return; // Break out of the each loop
           }
         });
         if (found == 1) {
