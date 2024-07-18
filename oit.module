@@ -287,7 +287,7 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
       if (!$show_login_form) {
         $dest_get = Xss::filter(\Drupal::request()->get('destination'));
         $destination = !empty($dest_get) ? '?destination=' . $dest_get : '';
-        $response = new RedirectResponse('/saml_login' . $destination);
+        $response = new RedirectResponse('/saml_login' . $destination, 301);
         $response->send();
         unset($form['name']);
         unset($form['pass']);
@@ -297,6 +297,7 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
         $form['simplesamlphp_auth_login_link']['#attributes']['class'][] = 'button';
         $form['simplesamlphp_auth_login_link']['#attributes']['class'][] = 'ext';
         $form['#attached']['library'][] = 'oit/gsap';
+        return;
       }
       break;
 

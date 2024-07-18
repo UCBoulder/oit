@@ -8,7 +8,7 @@
       });
     }
     if ( $( ".page-node-1485" ).length ) {
-      $('.table-search').before('<select class="cat_search" style="margin-left: .5em;" name="cat"><option value="">Choose From Categories</option><option value="">--- Room Features ---</option><option value="RCC">Remote-Capable Classrooms (RCC)</option><option value="ME ">Media Equipped (ME)</option><option value="SC">Smart Classrooms (SC)</option><option value="ALR">Active Learning Rooms (ALR)</option><option value="LLH">Large Lecture Hall (LLH)</option><option value="DL">Distance Learning (DL)</option><option value="CC">Classroom Capture (CC)</option><option value="CR">CUClickers Receivers (CR)</option><option value="WM">Wireless Microphones (WM)</option><option value="LAB">Computing Labs (LAB)</option><option value="">--- Building Type ---</option><option value="academic">Academic</option><option value="administrative">Administrative</option><option value="residence">Residence Hall</option></select>');
+      $('.table-search').before('<select class="cat_search" style="margin-left: .5em;" name="cat"><option value="">Choose From Categories</option><option value="">--- Room Features ---</option><option value="RCC">Remote-Capable Classrooms (RCC)</option><option value="ME ">Media Equipped (ME)</option><option value="SC">Smart Classrooms (SC)</option><option value="ALR">Active Learning Rooms (ALR)</option><option value="LLH">Large Lecture Hall (LLH)</option><option value="DL">Distance Learning (DL)</option><option value="CC">Classroom Capture (CC)</option><option value="CR">CUClickers Receivers (CR)</option><option value="WM">Wireless Microphones (WM)</option><option value="LAB">Computing Labs (LAB)</option><option value="">--- Building Type ---</option><option value="academic">Academic</option></select>');
       $( ".cat_search" ).change(function () {
         var selection = this.value;
         if (selection) {
@@ -32,7 +32,7 @@
           var regExp = new RegExp(inputVal, 'i');
           if (regExp.test($(td).text())) {
             found = 1; // Set found to true if a match is found
-            return 0; // Break out of the each loop
+            return ; // Break out of the each loop
           }
         });
         if (found == 1) {
