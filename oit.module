@@ -279,12 +279,14 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
       break;
 
     case "user_login_form":
+      // Remove any messages so they don't show up after login.
       \Drupal::messenger()->deleteAll();
       $config = \Drupal::config('oit.settings');
       $show_login_form = $config->get('show_login_form');
       $form['login_words']['#markup'] = '<div class="login_text"></div>';
       $form['login_words']['#weight'] = -10;
       if (!$show_login_form) {
+        // Cache is breaking the redirect, so kill it.
         \Drupal::service('page_cache_kill_switch')->trigger();
         $dest_get = Xss::filter(\Drupal::request()->get('destination'));
         $destination = !empty($dest_get) ? '?destination=' . $dest_get : '';
