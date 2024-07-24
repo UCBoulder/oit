@@ -78,8 +78,14 @@ function oit_preprocess(&$variables, $hook) {
  */
 function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
   // Set to oit domain on oit site when viewing the content pate.
+  $domain = \Drupal::service('oit.domain')->getDomain();
+  if ($domain == 'oit') {
+    if (isset($form['field_domain_source'])) {
+      $form['field_domain_source']['widget']['#default_value'][] = 'oit_colorado_edu';
+    }
+  }
+
   if ($form_id == "views_form_content_page_1") {
-    $domain = \Drupal::service('oit.domain')->getDomain();
     if ($domain == 'oit') {
       // Get query string.
       $query = \Drupal::request()->query->all();
@@ -534,6 +540,32 @@ function oit_cron() {
   $archivenews->archive($cut_off);
   // Archive service maintenance past completion date.
   \Drupal::service('oit.smc');
+
+
+  # Set Domain source.
+  // Entity query to get nodes with field_domain_source = 'oit_colorado_edu'.
+  $query = \Drupal::entityTypeManager()->getStorage('node')->getQuery();
+  $query->condition('field_domain_access', 'oit_colorado_edu');
+  $query->condition('field_domain_source', NULL, 'IS NULL');
+  $query->sort('nid', 'ASC');
+  $query->accessCheck(FALSE);
+  $nids = $query->execute();
+  if (!empty($nids)) {
+    $n=0;
+    foreach ($nids as $nid) {
+      if ($n > 1000) {
+        break;
+      }
+      $node = \Drupal::entityTypeManager()->getStorage('node')->load($nid);
+      if ($node->getType() == 'news' || $node->getType() == 'service_alert') {
+        $node->set('field_sympa_send', 0);
+      }
+      $node->set('field_domain_source', 'oit_colorado_edu');
+      $node->save();
+      $n++;
+    }
+  }
+
 }
 
 /**
