@@ -80,6 +80,9 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
   // Set to oit domain on oit site when viewing the content pate.
   $domain = \Drupal::service('oit.domain')->getDomain();
   if ($domain == 'oit') {
+    if (isset($form['field_domain_access'])) {
+      $form['field_domain_access']['widget']['#default_value'][] = 'oit_colorado_edu';
+    }
     if (isset($form['field_domain_source'])) {
       $form['field_domain_source']['widget']['#default_value'][] = 'oit_colorado_edu';
     }
