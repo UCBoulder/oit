@@ -556,7 +556,7 @@ function oit_cron() {
   if (!empty($nids)) {
     $n=0;
     foreach ($nids as $nid) {
-      if ($n > 1000) {
+      if ($n > 250) {
         break;
       }
       $node = \Drupal::entityTypeManager()->getStorage('node')->load($nid);
