@@ -264,6 +264,22 @@ class OitController extends ControllerBase {
   /**
    * Routes for zap.
    */
+  public function oitSamlLogin() {
+    // get referrer.
+    $forward = Xss::filter($_SERVER['HTTP_REFERER']);
+    $destination = $forward == "" ? "/" : preg_replace('/https:\/\/[^\/]+/', '', $forward);
+
+    // Forward user to /saml_login?destination=$destination.
+    $path = Url::fromRoute('simplesamlphp_auth.saml_login', [], ['query' => ['destination' => $destination]])->toString();
+    $redirect = new RedirectResponse($path);
+    $redirect->send();
+
+    return [];
+  }
+
+  /**
+   * Routes for zap.
+   */
   public function oitDenied() {
     $content = $this->deniedContent();
 

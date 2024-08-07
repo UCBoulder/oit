@@ -19,6 +19,15 @@ oit.404:
     _title: 'Page Not Found'
   requirements:
     _permission: 'access content'
+oit.saml.login:
+  path: '/saml/login'
+  defaults:
+    _controller: '\Drupal\oit\Controller\OitController::oitSamlLogin'
+    _title: ''
+  requirements:
+    _permission: 'access content'
+  options:
+    no_cache: 'TRUE'
 oit.denied:
   path: '/denied'
   defaults:
