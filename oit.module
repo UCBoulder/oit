@@ -298,7 +298,7 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
         // Cache is breaking the redirect, so kill it.
         \Drupal::service('page_cache_kill_switch')->trigger();
         $dest_get = Xss::filter(\Drupal::request()->get('dest'));
-        $destination = !empty($dest_get) ? '?destination=' . $dest_get : '';
+        $destination = !empty($dest_get) ? '?destination=' . preg_replace('/https:\/\/[^\/]+/', '', $dest_get) : '';
         $response = new RedirectResponse('/saml_login' . $destination, 301);
         $response->send();
         unset($form['name']);
