@@ -265,7 +265,7 @@ class OitController extends ControllerBase {
    * Routes for zap.
    */
   public function oitSamlLogin() {
-    // get referrer.
+    // Get referrer.
     $forward = Xss::filter($_SERVER['HTTP_REFERER']);
     $destination = $forward == "" ? "/" : preg_replace('/https:\/\/[^\/]+/', '', $forward);
 
