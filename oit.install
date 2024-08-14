@@ -284,3 +284,10 @@ function oit_update_10005() {
     ->condition('name', 'liaison')
     ->execute();
 }
+
+/**
+ * Truncate domain source table.
+ */
+function oit_update_10006() {
+  \Drupal::database()->truncate('node__field_domain_source')->execute();
+}
