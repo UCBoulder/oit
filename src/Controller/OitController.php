@@ -9,6 +9,7 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Extension\ModuleExtensionList;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\PageCache\ResponsePolicy\KillSwitch;
+use Symfony\Component\HttpFoundation\Request;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Url;
@@ -265,9 +266,18 @@ class OitController extends ControllerBase {
    * Routes for zap.
    */
   public function oitSamlLogin() {
-    // Get referrer.
-    $forward = Xss::filter($_SERVER['HTTP_REFERER']);
-    $destination = $forward == "" ? "/" : preg_replace('/https:\/\/[^\/]+/', '', $forward);
+    // Getting the referer.
+    $request = \Drupal::request();
+    $referer = $request->headers->get('referer');
+
+    // Getting the base url.
+    $base_url = Request::createFromGlobals()->getSchemeAndHttpHost();
+
+    // Getting the alias or the relative path.
+    $alias = Xss::filter(substr($referer, strlen($base_url)));
+
+    // Set destination
+    $destination = $alias == "" ? "/" : $alias;
 
     // Forward user to /saml_login?destination=$destination.
     $path = Url::fromRoute('simplesamlphp_auth.saml_login', [], ['query' => ['destination' => $destination]])->toString();
