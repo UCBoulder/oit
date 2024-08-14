@@ -26,3 +26,7 @@ services:
   oit.domain:
     class: Drupal\oit\Plugin\Domain
     arguments: ['@token']
+  oit.route_subscriber:
+    class: Drupal\oit\Services\RouteSubscriber
+    tags:
+      - { name: event_subscriber }
