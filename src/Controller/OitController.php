@@ -9,7 +9,6 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Extension\ModuleExtensionList;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\PageCache\ResponsePolicy\KillSwitch;
-use Symfony\Component\HttpFoundation\Request;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Url;
@@ -267,16 +266,16 @@ class OitController extends ControllerBase {
    */
   public function oitSamlLogin() {
     // Getting the referer.
-    $request = \Drupal::request();
+    $request = $this->requestStack;
     $referer = $request->headers->get('referer');
 
     // Getting the base url.
-    $base_url = Request::createFromGlobals()->getSchemeAndHttpHost();
+    $base_url = $request->getSchemeAndHttpHost();
 
     // Getting the alias or the relative path.
     $alias = Xss::filter(substr($referer, strlen($base_url)));
 
-    // Set destination
+    // Set destination.
     $destination = $alias == "" ? "/" : $alias;
 
     // Forward user to /saml_login?destination=$destination.
