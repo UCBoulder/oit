@@ -581,7 +581,7 @@ function oit_entity_presave(EntityInterface $entity) {
     if ($entity->getType() == 'service_alert') {
       oit_servicealert_update($entity);
     }
-    if ($entity->getType() != 'data_report') {
+    if ($entity->getEntityType()->id() == 'node') {
       // Allows for clearing of blocks based on node type.
       $tags = ['node_type:' . $entity->getType()];
       Cache::invalidateTags($tags);
