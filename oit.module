@@ -581,9 +581,11 @@ function oit_entity_presave(EntityInterface $entity) {
     if ($entity->getType() == 'service_alert') {
       oit_servicealert_update($entity);
     }
-    // Allows for clearing of blocks based on node type.
-    $tags = ['node_type:' . $entity->getType()];
-    Cache::invalidateTags($tags);
+    if ($entity->getType() != 'data_report') {
+      // Allows for clearing of blocks based on node type.
+      $tags = ['node_type:' . $entity->getType()];
+      Cache::invalidateTags($tags);
+    }
   }
   // Set image alt.
   if (method_exists($entity, 'bundle')) {
