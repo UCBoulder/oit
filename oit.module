@@ -295,7 +295,14 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
         // Cache is breaking the redirect, so kill it.
         \Drupal::service('page_cache_kill_switch')->trigger();
         $dest_get = Xss::filter(\Drupal::request()->get('dest'));
-        $destination = !empty($dest_get) ? '?destination=' . preg_replace('/https:\/\/[^\/]+/', '', $dest_get) : '';
+        $destination_get = Xss::filter(\Drupal::request()->get('destination'));
+        $destination = "";
+        if (!empty($dest_get)) {
+          $destination = '?destination=' . preg_replace('/https:\/\/[^\/]+/', '', $dest_get);
+        }
+        if (!empty($destination_get)) {
+          $destination = '?destination=' . preg_replace('/https:\/\/[^\/]+/', '', $destination_get);
+        }
         // Drupal 10 add log message with $destination.
         \Drupal::logger('oit')->notice('User login form redirecting to saml_login with destination: @destination', ['@destination' => $destination]);
         $response = new RedirectResponse('/saml_login' . $destination, 301);
