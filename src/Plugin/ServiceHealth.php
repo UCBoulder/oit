@@ -76,6 +76,7 @@ class ServiceHealth {
         ->accessCheck(FALSE)
         ->condition('type', $bundle)
         ->condition($fieldName, $dashboard_category_key)
+        ->condition('status', 1)
         ->sort('created', 'DESC');
       $results = $query->execute();
       if (empty($results)) {
