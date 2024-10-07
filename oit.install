@@ -291,3 +291,52 @@ function oit_update_10005() {
 function oit_update_10006() {
   \Drupal::database()->truncate('node__field_domain_source')->execute();
 }
+
+/**
+ * Set domain source.
+ */
+function oit_update_10007() {
+  \Drupal::database()->truncate('node__field_domain_source')->execute();
+
+  // Sql query to 'node__field_domain_access' table where delta = 0 pulling in all columns.
+  $query = \Drupal::database()->select('node__field_domain_access', 'nfa');
+  $query->fields('nfa', [
+    'bundle',
+    'deleted',
+    'entity_id',
+    'revision_id',
+    'langcode',
+    'delta',
+    'field_domain_access_target_id',
+  ]);
+  $query->condition('nfa.delta', 0);
+  $result = $query->execute()->fetchAll();
+
+  foreach ($result as $row) {
+    $nid = $row->entity_id;
+    $vid = $row->revision_id;
+    $lang = $row->langcode;
+    $bundle = $row->bundle;
+    $target_id = $row->field_domain_access_target_id;
+    $insert = \Drupal::database()->insert('node__field_domain_source')
+      ->fields([
+        'bundle',
+        'deleted',
+        'entity_id',
+        'revision_id',
+        'langcode',
+        'delta',
+        'field_domain_source_target_id',
+      ])
+      ->values([
+        $bundle,
+        0,
+        $nid,
+        $vid,
+        $lang,
+        0,
+        $target_id,
+      ])
+      ->execute();
+  }
+}
