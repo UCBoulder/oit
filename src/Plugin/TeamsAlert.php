@@ -112,21 +112,77 @@ class TeamsAlert {
    * Setup MS Teams card.
    */
   public function getMessage() {
-    return [
-      "@type" => "MessageCard",
-      "@context" => "http://schema.org/extensions",
-      "summary" => "Forge Card",
-      "themeColor" => '#2E96FF',
-      "title" => "Message from dingo",
-      "sections" => [
+    $message = $this->message;
+    $env = $this->env;
+
+    $message_array = [
+      'type' => 'message',
+      'attachments' => [
         [
-          "activityTitle" => "Environment: " . $this->env,
-          "activitySubtitle" => "",
-          "activityImage" => "",
-          "text" => $this->message,
-        ],
-      ],
+          'contentType' =>'application/vnd.microsoft.card.adaptive',
+          'contentUrl' => null,
+          'content' => [
+            '$schema' =>'http =>//adaptivecards.io/schemas/adaptive-card.json',
+            'type' =>'AdaptiveCard',
+            'version' =>'1.2',
+            'body' => [
+              [
+                'type' => 'TextBlock',
+                'size' => 'Large',
+                'weight' => 'bolder',
+                'text' => "Environment: $env",
+                'style' => 'heading',
+                'wrap' => 'true'
+              ],
+              [
+                'type' => 'ColumnSet',
+                'columns' => [
+                  [
+                    'type' => 'Column',
+                    'items' => [
+                      [
+                        'type' => 'Image',
+                        'style' => 'person',
+                        'url' => 'https://avatars.githubusercontent.com/u/105663422?v=4',
+                        'altText' => 'Ralphie',
+                        'size' => 'small'
+                      ]
+                    ],
+                  'width' => 'auto'
+                  ],
+                  [
+                    'type' => 'Column',
+                    'items' => [
+                      [
+                        'type' => 'TextBlock',
+                        'weight' => 'bolder',
+                        'text' => 'Ralphie McBuffaloPants',
+                        'wrap' => true
+                      ],
+                      [
+                        'type' => 'TextBlock',
+                        'spacing' => 'none',
+                        'text' => 'Automation Engineer',
+                        'isSubtle' => true,
+                        'wrap' => true
+                      ]
+                    ],
+                    'width' => 'stretch'
+                  ],
+                ],
+              ],
+              [
+                'type' => 'TextBlock',
+                'text' => "$message",
+                'wrap' => true
+              ]
+            ]
+          ]
+        ]
+      ]
     ];
+
+    return $message_array;
   }
 
 }
