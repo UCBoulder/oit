@@ -119,12 +119,12 @@ class TeamsAlert {
       'type' => 'message',
       'attachments' => [
         [
-          'contentType' =>'application/vnd.microsoft.card.adaptive',
-          'contentUrl' => null,
+          'contentType' => 'application/vnd.microsoft.card.adaptive',
+          'contentUrl' => NULL,
           'content' => [
-            '$schema' =>'http =>//adaptivecards.io/schemas/adaptive-card.json',
-            'type' =>'AdaptiveCard',
-            'version' =>'1.2',
+            '$schema' => 'http =>//adaptivecards.io/schemas/adaptive-card.json',
+            'type' => 'AdaptiveCard',
+            'version' => '1.2',
             'body' => [
               [
                 'type' => 'TextBlock',
@@ -132,7 +132,7 @@ class TeamsAlert {
                 'weight' => 'bolder',
                 'text' => "Environment: $env",
                 'style' => 'heading',
-                'wrap' => 'true'
+                'wrap' => 'true',
               ],
               [
                 'type' => 'ColumnSet',
@@ -145,10 +145,10 @@ class TeamsAlert {
                         'style' => 'person',
                         'url' => 'https://avatars.githubusercontent.com/u/105663422?v=4',
                         'altText' => 'Ralphie',
-                        'size' => 'small'
-                      ]
+                        'size' => 'small',
+                      ],
                     ],
-                  'width' => 'auto'
+                    'width' => 'auto',
                   ],
                   [
                     'type' => 'Column',
@@ -157,29 +157,29 @@ class TeamsAlert {
                         'type' => 'TextBlock',
                         'weight' => 'bolder',
                         'text' => 'Ralphie McBuffaloPants',
-                        'wrap' => true
+                        'wrap' => TRUE,
                       ],
                       [
                         'type' => 'TextBlock',
                         'spacing' => 'none',
                         'text' => 'Automation Engineer',
-                        'isSubtle' => true,
-                        'wrap' => true
-                      ]
+                        'isSubtle' => TRUE,
+                        'wrap' => TRUE,
+                      ],
                     ],
-                    'width' => 'stretch'
+                    'width' => 'stretch',
                   ],
                 ],
               ],
               [
                 'type' => 'TextBlock',
                 'text' => "$message",
-                'wrap' => true
-              ]
-            ]
-          ]
-        ]
-      ]
+                'wrap' => TRUE,
+              ],
+            ],
+          ],
+        ],
+      ],
     ];
 
     return $message_array;
