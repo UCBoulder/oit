@@ -195,7 +195,7 @@ class OitController extends ControllerBase {
       '#type' => 'inline_template',
       '#attached' => [
         'library' => [
-          'oit/404',
+          'oit/oit_404',
         ],
       ],
       '#template' => '
