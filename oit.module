@@ -748,3 +748,25 @@ function oit_block_access(Block $block, $operation, AccountInterface $account) {
     }
   }
 }
+
+/**
+ * Hook to alter a Drupal user account after SAML authentication.
+ *
+ * Allows other modules to change fields or properties on the Drupal account
+ * after a user logged in through SimpleSAMLphp. This can be used to add
+ * map additional SAML attributes to Drupal user profile fields.
+ *
+ * @param \Drupal\user\UserInterface $account
+ *   The Drupal account that can be altered.
+ * @param array $attributes
+ *   The SimpleSAMLphp attributes for this user.
+ *
+ * @return \Drupal\user\UserInterface|bool
+ *   The altered Drupal account or FALSE if nothing was changed.
+ */
+function oit_simplesamlphp_auth_user_attributes(\Drupal\user\UserInterface $account, $attributes) {
+  kint($attributes);
+  die();
+  return FALSE;
+}
+
