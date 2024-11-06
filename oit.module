@@ -90,6 +90,13 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
 
   if ($form_id == "views_form_content_page_1") {
     if ($domain == 'oit') {
+      // Get user roles.
+      $roles = \Drupal::currentUser()->getRoles();
+      if (in_array('oda_super_editors', $roles) || in_array('oda_editors', $roles)) {
+        $message = t('You are logged into the OIT site and cannot edit content. Please log into the Data site to edit content.');
+        \Drupal::messenger()->addMessage($message, 'warning');
+        $form['#access'] = FALSE;
+      }
       // Get query string.
       $query = \Drupal::request()->query->all();
       $domain_set = FALSE;
