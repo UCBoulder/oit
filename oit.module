@@ -765,7 +765,7 @@ function oit_block_access(Block $block, $operation, AccountInterface $account) {
  *   The altered Drupal account or FALSE if nothing was changed.
  */
 function oit_simplesamlphp_auth_user_attributes(\Drupal\user\UserInterface $account, $attributes) {
-  kint($attributes);
+  print_r($attributes);
   die();
   return FALSE;
 }
