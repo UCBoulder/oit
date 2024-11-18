@@ -616,7 +616,7 @@ function oit_entity_presave(EntityInterface $entity) {
  * Implements hook_entity_delete().
  */
 function oit_entity_delete(EntityInterface $entity) {
-  if (method_exists($entity, 'getType')) {
+  if (method_exists($entity, 'getType') && $entity->getEntityTypeId() == 'node') {
     // Allows for clearing of blocks based on node type.
     $tags = ['node_type:' . $entity->getType()];
     Cache::invalidateTags($tags);
