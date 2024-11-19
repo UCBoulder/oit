@@ -183,12 +183,10 @@ class ServiceHealth {
       'Federated Identity Service' => '3174',
       'Google Workspace' => '10617',
       'Grouper' => '16743',
-      'iClicker' => '243',
       'Identity Manager' => '1169',
       'Kaltura Rich Media Streaming' => '3984',
       'Microsoft Office 365' => '12589',
       'MyCUInfo' => 'https://mycuinfo.colorado.edu',
-      'Network' => '248',
       'OIT Data Centers' => '254',
       'Personal Capture' => '25106',
       'PlayPosit' => '21061',
@@ -197,9 +195,14 @@ class ServiceHealth {
       'SensusAccess' => '16521',
       'Sympa Email Lists' => '15775',
       'Turnitin' => '2323',
-      'VoiceThread' => '10101',
+      'UCB Guest Wireless' => '1010',
+      'UCB Wireless' => '612',
       'VPN' => '573',
+      'VoiceThread' => '10101',
+      'Wired Internet' => '737',
       'Zoom' => '15005',
+      'eduroam Secure Wireless' => '15585',
+      'iClicker' => '243',
     ];
     if (isset($service_links[$category]) && is_numeric($service_links[$category])) {
       $service = $this->nidLink($service_links[$category], $category);

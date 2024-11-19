@@ -97,11 +97,11 @@ class FrontServiceHealth extends BlockBase implements
     }
     // Force the following order for for all status 0 categories.
     $service_order = [
-      'Network',
+      'UCB Wireless',
+      'Wired Internet',
       'Canvas',
       'Zoom',
       'Buff Portal',
-      'MyCUInfo',
       'Identity Manager',
       'Microsoft Office 365',
       'Google Workspace',
