@@ -110,7 +110,8 @@ class ServiceAlertTweet extends BlockBase implements
   public function build() {
     $route_match = $this->routeMatchInterface->getRawParameters()->getIterator();
     $node_title = $this->entityTypeManager->getStorage('node')->load($route_match['node'])->getTitle();
-    $service_status = $this->entityTypeManager->getStorage('node')->load($route_match['node'])->get('field_service_alert_status')->value;
+    $node_type = $this->entityTypeManager->getStorage('node')->load($route_match['node'])->bundle();
+    $service_status = $node_type == 'service_alert' ? $this->entityTypeManager->getStorage('node')->load($route_match['node'])->get('field_service_alert_status')->value : '';
     $host = $this->request->getCurrentRequest()->getSchemeAndHttpHost();
     $current_path = $this->currentPathStack->getPath();
     $tweet = urlencode($service_status . ': ' . $node_title . ' ' . $host . $current_path);
