@@ -522,6 +522,17 @@ function oit_page_attachments_alter(array &$attachments) {
       }
     }
   }
+  $domain = \Drupal::service('oit.domain')->getDomain();
+  if ($domain == 'oit') {
+    $google_site_verify = [
+      '#tag' => 'meta',
+      '#attributes' => [
+        'name' => 'google-site-verification',
+        'content' => '7W5qMq8L0e0Ar6WDHCTrcC5IDXMBDj1Cm1DL0evR32o',
+      ],
+    ];
+    $attachments['#attached']['html_head'][] = [$google_site_verify, 'google-site-verification'];
+  }
 }
 
 /**
