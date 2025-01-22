@@ -41,14 +41,14 @@ class LatestAutoBan {
   /**
    * Get the latest banned id.
    *
-   * @var
+   * @var int
    */
   public $latestBanId;
 
   /**
    * Get the last banned id.
    *
-   * @var
+   * @var int
    */
   public $lastBanId;
 
@@ -58,7 +58,7 @@ class LatestAutoBan {
   public function __construct(
     Connection $connection,
     TeamsAlert $teams_alert,
-    State $state
+    State $state,
   ) {
     $this->connection = $connection;
     $this->teamsAlert = $teams_alert;
@@ -95,7 +95,7 @@ class LatestAutoBan {
    * Set last id after teams message.
    */
   public function setLastBanId() {
-    $this->state->set('ban_ip_last_id', $this->latestBanId );
+    $this->state->set('ban_ip_last_id', $this->latestBanId);
   }
 
 }
