@@ -340,3 +340,16 @@ function oit_update_10007() {
       ->execute();
   }
 }
+
+/**
+ * Track latest ban_ip id to update new ip's to teams.
+ */
+function oit_update_10008() {
+  $query = \Drupal::database()->select('ban_ip', 'bi');
+  $query->fields('bi', ['iid']);
+  $query->orderBy('iid', 'DESC');
+  $query->range(0, 1);
+  $result = $query->execute()->fetchAll();
+  $last_id = $result[0]->iid;
+  \Drupal::state()->set('ban_ip_last_id', $last_id);
+}

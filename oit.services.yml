@@ -11,6 +11,9 @@ services:
   oit.archivenews:
     class: Drupal\oit\Plugin\Util\ArchiveNews
     arguments: ['@database', '@entity_type.manager', '@oit.teamsalert']
+  oit.latestAutoBan:
+    class: Drupal\oit\Plugin\Util\LatestAutoBan
+    arguments: ['@database', '@oit.teamsalert', '@state']
   oit.servicehealth:
     class: Drupal\oit\Plugin\ServiceHealth
     arguments: ['@config.factory', '@date.formatter', '@entity_type.manager']

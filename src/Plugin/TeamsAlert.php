@@ -102,7 +102,9 @@ class TeamsAlert {
     // Run the whole process.
     $result = curl_exec($ch);
     if ($result !== "1") {
-      $this->logger->error("Issue sending Teams Message. " . $result);
+      if ($result !== "") {
+        $this->logger->error("Issue sending Teams Message. " . $result);
+      }
     }
     // Close cURL handler.
     curl_close($ch);
