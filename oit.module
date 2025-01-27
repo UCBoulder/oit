@@ -563,6 +563,14 @@ function oit_cron() {
   if ($midnight) {
     // Add analytics to redirects.
     \Drupal::service('oit.redirect.add.analytics');
+
+    // Send service alert message when new banned ip is added.
+    $latest_ban = \Drupal::service('oit.latestAutoBan');
+    $current_ban_id = $latest_ban->latestBanId;
+    $last_ban_id = $latest_ban->lastBanId;
+    if ($current_ban_id != $last_ban_id) {
+      $latest_ban->messageLatestIps();
+    }
   }
   // Archive news older than 90 days.
   $cut_off = strtotime("-90 days");
@@ -570,14 +578,6 @@ function oit_cron() {
   $archivenews->archive($cut_off);
   // Archive service maintenance past completion date.
   \Drupal::service('oit.smc');
-
-  // Send service alert message when new banned ip is added.
-  $latest_ban = \Drupal::service('oit.latestAutoBan');
-  $current_ban_id = $latest_ban->latestBanId;
-  $last_ban_id = $latest_ban->lastBanId;
-  if ($current_ban_id != $last_ban_id) {
-    $latest_ban->messageLatestIps();
-  }
 }
 
 /**
