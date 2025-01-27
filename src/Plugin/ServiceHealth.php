@@ -67,6 +67,10 @@ class ServiceHealth {
     $dashboard_categories = $settings['allowed_values'];
 
     foreach ($dashboard_categories as $dashboard_category) {
+      // Remove after these are removed.
+      if ($dashboard_category['label'] == 'UCB Guest Wireless (DO NOT USE)' || $dashboard_category['label'] == 'Wired Internet (DO NOT USE)') {
+        continue;
+      }
       $dashboard_category_key = $dashboard_category['value'];
       $dashboard_category = $dashboard_category['label'];
       // Setup array with proper key with category.

@@ -700,6 +700,8 @@ function oit_servicealert_update($entity) {
       'vpn',
       'zoom',
       'other',
+      'network', # guest_wireless
+      'network', # wired_internet
     ];
     $host = \Drupal::request()->getSchemeAndHttpHost();
     $social_image = "$host/sites/default/files/sa_images/sa_$sa_dashboard[$translated_dashboard].png";
