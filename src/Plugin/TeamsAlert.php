@@ -177,8 +177,8 @@ class TeamsAlert {
                 'type' => 'TextBlock',
                 'text' => "$message",
                 'wrap' => TRUE,
-                'isHtml' => FALSE, // Disable HTML content
-                'markdown' => TRUE, // Enable Markdown content
+                'isHtml' => FALSE,
+                'markdown' => TRUE,
               ],
             ],
           ],

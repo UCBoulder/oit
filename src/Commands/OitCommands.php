@@ -33,14 +33,13 @@ class OitCommands extends DrushCommands {
    */
   protected $teamsAlert;
 
-
   /**
    * Construct object.
    */
   public function __construct(
     PrincessList $princess_list,
     MessengerInterface $messenger,
-    TeamsAlert $teams_alert
+    TeamsAlert $teams_alert,
   ) {
     parent::__construct();
     $this->princessList = $princess_list;
