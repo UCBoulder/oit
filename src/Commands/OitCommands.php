@@ -5,6 +5,7 @@ namespace Drupal\oit\Commands;
 use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\servicenow\Plugin\PrincessList;
 use Drush\Commands\DrushCommands;
+use Drupal\oit\Plugin\TeamsAlert;
 
 /**
  * Various utility commands for OIT.
@@ -26,15 +27,25 @@ class OitCommands extends DrushCommands {
   protected $messenger;
 
   /**
+   * Teams Alert.
+   *
+   * @var \Drupal\oit\Plugin\TeamsAlert
+   */
+  protected $teamsAlert;
+
+
+  /**
    * Construct object.
    */
   public function __construct(
     PrincessList $princess_list,
     MessengerInterface $messenger,
+    TeamsAlert $teams_alert
   ) {
     parent::__construct();
     $this->princessList = $princess_list;
     $this->messenger = $messenger;
+    $this->teamsAlert = $teams_alert;
   }
 
   /**
@@ -63,6 +74,18 @@ class OitCommands extends DrushCommands {
   public function loadPrincess($incremental = 0) {
     $this->princessList->cron($incremental);
     $this->messenger->addMessage('Princess List Loaded.');
+  }
+
+  /**
+   * Send Teams Alert.
+   *
+   * @command oit:send-teams-alert
+   * @aliases oit:sta
+   */
+  public function sendTeamsAlert($userMessage) {
+    $teams = $this->teamsAlert;
+    $teams->sendMessage($userMessage);
+    $this->messenger->addMessage('Teams Alert Sent.');
   }
 
 }

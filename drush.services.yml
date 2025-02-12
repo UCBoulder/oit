@@ -4,5 +4,6 @@ services:
     arguments:
       - '@servicenow.princess.list'
       - '@messenger'
+      - '@oit.teamsalert'
     tags:
       - { name: drush.command }

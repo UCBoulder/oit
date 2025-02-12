@@ -124,7 +124,7 @@ class TeamsAlert {
           'contentType' => 'application/vnd.microsoft.card.adaptive',
           'contentUrl' => NULL,
           'content' => [
-            '$schema' => 'http =>//adaptivecards.io/schemas/adaptive-card.json',
+            '$schema' => 'http://adaptivecards.io/schemas/adaptive-card.json',
             'type' => 'AdaptiveCard',
             'version' => '1.2',
             'body' => [
@@ -177,6 +177,8 @@ class TeamsAlert {
                 'type' => 'TextBlock',
                 'text' => "$message",
                 'wrap' => TRUE,
+                'isHtml' => FALSE, // Disable HTML content
+                'markdown' => TRUE, // Enable Markdown content
               ],
             ],
           ],
