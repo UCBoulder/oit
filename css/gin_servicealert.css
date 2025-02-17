@@ -1,0 +1,16 @@
+html:has(#edit-field-sympa-send-value:checked) #gin-sticky-edit-submit {
+  background-color: red;
+}
+
+#edit-gin-sticky-actions {
+  position: relative;
+}
+
+html:has(#edit-field-sympa-send-value:checked) #edit-status--2:after {
+  content: "📧";
+  position: absolute;
+  display: block;
+  right: 202px;
+  bottom: 35px;
+  font-size: 1.5em;
+}

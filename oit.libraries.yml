@@ -61,6 +61,10 @@ gingerbread:
   css:
     theme:
       css/gin.css: {}
+gin_sa:
+  css:
+    theme:
+      css/gin_servicealert.css: {}
 gin_select:
   js:
     js/gin_add_select2.js: {}

@@ -133,6 +133,12 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
   switch ($form_id) {
     case "node_service_alert_form":
     case "node_service_alert_edit_form":
+      $config = \Drupal::config('sympa.settings');
+      $prod_email = $config->get('sympa_email_prod');
+
+      if ($prod_email) {
+        $form['#attached']['library'][] = 'oit/gin_sa';
+      }
       // Group for page sub-type extra fields.
       $form['oit_sa_extras'] = [
         '#title' => t('Service Alert Extras'),
@@ -274,6 +280,13 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
 
     case "node_news_form":
     case "node_news_edit_form":
+      $config = \Drupal::config('sympa.settings');
+      $prod_email = $config->get('sympa_email_prod');
+
+      if ($prod_email) {
+        $form['#attached']['library'][] = 'oit/gin_sa';
+      }
+
       // Group for page sub-type extra fields.
       $form['oit_news_extras'] = [
         '#title' => t('News Extras'),
