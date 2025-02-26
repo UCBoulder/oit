@@ -6,6 +6,7 @@ use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\servicenow\Plugin\PrincessList;
 use Drush\Commands\DrushCommands;
 use Drupal\oit\Plugin\TeamsAlert;
+use Drupal\Core\Database\Connection;
 
 /**
  * Various utility commands for OIT.
@@ -34,17 +35,26 @@ class OitCommands extends DrushCommands {
   protected $teamsAlert;
 
   /**
+   * The Database service.
+   *
+   * @var \Drupal\Core\Database\Connection
+   */
+  protected $database;
+
+  /**
    * Construct object.
    */
   public function __construct(
     PrincessList $princess_list,
     MessengerInterface $messenger,
     TeamsAlert $teams_alert,
+    Connection $database,
   ) {
     parent::__construct();
     $this->princessList = $princess_list;
     $this->messenger = $messenger;
     $this->teamsAlert = $teams_alert;
+    $this->database = $database;
   }
 
   /**
@@ -94,7 +104,7 @@ class OitCommands extends DrushCommands {
    * @aliases oit:bic
    */
   public function bannedIpClean($keep = 150) {
-    $query = \Drupal::database()->select('ban_ip', 'b');
+    $query = $this->database->select('ban_ip', 'b');
     $query->fields('b', ['iid']);
     $query->orderBy('iid', 'ASC');
     $result = $query->execute()->fetchAll();
@@ -118,7 +128,7 @@ class OitCommands extends DrushCommands {
     }
 
     foreach ($result_remove as $row) {
-      \Drupal::database()->delete('ban_ip')
+      $this->database->delete('ban_ip')
         ->condition('iid', $row)
         ->execute();
     }
