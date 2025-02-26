@@ -118,7 +118,7 @@ class OitCommands extends DrushCommands {
     }
 
     foreach ($result_remove as $row) {
-      $delete = \Drupal::database()->delete('ban_ip')
+      \Drupal::database()->delete('ban_ip')
         ->condition('iid', $row)
         ->execute();
     }
