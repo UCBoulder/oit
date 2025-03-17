@@ -1,5 +1,5 @@
 {
-  "name": "drupal/oit",
+  "name": "oit/oit",
   "type": "drupal-module",
   "description": "OIT Custom Module",
   "require": {
