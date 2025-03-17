@@ -7,6 +7,7 @@ use Drupal\Core\Datetime\DateFormatterInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Url;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 
 /**
  * Current service health.
@@ -18,6 +19,8 @@ use Drupal\Core\Url;
  * )
  */
 class ServiceHealth {
+
+  use StringTranslationTrait;
 
   /**
    * Config factory.
