@@ -86,6 +86,12 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
     if (isset($form['field_domain_source'])) {
       $form['field_domain_source']['widget']['#default_value'][] = 'oit_colorado_edu';
     }
+    $env = getenv('PANTHEON_ENVIRONMENT');
+    if ($env == 'local') {
+      // Disable source locally.
+      $form['field_domain_source']['widget']['#default_value'] = [];
+      $form['field_domain_source']['widget']['#default_value'][] = '_none';
+    }
   }
 
   if ($form_id == "views_form_content_page_1") {
