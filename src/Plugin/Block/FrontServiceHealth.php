@@ -133,7 +133,7 @@ class FrontServiceHealth extends BlockBase implements
     $services .= "</ul>";
     return [
       '#type' => 'inline_template',
-      '#template' => '<div class="heading-underline"><h2><a href="{{ servicesLink }}">{% trans %} Service Health {% endtrans %}</a></h2>{{ content | raw }}</div>',
+      '#template' => '<div><h2><a href="{{ servicesLink }}">{% trans %} Service Health {% endtrans %}</a></h2>{{ content | raw }}</div>',
       '#context' => [
         'content' => $services,
         'servicesLink' => '/service-health',

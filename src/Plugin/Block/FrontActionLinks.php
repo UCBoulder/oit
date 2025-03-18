@@ -130,7 +130,7 @@ class FrontActionLinks extends BlockBase implements
         </ul>
         </div>
         <div class="flex-one-half">
-        <h2 class="h2"><span>{{ how }}</span></h2>
+        <h2 class="h2">{{ how }}</h2>
         {{ block }}
         </div>
       </div>',
