@@ -1,6 +1,6 @@
 {
   "name": "oit/oit",
-  "type": "drupal-module",
+  "type": "drupal-custom-module",
   "description": "OIT Custom Module",
   "require": {
     "drupal/core": "^10 || ^11"
