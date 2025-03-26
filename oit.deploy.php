@@ -34,6 +34,7 @@ function oit_deploy_10000_dashtax() {
     'Zoom' => '15005',
     'eduroam Secure Wireless' => '15585',
     'iClicker' => '243',
+    'Other' => '',
   ];
 
   foreach ($service_links as $service => $service_id) {
