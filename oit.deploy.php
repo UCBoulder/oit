@@ -17,7 +17,6 @@ function oit_deploy_10000_dashtax() {
     'Google Workspace' => '10617',
     'Grouper' => '16743',
     'Identity Manager' => '1169',
-    'Kaltura Rich Media Streaming' => '3984',
     'Microsoft 365' => '12589',
     'MyCUInfo' => 'https://mycuinfo.colorado.edu',
     'OIT Data Centers' => '254',
