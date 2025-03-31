@@ -54,34 +54,62 @@ function oit_deploy_10000_dashtax() {
  */
 function oit_deploy_10001_mapcats() {
   $dash_cat = [
-    1 => 1269, // Buff Portal
-    2 => 1270, // Canvas
-    3 => 1271, // Classroom Capture
-    4 => 1272, // Computing Labs
-    28 => 1292, // eduroam Secure Wireless
-    5 => 1273, // Federated Identity Service
-    6 => 1274, // Google Workspace
-    7 => 1275, // Grouper
-    8 => 1293, // iClicker
-    9 => 1276, // Identity Manager
-    10 => 1295, // Kaltura Rich Media Streaming
-    11 => 1277, // Microsoft Office 365
-    12 => 1278, // MyCUInfo
-    14 => 1279, // OIT Data Centers
-    15 => 1280, // Personal Capture
-    16 => 1281, // PlayPosit
-    17 => 1296, // Proctorio
-    18 => 1282, // Qualtrics
-    19 => 1283, // SensusAccess
-    20 => 1297, // Sympa Email Lists
-    21 => 1284, // Turnitin
-    27 => 1285, // UCB Guest Wireless
-    13 => 1286, // UCB Wireless
-    22 => 1289, // VoiceThread
-    23 => 1287, // VPN
-    26 => 1290, // Wired Internet
-    24 => 1291, // Zoom
-    25 => 1294, // Other
+  // Buff Portal.
+    1 => 1269,
+  // Canvas.
+    2 => 1270,
+  // Classroom Capture.
+    3 => 1271,
+  // Computing Labs.
+    4 => 1272,
+  // Eduroam Secure Wireless.
+    28 => 1292,
+  // Federated Identity Service.
+    5 => 1273,
+  // Google Workspace.
+    6 => 1274,
+  // Grouper.
+    7 => 1275,
+  // iClicker.
+    8 => 1293,
+  // Identity Manager.
+    9 => 1276,
+  // Kaltura Rich Media Streaming.
+    10 => 1295,
+  // Microsoft Office 365.
+    11 => 1277,
+  // MyCUInfo.
+    12 => 1278,
+  // OIT Data Centers.
+    14 => 1279,
+  // Personal Capture.
+    15 => 1280,
+  // PlayPosit.
+    16 => 1281,
+  // Proctorio.
+    17 => 1296,
+  // Qualtrics.
+    18 => 1282,
+  // SensusAccess.
+    19 => 1283,
+  // Sympa Email Lists.
+    20 => 1297,
+  // Turnitin.
+    21 => 1284,
+  // UCB Guest Wireless.
+    27 => 1285,
+  // UCB Wireless.
+    13 => 1286,
+  // VoiceThread.
+    22 => 1289,
+  // VPN.
+    23 => 1287,
+  // Wired Internet.
+    26 => 1290,
+  // Zoom.
+    24 => 1291,
+  // Other.
+    25 => 1294,
   ];
 
   $query = \Drupal::database()->select('node__field_service_dashboard_category', 'fdc');
