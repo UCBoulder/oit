@@ -482,7 +482,7 @@ class OitController extends ControllerBase {
       $svg = $service_dashboard->statusCircle($cat_status);
       $status_row = "$svg $status_current";
       $rows[] = [
-        $service_dashboard->serviceLink($category[$cat_key]['service']),
+        $service_dashboard->serviceLink($category[$cat_key]['service'], $category[$cat_key]['tid']),
         check_markup($status_row, 'rich_text'),
         $category[$cat_key]['button'],
       ];

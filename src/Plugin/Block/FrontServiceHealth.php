@@ -103,7 +103,7 @@ class FrontServiceHealth extends BlockBase implements
       'Zoom',
       'Buff Portal',
       'Identity Manager',
-      'Microsoft Office 365',
+      'Microsoft 365',
       'Google Workspace',
       'OIT Data Centers',
     ];
