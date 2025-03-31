@@ -184,7 +184,6 @@ class ServiceHealth {
    * Link service category to the correct service.
    */
   public function serviceLink($category, $tid) {
-    // Entity query taxonomy by tid, get the field field_sa_dash_cat_node_id value.
     $entity_storage = $this->entityTypeManager->getStorage('taxonomy_term');
     $term = $entity_storage->load($tid);
     $ref_nid = $term->get('field_sa_dash_cat_node_id')->value;
