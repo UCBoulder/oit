@@ -48,3 +48,70 @@ function oit_deploy_10000_dashtax() {
   }
 
 }
+
+/**
+ * Update dash tax from current dashboard categories.
+ */
+function oit_deploy_10001_mapcats() {
+  $dash_cat = [
+    1 => 1269, // Buff Portal
+    2 => 1270, // Canvas
+    3 => 1271, // Classroom Capture
+    4 => 1272, // Computing Labs
+    28 => 1292, // eduroam Secure Wireless
+    5 => 1273, // Federated Identity Service
+    6 => 1274, // Google Workspace
+    7 => 1275, // Grouper
+    8 => 1293, // iClicker
+    9 => 1276, // Identity Manager
+    10 => 1295, // Kaltura Rich Media Streaming
+    11 => 1277, // Microsoft Office 365
+    12 => 1278, // MyCUInfo
+    14 => 1279, // OIT Data Centers
+    15 => 1280, // Personal Capture
+    16 => 1281, // PlayPosit
+    17 => 1296, // Proctorio
+    18 => 1282, // Qualtrics
+    19 => 1283, // SensusAccess
+    20 => 1297, // Sympa Email Lists
+    21 => 1284, // Turnitin
+    27 => 1285, // UCB Guest Wireless
+    13 => 1286, // UCB Wireless
+    22 => 1289, // VoiceThread
+    23 => 1287, // VPN
+    26 => 1290, // Wired Internet
+    24 => 1291, // Zoom
+    25 => 1294, // Other
+  ];
+
+  $query = \Drupal::database()->select('node__field_service_dashboard_category', 'fdc');
+  $query->fields('fdc', ['entity_id', 'revision_id', 'delta', 'field_service_dashboard_category_value']);
+  $result = $query->execute()->fetchAll();
+
+  foreach ($result as $row) {
+    $mysql_insert = \Drupal::database()->insert('node__field_service_alert_dash_cat');
+    $mysql_insert->fields([
+      'bundle' => 'service_alert',
+      'deleted' => 0,
+      'entity_id' => $row->entity_id,
+      'revision_id' => $row->revision_id,
+      'langcode' => 'en',
+      'delta' => $row->delta,
+      'field_service_alert_dash_cat_target_id' => $dash_cat[$row->field_service_dashboard_category_value],
+    ]);
+    $mysql_insert->execute();
+
+    $mysql_insert = \Drupal::database()->insert('node_revision__field_service_alert_dash_cat');
+    $mysql_insert->fields([
+      'bundle' => 'service_alert',
+      'deleted' => 0,
+      'entity_id' => $row->entity_id,
+      'revision_id' => $row->revision_id,
+      'langcode' => 'en',
+      'delta' => $row->delta,
+      'field_service_alert_dash_cat_target_id' => $dash_cat[$row->field_service_dashboard_category_value],
+    ]);
+    $mysql_insert->execute();
+  }
+
+}
