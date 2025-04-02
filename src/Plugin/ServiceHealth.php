@@ -63,19 +63,15 @@ class ServiceHealth {
     $category = [];
     $entityType = 'node';
     $bundle = 'service_alert';
-    $fieldName = 'field_service_dashboard_category';
-    $service_alert_dashboard_field = $this->configFactory->getEditable("field.storage.$entityType.$fieldName");
-    $settings = $service_alert_dashboard_field->get('settings');
-    // List of categories.
-    $dashboard_categories = $settings['allowed_values'];
+    $taxonomyName = 'service_dashboard_category';
+    $fieldName = 'field_service_alert_dash_cat';
+
+    $entity_storage = $this->entityTypeManager->getStorage('taxonomy_term');
+    $dashboard_categories = $entity_storage->loadTree($taxonomyName);
 
     foreach ($dashboard_categories as $dashboard_category) {
-      // Remove after these are removed.
-      if ($dashboard_category['label'] == 'eduroam Secure Wireless (DO NOT USE)') {
-        continue;
-      }
-      $dashboard_category_key = $dashboard_category['value'];
-      $dashboard_category = $dashboard_category['label'];
+      $dashboard_category_key = $dashboard_category->tid;
+      $dashboard_category = $dashboard_category->name;
       // Setup array with proper key with category.
       $sa_dashboard_key_category[$dashboard_category_key] = $dashboard_category;
       $entity_storage = $this->entityTypeManager->getStorage('node');
@@ -89,6 +85,7 @@ class ServiceHealth {
       if (empty($results)) {
         $category["0-$dashboard_category"] = [
           'service' => $dashboard_category,
+          'tid' => $dashboard_category_key,
           'status' => 0,
           'link' => '',
           'button' => '',
@@ -108,6 +105,7 @@ class ServiceHealth {
           if ($status == 'Service Issue Reported' || $status == 'Service Issue Updated') {
             $category["2-$dashboard_category"] = [
               'service' => $dashboard_category,
+              'tid' => $dashboard_category_key,
               'status' => 2,
               'link' => $sa_link,
               'button' => $sa_button,
@@ -117,6 +115,7 @@ class ServiceHealth {
           elseif ($status == 'Service Maintenance Scheduled') {
             $category["1-$dashboard_category"] = [
               'service' => $dashboard_category,
+              'tid' => $dashboard_category_key,
               'status' => 1,
               'link' => $sa_link,
               'button' => $sa_button,
@@ -128,6 +127,7 @@ class ServiceHealth {
             $sa_link = $this->nidLink($result, $dashboard_category . ' - ' . $this->t('View Service Alert'), ['text-color--blue']);
             $category["0-$dashboard_category"] = [
               'service' => $dashboard_category,
+              'tid' => $dashboard_category_key,
               'status' => 0,
               'link' => '',
               'button' => $sa_button,
@@ -136,7 +136,9 @@ class ServiceHealth {
           }
         }
       }
+
     }
+
     return $category;
   }
 
@@ -181,41 +183,16 @@ class ServiceHealth {
   /**
    * Link service category to the correct service.
    */
-  public function serviceLink($category) {
-    $service_links = [
-      'Buff Portal' => '21566',
-      'Canvas' => '19026',
-      'Classroom Capture' => '418',
-      'Computing Labs' => '413',
-      'Federated Identity Service' => '3174',
-      'Google Workspace' => '10617',
-      'Grouper' => '16743',
-      'Identity Manager' => '1169',
-      'Kaltura Rich Media Streaming' => '3984',
-      'Microsoft Office 365' => '12589',
-      'MyCUInfo' => 'https://mycuinfo.colorado.edu',
-      'OIT Data Centers' => '254',
-      'Personal Capture' => '25106',
-      'PlayPosit' => '21061',
-      'Proctorio' => '24631',
-      'Qualtrics' => '8615',
-      'SensusAccess' => '16521',
-      'Sympa Email Lists' => '15775',
-      'Turnitin' => '2323',
-      'UCB Guest Wireless' => '1010',
-      'UCB Wireless' => '612',
-      'VPN' => '573',
-      'VoiceThread' => '10101',
-      'Wired Internet' => '737',
-      'Zoom' => '15005',
-      'eduroam Secure Wireless' => '15585',
-      'iClicker' => '243',
-    ];
-    if (isset($service_links[$category]) && is_numeric($service_links[$category])) {
-      $service = $this->nidLink($service_links[$category], $category);
+  public function serviceLink($category, $tid) {
+    $entity_storage = $this->entityTypeManager->getStorage('taxonomy_term');
+    $term = $entity_storage->load($tid);
+    $ref_nid = $term->get('field_sa_dash_cat_node_id')->value;
+
+    if (isset($ref_nid) && is_numeric($ref_nid)) {
+      $service = $this->nidLink($ref_nid, $category);
     }
-    elseif (isset($service_links[$category])) {
-      $service = $this->extLink($service_links[$category], $category);
+    elseif (isset($ref_nid)) {
+      $service = $this->extLink($ref_nid, $category);
     }
     else {
       $service = $category;
