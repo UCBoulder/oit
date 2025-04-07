@@ -469,8 +469,8 @@ function oit_tokens($type, $tokens, array $data, array $options, BubbleableMetad
               $sa_image_styled = $sa_image_style->getImageUrl();
               $replacements[$original] = $sa_image_styled;
             }
-            if ($data['node']->getType() == 'service_alert' && count($data['node']->get('field_service_dashboard_category')->getValue()) !== 0) {
-              $set_dashboard = $data['node']->get('field_service_dashboard_category')->getValue()[0]['value'];
+            if ($data['node']->getType() == 'service_alert' && count($data['node']->get('field_service_alert_dash_cat')->getValue()) !== 0) {
+              $set_dashboard = $data['node']->get('field_service_alert_dash_cat')->getValue()[0]['value'];
               $translated_dashboard = $set_dashboard - 1;
               $sa_dashboard = [
                 'buffportal',
@@ -689,9 +689,9 @@ function oit_news_update($entity) {
  */
 function oit_servicealert_update($entity) {
   $meta_info = json_decode($entity->get('field_meta_tags')->getValue()[0]['value']) ?? [];
-  if ((!isset($meta_info->twitter_cards_image) || !isset($meta_info->og_image)) && $entity->get('field_service_dashboard_category')) {
+  if ((!isset($meta_info->twitter_cards_image) || !isset($meta_info->og_image)) && $entity->get('field_service_alert_dash_cat')) {
     $meta_info["twitter_cards_type"] = "summary";
-    $set_dashboard = $entity->get('field_service_dashboard_category')->getValue()[0]['value'];
+    $set_dashboard = $entity->get('field_service_alert_dash_cat')->getValue()[0]['value'];
     $translated_dashboard = $set_dashboard - 1;
     $sa_dashboard = [
       'buffportal',
