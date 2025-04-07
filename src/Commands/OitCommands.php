@@ -103,7 +103,7 @@ class OitCommands extends DrushCommands {
    * @command oit:ban-ip-clean
    * @aliases oit:bic
    */
-  public function bannedIpClean($keep = 150) {
+  public function bannedIpClean($keep = 300) {
     $query = $this->database->select('ban_ip', 'b');
     $query->fields('b', ['iid']);
     $query->orderBy('iid', 'ASC');
