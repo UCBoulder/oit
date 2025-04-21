@@ -104,6 +104,8 @@ class ServiceAlertTweet extends BlockBase implements
    *   Route Match.
    * @param \Drupal\Core\Entity\EntityTypeManager $entity_type_manager
    *   Entity Type Manager.
+   * @param \Drupal\Core\Session\AccountProxyInterface $current_user
+   *   Current User.
    */
   public function __construct(array $configuration, $plugin_id, $plugin_definition, CurrentPathStack $current_path, RequestStack $request_stack, RouteMatchInterface $route_match, EntityTypeManager $entity_type_manager, AccountProxyInterface $current_user) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
