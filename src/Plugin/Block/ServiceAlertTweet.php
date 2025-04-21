@@ -9,6 +9,7 @@ use Drupal\Core\Link;
 use Drupal\Core\Path\CurrentPathStack;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\Core\Url;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -53,6 +54,13 @@ class ServiceAlertTweet extends BlockBase implements
   protected $entityTypeManager;
 
   /**
+   * The current user.
+   *
+   * @var \Drupal\Core\Session\AccountProxyInterface
+   */
+  protected $currentUser;
+
+  /**
    * {@inheritdoc}
    *
    * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
@@ -74,7 +82,8 @@ class ServiceAlertTweet extends BlockBase implements
       $container->get('path.current'),
       $container->get('request_stack'),
       $container->get('current_route_match'),
-      $container->get('entity_type.manager')
+      $container->get('entity_type.manager'),
+      $container->get('current_user')
     );
   }
 
@@ -96,24 +105,24 @@ class ServiceAlertTweet extends BlockBase implements
    * @param \Drupal\Core\Entity\EntityTypeManager $entity_type_manager
    *   Entity Type Manager.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, CurrentPathStack $current_path, RequestStack $request_stack, RouteMatchInterface $route_match, EntityTypeManager $entity_type_manager) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, CurrentPathStack $current_path, RequestStack $request_stack, RouteMatchInterface $route_match, EntityTypeManager $entity_type_manager, AccountProxyInterface $current_user) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->currentPathStack = $current_path;
     $this->request = $request_stack;
     $this->routeMatchInterface = $route_match;
     $this->entityTypeManager = $entity_type_manager;
+    $this->currentUser = $current_user;
   }
 
   /**
    * {@inheritdoc}
    */
   public function build() {
-    $user = \Drupal::currentUser();
-    $roles = $user->getRoles();
+    $roles = $this->currentUser->getRoles();
 
     $route_match = $this->routeMatchInterface->getRawParameters()->getIterator();
 
-    if ($route_match->key() != 'node' || (!in_array('administrator', $roles) && !in_array('oit_administration', $roles) && !in_array('service_alert_er_', $roles)) ) {
+    if ($route_match->key() != 'node' || (!in_array('administrator', $roles) && !in_array('oit_administration', $roles) && !in_array('service_alert_er_', $roles))) {
       return [];
     }
 
