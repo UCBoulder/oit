@@ -108,10 +108,15 @@ class ServiceAlertTweet extends BlockBase implements
    * {@inheritdoc}
    */
   public function build() {
+    $user = \Drupal::currentUser();
+    $roles = $user->getRoles();
+
     $route_match = $this->routeMatchInterface->getRawParameters()->getIterator();
-    if ($route_match->key() != 'node') {
+
+    if ($route_match->key() != 'node' || (!in_array('administrator', $roles) && !in_array('oit_administration', $roles) && !in_array('service_alert_er_', $roles)) ) {
       return [];
     }
+
     $node_title = $this->entityTypeManager->getStorage('node')->load($route_match['node'])->getTitle();
     $node_type = $this->entityTypeManager->getStorage('node')->load($route_match['node'])->bundle();
     $service_status = $node_type == 'service_alert' ? $this->entityTypeManager->getStorage('node')->load($route_match['node'])->get('field_service_alert_status')->value . ': ' : '';
