@@ -345,20 +345,6 @@ class OitController extends ControllerBase {
   }
 
   /**
-   * Blank front page.
-   */
-  public function front() {
-    return [
-      '#markup' => '',
-      '#attached' => [
-        'library' => [
-          'oit/oit_pass',
-        ],
-      ],
-    ];
-  }
-
-  /**
    * Request Portal page.
    */
   public function requestPortal() {
