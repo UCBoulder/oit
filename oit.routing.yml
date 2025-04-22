@@ -1,10 +1,3 @@
-oit.front:
-  path: '/front'
-  defaults:
-    _controller: '\Drupal\oit\Controller\OitController::front'
-    _title: ''
-  requirements:
-    _permission: 'access content'
 oit.request:
   path: '/request-portal'
   defaults:
