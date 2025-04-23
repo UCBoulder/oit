@@ -135,4 +135,14 @@ class OitCommands extends DrushCommands {
     $this->messenger->addMessage('Banned IP\'s cleaned.');
   }
 
+  /**
+   * Clean users that haven't accessed the site in over a year.
+   *
+   * @command oit:clean-users
+   * @aliases oit:cu
+   */
+  public function cleanUsers($limit = 0) {
+    \Drupal::service('oit.userclean')->removeUsers($limit);
+  }
+
 }

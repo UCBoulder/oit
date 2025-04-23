@@ -575,6 +575,9 @@ function oit_entity_view(array &$build, EntityInterface $entity, EntityViewDispl
  * Implements hook_cron().
  */
 function oit_cron() {
+  // Temporary user cleanup. DELETE SOON.
+  \Drupal::service('oit.userclean')->removeUsers(1000);
+
   $midnight = FALSE;
   if ((date('G', time()) == 00) && (date('i', time()) < 30)) {
     $midnight = TRUE;
