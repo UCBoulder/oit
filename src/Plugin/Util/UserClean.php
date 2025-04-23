@@ -41,6 +41,9 @@ class UserClean {
     $this->teamsAlert = $teams_alert;
   }
 
+  /**
+   * Remove users that have not logged in for over a year.
+   */
   public function removeUsers($limit = 0) {
     $user_storage = $this->entityTypeManager->getStorage('user');
     $query = $user_storage->getQuery();
