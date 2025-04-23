@@ -57,7 +57,7 @@ class OitCommands extends DrushCommands {
     MessengerInterface $messenger,
     TeamsAlert $teams_alert,
     Connection $database,
-    UserClean $user_clean
+    UserClean $user_clean,
   ) {
     parent::__construct();
     $this->princessList = $princess_list;
