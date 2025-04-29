@@ -25,7 +25,7 @@ class FrontTopTutorialsBlock extends BlockBase {
       '#template' => '<h2><a href="{{ servicesLink }}">{% trans %}Top Tutorials{% endtrans %}</a></h2>{{ topPageList | raw }}',
       '#context' => [
         'topPageList' => $top->getTopLinksData(),
-        'servicesLink' => '/services#tut',
+        'servicesLink' => '/tutorial/search',
       ],
     ];
   }
