@@ -323,8 +323,8 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
       if (!$show_login_form) {
         // Cache is breaking the redirect, so kill it.
         \Drupal::service('page_cache_kill_switch')->trigger();
-        $dest_get = Xss::filter(\Drupal::request()->get('dest'));
-        $destination_get = Xss::filter(\Drupal::request()->get('destination'));
+        $dest_get = \Drupal::request()->get('dest') != null ? Xss::filter(\Drupal::request()->get('dest')) : '';
+        $destination_get = \Drupal::request()->get('destination') != null ? Xss::filter(\Drupal::request()->get('destination')) : '';
         $destination = "";
         if (!empty($dest_get)) {
           $destination = '?destination=' . preg_replace('/https:\/\/[^\/]+/', '', $dest_get);
@@ -575,6 +575,7 @@ function oit_entity_view(array &$build, EntityInterface $entity, EntityViewDispl
  * Implements hook_cron().
  */
 function oit_cron() {
+
   $midnight = FALSE;
   if ((date('G', time()) == 00) && (date('i', time()) < 30)) {
     $midnight = TRUE;

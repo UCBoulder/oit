@@ -7,6 +7,7 @@ use Drupal\servicenow\Plugin\PrincessList;
 use Drush\Commands\DrushCommands;
 use Drupal\oit\Plugin\TeamsAlert;
 use Drupal\Core\Database\Connection;
+use Drupal\oit\Plugin\Util\UserClean;
 
 /**
  * Various utility commands for OIT.
@@ -42,6 +43,13 @@ class OitCommands extends DrushCommands {
   protected $database;
 
   /**
+   * User Clean.
+   *
+   * @var \Drupal\oit\Plugin\UserClean
+   */
+  protected $userClean;
+
+  /**
    * Construct object.
    */
   public function __construct(
@@ -49,12 +57,14 @@ class OitCommands extends DrushCommands {
     MessengerInterface $messenger,
     TeamsAlert $teams_alert,
     Connection $database,
+    UserClean $user_clean,
   ) {
     parent::__construct();
     $this->princessList = $princess_list;
     $this->messenger = $messenger;
     $this->teamsAlert = $teams_alert;
     $this->database = $database;
+    $this->userClean = $user_clean;
   }
 
   /**
@@ -133,6 +143,16 @@ class OitCommands extends DrushCommands {
         ->execute();
     }
     $this->messenger->addMessage('Banned IP\'s cleaned.');
+  }
+
+  /**
+   * Clean users that haven't accessed the site in over a year.
+   *
+   * @command oit:clean-users
+   * @aliases oit:cu
+   */
+  public function cleanUsers($limit = 0) {
+    $this->userClean->removeUsers($limit);
   }
 
 }

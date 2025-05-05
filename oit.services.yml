@@ -14,6 +14,9 @@ services:
   oit.latestAutoBan:
     class: Drupal\oit\Plugin\Util\LatestAutoBan
     arguments: ['@database', '@oit.teamsalert', '@state']
+  oit.userclean:
+    class: Drupal\oit\Plugin\Util\UserClean
+    arguments: ['@entity_type.manager', '@oit.teamsalert']
   oit.servicehealth:
     class: Drupal\oit\Plugin\ServiceHealth
     arguments: ['@config.factory', '@date.formatter', '@entity_type.manager']

@@ -6,5 +6,6 @@ services:
       - '@messenger'
       - '@oit.teamsalert'
       - '@database'
+      - '@oit.userclean'
     tags:
       - { name: drush.command }
