@@ -274,7 +274,7 @@ class OitController extends ControllerBase {
 
     $alias = "";
 
-    if ($referer == NULL) {
+    if ($referer != NULL) {
       // Getting the alias or the relative path.
       $alias = Xss::filter(substr($referer, strlen($base_url)));
     }
