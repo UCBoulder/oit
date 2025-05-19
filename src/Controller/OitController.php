@@ -272,8 +272,12 @@ class OitController extends ControllerBase {
     // Getting the base url.
     $base_url = $request->getSchemeAndHttpHost();
 
-    // Getting the alias or the relative path.
-    $alias = Xss::filter(substr($referer, strlen($base_url)));
+    $alias = "";
+
+    if ($referer == NULL) {
+      // Getting the alias or the relative path.
+      $alias = Xss::filter(substr($referer, strlen($base_url)));
+    }
 
     // Set destination.
     $destination = $alias == "" ? "/" : $alias;
