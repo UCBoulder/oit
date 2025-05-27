@@ -456,7 +456,10 @@ function oit_tokens($type, $tokens, array $data, array $options, BubbleableMetad
       switch ($name) {
         case 'who_i_is':
           $user = User::load(\Drupal::currentUser()->id());
-          $user_name = $user->get('field_user_name')->getValue()[0]['value'];
+          $user_name = '';
+          if ($user->get('field_user_name') != NULL) {
+            $user_name = $user->get('field_user_name')->getValue()[0]['value'];
+          }
           $replacements[$original] = $user_name;
           break;
 
