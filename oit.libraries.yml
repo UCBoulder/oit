@@ -4,28 +4,49 @@ oit_404:
   css:
     theme:
       css/404.css: {}
+  license:
+    name: 'GPL-2.0-or-later'
+    url: 'https://www.drupal.org/licensing/faq'
 oit_node_news_form:
   js:
     js/oit_node_news_form.js: {}
+  license:
+    name: 'GPL-2.0-or-later'
+    url: 'https://www.drupal.org/licensing/faq'
 oit_node_page_form:
   js:
     js/oit_node_page_form.js: {}
+  license:
+    name: 'GPL-2.0-or-later'
+    url: 'https://www.drupal.org/licensing/faq'
 oit_clipboard:
   js:
     js/oit_clipboard.js: {}
+  license:
+    name: 'GPL-2.0-or-later'
+    url: 'https://www.drupal.org/licensing/faq'
 oit_pass:
   js:
     js/oit_pass.js: {}
   css:
     theme:
       css/oit_pass.css: {}
+  license:
+    name: 'GPL-2.0-or-later'
+    url: 'https://www.drupal.org/licensing/faq'
 oit_projects:
   css:
     theme:
       css/oit_projects.css: {}
+  license:
+    name: 'GPL-2.0-or-later'
+    url: 'https://www.drupal.org/licensing/faq'
 table_search:
   js:
     js/table_search.js: {}
+  license:
+    name: 'GPL-2.0-or-later'
+    url: 'https://www.drupal.org/licensing/faq'
 spacemonkey:
   js:
     js/spacemonkey.js: {}
@@ -35,12 +56,16 @@ spacemonkey:
   dependencies:
     - core/jquery
     - core/drupalSettings
+  license:
+    name: 'GPL-2.0-or-later'
+    url: 'https://www.drupal.org/licensing/faq'
 gsap:
   remote: https://github.com/greensock/GSAP
   version: 3.4.0
   license:
     name: standard "no charge" license
     gpl-compatible: false
+    url: 'https://greensock.com/standard-license/'
   js:
     /libraries/gsap/dist/gsap.min.js: { minified: false }
     /sites/default/files/gsap/minified/DrawSVGPlugin.min.js: {}
@@ -52,40 +77,62 @@ listjs:
   license:
     name: MIT
     gpl-compatible: false
+    url: 'https://github.com/javve/list.js/blob/master/LICENSE'
   js:
     /libraries/list.js/dist/list.min.js: { minified: true }
 downloads_search:
   js:
     js/oit_downloads_search.js: {}
+  license:
+    name: 'GPL-2.0-or-later'
+    url: 'https://www.drupal.org/licensing/faq'
 gingerbread:
   css:
     theme:
       css/gin.css: {}
+  license:
+    name: 'GPL-2.0-or-later'
+    url: 'https://www.drupal.org/licensing/faq'
 gin_sa:
   css:
     theme:
       css/gin_servicealert.css: {}
+  license:
+    name: 'GPL-2.0-or-later'
+    url: 'https://www.drupal.org/licensing/faq'
 gin_select:
   js:
     js/gin_add_select2.js: {}
   dependencies:
     - webform/libraries.jquery.select2
+  license:
+    name: 'GPL-2.0-or-later'
+    url: 'https://www.drupal.org/licensing/faq'
 # CSS libraries for Layout plugins.
 right_sidebar_section:
   version: VERSION
   css:
     theme:
       layouts/right_sidebar_section/right_sidebar_section.css: {}
+  license:
+    name: 'GPL-2.0-or-later'
+    url: 'https://www.drupal.org/licensing/faq'
 
 left_sidebar_section:
   version: VERSION
   css:
     theme:
       layouts/left_sidebar_section/left_sidebar_section.css: {}
+  license:
+    name: 'GPL-2.0-or-later'
+    url: 'https://www.drupal.org/licensing/faq'
 
 both_sidebar_section:
   version: VERSION
   css:
     theme:
       layouts/both_sidebar_section/both_sidebar_section.css: {}
+  license:
+    name: 'GPL-2.0-or-later'
+    url: 'https://www.drupal.org/licensing/faq'
 
