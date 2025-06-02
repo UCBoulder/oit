@@ -13,7 +13,7 @@ services:
     arguments: ['@database', '@entity_type.manager', '@oit.teamsalert']
   oit.latestAutoBan:
     class: Drupal\oit\Plugin\Util\LatestAutoBan
-    arguments: ['@database', '@oit.teamsalert', '@state']
+    arguments: ['@key.repository', '@database', '@oit.teamsalert', '@state']
   oit.userclean:
     class: Drupal\oit\Plugin\Util\UserClean
     arguments: ['@entity_type.manager', '@oit.teamsalert']

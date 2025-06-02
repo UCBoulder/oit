@@ -534,3 +534,12 @@ function oit_update_10009() {
     \Drupal::database()->schema()->dropTable($table);
   }
 }
+
+/**
+ * Ban ip array of questionable ip's.
+ */
+function oit_update_10010() {
+  $biq = [];
+  $biq = json_encode($biq);
+  \Drupal::state()->set('ban_ip_questionable', $biq);
+}
