@@ -148,7 +148,7 @@ class LatestAutoBan {
     $response = curl_exec($ch);
 
     // Check for errors.
-    if ($response === false) {
+    if ($response === FALSE) {
       $error = curl_error($ch);
       curl_close($ch);
       throw new \Exception("cURL error: $error");
