@@ -242,20 +242,12 @@ class AbuseController extends ControllerBase {
 
   /**
    * Keep ip Banned.
+   *
+   * @param string $ip
+   *   The IP address to keep banned.
    */
-  public function abuseIpKeep() {
-    // Get url from end of url.
-    $request = $this->requestStack;
-    $url = $request->getCurrentRequest()->getRequestUri();
-    $url = explode('/', $url);
-    $ip = Xss::filter(end($url));
-    $ip = urldecode($ip);
-
-    $this->abuseIpRemove($ip);
-
-    // Log the action and give user message.
-    $this->loggerFactory->get('oit')->info('IP address @ip has been kept banned.', ['@ip' => $ip]);
-    $this->messenger()->addMessage($this->t('IP address @ip has been kept banned.', ['@ip' => $ip]));
+  public function abuseIpKeep($ip) {
+    $this->abuseAction($ip, 1);
 
     return new RedirectResponse(Url::fromRoute('oit.abusetable')->toString());
   }
@@ -290,21 +282,12 @@ class AbuseController extends ControllerBase {
 
   /**
    * Don't Keep ip Banned.
+   *
+   * @param string $ip
+   *   The IP address to unban.
    */
-  public function abuseIpNoKeep() {
-    // Get url from end of url.
-    $request = $this->requestStack;
-    $url = $request->getCurrentRequest()->getRequestUri();
-    $url = explode('/', $url);
-    $ip = Xss::filter(end($url));
-    $ip = urldecode($ip);
-
-    $this->abuseIpRemove($ip);
-    $this->banIpRemove($ip);
-
-    // Log the action and give user message.
-    $this->loggerFactory->get('oit')->info('IP address @ip has been removed from the ban list.', ['@ip' => $ip]);
-    $this->messenger()->addMessage($this->t('IP address @ip has been removed from the ban list.', ['@ip' => $ip]));
+  public function abuseIpNoKeep($ip) {
+    $this->abuseAction($ip, 2);
 
     return new RedirectResponse(Url::fromRoute('oit.abusetable')->toString());
   }
@@ -325,24 +308,51 @@ class AbuseController extends ControllerBase {
 
   /**
    * Whitelist ip Banned.
+   *
+   * @param string $ip
+   *   The IP address to whitelist.
    */
-  public function abuseIpWhitelist() {
-    // Get url from end of url.
-    $request = $this->requestStack;
-    $url = $request->getCurrentRequest()->getRequestUri();
-    $url = explode('/', $url);
-    $ip = Xss::filter(end($url));
-    $ip = urldecode($ip);
-
-    $this->abuseIpRemove($ip);
-    $this->banIpRemove($ip);
-    $this->ipWhitelist($ip);
-
-    // Log the action and give user message.
-    $this->loggerFactory->get('oit')->info('IP address @ip has been whitelisted.', ['@ip' => $ip]);
-    $this->messenger()->addMessage($this->t('IP address @ip has been whitelisted.', ['@ip' => $ip]));
+  public function abuseIpWhitelist($ip) {
+    $this->abuseAction($ip, 3);
 
     return new RedirectResponse(Url::fromRoute('oit.abusetable')->toString());
+  }
+
+  /**
+   * Whitelist ip Banned.
+   *
+   * @param string $ip
+   *   The IP address to whitelist.
+   * @param int $action
+   *  The action to perform on the IP address.
+   */
+  private function abuseAction($ip, $action) {
+    $ip = urldecode(Xss::filter($ip));
+
+    // Validate IP address.
+    if (!filter_var($ip, FILTER_VALIDATE_IP)) {
+      $this->messenger()->addError($this->t('Invalid IP address: @ip', ['@ip' => $ip]));
+      return new RedirectResponse(Url::fromRoute('oit.abusetable')->toString());
+    }
+
+    // abuseIpKeep
+    if ($action > 0) {
+      $this->abuseIpRemove($ip);
+    }
+
+    // abuseIpNoKeep
+    if ($action > 1) {
+      $this->banIpRemove($ip);
+    }
+
+    // Whitelist
+    if ($action > 2) {
+      $this->ipWhitelist($ip);
+    }
+
+    // Log the action and give user message.
+    $this->loggerFactory->get('oit')->info('IP address @ip has been kept banned.', ['@ip' => $ip]);
+    $this->messenger()->addMessage($this->t('IP address @ip has been kept banned.', ['@ip' => $ip]));
   }
 
 }
