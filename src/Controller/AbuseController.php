@@ -357,8 +357,10 @@ class AbuseController extends ControllerBase {
     }
 
     // Log the action and give user message.
-    $this->loggerFactory->get('oit')->info('IP address @ip has been @action.', ['@ip' => $ip, '@action' => $action_message[$action]]);
-    $this->messenger()->addMessage($this->t('IP address @ip has been @action.', ['@ip' => $ip, '@action' => $action_message[$action]]));
+    $this->loggerFactory->get('oit')->info('IP address @ip has been @action.',
+      ['@ip' => $ip, '@action' => $action_message[$action]]);
+    $this->messenger()->addMessage($this->t('IP address @ip has been @action.',
+      ['@ip' => $ip, '@action' => $action_message[$action]]));
   }
 
 }
