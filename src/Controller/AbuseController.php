@@ -335,6 +335,12 @@ class AbuseController extends ControllerBase {
       return new RedirectResponse(Url::fromRoute('oit.abusetable')->toString());
     }
 
+    $action_message = [
+      1 => 'kept banned',
+      2 => 'removed from the ban list',
+      3 => 'whitelisted',
+    ];
+
     // abuseIpKeep.
     if ($action > 0) {
       $this->abuseIpRemove($ip);
@@ -351,8 +357,8 @@ class AbuseController extends ControllerBase {
     }
 
     // Log the action and give user message.
-    $this->loggerFactory->get('oit')->info('IP address @ip has been kept banned.', ['@ip' => $ip]);
-    $this->messenger()->addMessage($this->t('IP address @ip has been kept banned.', ['@ip' => $ip]));
+    $this->loggerFactory->get('oit')->info('IP address @ip has been @action.', ['@ip' => $ip, '@action' => $action_message[$action]]);
+    $this->messenger()->addMessage($this->t('IP address @ip has been @action.', ['@ip' => $ip, '@action' => $action_message[$action]]));
   }
 
 }
