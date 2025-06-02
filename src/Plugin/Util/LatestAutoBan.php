@@ -145,7 +145,19 @@ class LatestAutoBan {
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
 
     // Make the call.
-    return curl_exec($ch);
+    $response = curl_exec($ch);
+
+    // Check for errors.
+    if ($response === false) {
+      $error = curl_error($ch);
+      curl_close($ch);
+      throw new \Exception("cURL error: $error");
+    }
+
+    // Close the cURL handle.
+    curl_close($ch);
+
+    return $response;
   }
 
   /**
