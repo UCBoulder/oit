@@ -324,7 +324,7 @@ class AbuseController extends ControllerBase {
    * @param string $ip
    *   The IP address to whitelist.
    * @param int $action
-   *  The action to perform on the IP address.
+   *   The action to perform on the IP address.
    */
   private function abuseAction($ip, $action) {
     $ip = urldecode(Xss::filter($ip));
@@ -335,17 +335,17 @@ class AbuseController extends ControllerBase {
       return new RedirectResponse(Url::fromRoute('oit.abusetable')->toString());
     }
 
-    // abuseIpKeep
+    // abuseIpKeep.
     if ($action > 0) {
       $this->abuseIpRemove($ip);
     }
 
-    // abuseIpNoKeep
+    // abuseIpNoKeep.
     if ($action > 1) {
       $this->banIpRemove($ip);
     }
 
-    // Whitelist
+    // Whitelist.
     if ($action > 2) {
       $this->ipWhitelist($ip);
     }
