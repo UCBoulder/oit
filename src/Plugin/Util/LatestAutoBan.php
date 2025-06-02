@@ -86,9 +86,57 @@ class LatestAutoBan {
     $banned_ips = '';
     foreach ($result as $row) {
       $banned_ips .= "- " . $row->ip . "\n";
+      $abuse = $this->abuseApi($row->ip);
+      $abuse = json_decode($abuse, TRUE);
+      if($abuse['data']['abuseConfidenceScore'] < 10) {
+        $score = $abuse['data']['abuseConfidenceScore'];
+        $ip = $abuse['data']['ipAddress'];
+        $country = $abuse['data']['countryName'];
+        $biq = $this->state->get('ban_ip_questionable');
+        $biq = json_decode($biq, TRUE);
+        $biq[$ip] = [
+          'score' => $score,
+          'country' => $country,
+        ];
+        $biq = json_encode($biq);
+        $this->state->set('ban_ip_questionable', $biq);
+      }
     }
     $this->teamsAlert->sendMessage("**Latest ip(s) Banned:**\n $banned_ips");
     $this->setLastBanId();
+  }
+
+
+  /**
+   * Curl abuseipdb api.
+   */
+  public function abuseApi($ip) {
+    $abuse_key = \Drupal::service('key.repository')->getKey('abuseipdb')->getKeyValue();
+    // Use cURL to get a new access token and refresh token.
+    $ch = curl_init();
+
+    // Define base URL with query parameters.
+    $params = [
+      'ipAddress' => $ip,
+      'maxAgeInDays' => 90,
+      'verbose' => ''
+    ];
+    $url = 'https://api.abuseipdb.com/api/v2/check?' . http_build_query($params);
+
+    curl_setopt($ch, CURLOPT_URL, $url);
+
+    // Set request to GET method (default)
+    curl_setopt($ch, CURLOPT_HTTPGET, TRUE);
+
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+      'Key: ' . $abuse_key,
+      'Accept: application/json'
+    ]);
+
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+
+    // Make the call.
+    return curl_exec($ch);
   }
 
   /**
