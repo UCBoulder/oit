@@ -294,6 +294,8 @@ class OitController extends ControllerBase {
    * Routes for zap.
    */
   public function oitDenied() {
+    $content = $this->deniedContent();
+
     return [
       '#markup' => $content,
       '#attached' => [

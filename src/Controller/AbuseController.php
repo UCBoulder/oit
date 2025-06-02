@@ -131,7 +131,7 @@ class AbuseController extends ControllerBase {
     EntityTypeManagerInterface $entity_type_manager,
     ShortcodeIcon $shortcode_svg_icon,
     State $state,
-    Connection $database
+    Connection $database,
   ) {
     $this->account = $account;
     $this->requestStack = $request_stack;

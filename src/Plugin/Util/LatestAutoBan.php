@@ -5,6 +5,7 @@ namespace Drupal\oit\Plugin\Util;
 use Drupal\Core\Database\Connection;
 use Drupal\oit\Plugin\TeamsAlert;
 use Drupal\Core\State\State;
+use Drupal\key\KeyRepositoryInterface;
 
 /**
  * Set archive status on old news.
@@ -39,6 +40,13 @@ class LatestAutoBan {
   protected $state;
 
   /**
+   * The key repository.
+   *
+   * @var \Drupal\key\KeyRepositoryInterface
+   */
+  protected $keyRepository;
+
+  /**
    * Get the latest banned id.
    *
    * @var int
@@ -56,10 +64,12 @@ class LatestAutoBan {
    * Construct object.
    */
   public function __construct(
+    KeyRepositoryInterface $key_repository,
     Connection $connection,
     TeamsAlert $teams_alert,
     State $state,
   ) {
+    $this->keyRepository = $key_repository;
     $this->connection = $connection;
     $this->teamsAlert = $teams_alert;
     $this->state = $state;
@@ -88,7 +98,7 @@ class LatestAutoBan {
       $banned_ips .= "- " . $row->ip . "\n";
       $abuse = $this->abuseApi($row->ip);
       $abuse = json_decode($abuse, TRUE);
-      if($abuse['data']['abuseConfidenceScore'] < 10) {
+      if ($abuse['data']['abuseConfidenceScore'] < 10) {
         $score = $abuse['data']['abuseConfidenceScore'];
         $ip = $abuse['data']['ipAddress'];
         $country = $abuse['data']['countryName'];
@@ -106,12 +116,11 @@ class LatestAutoBan {
     $this->setLastBanId();
   }
 
-
   /**
    * Curl abuseipdb api.
    */
   public function abuseApi($ip) {
-    $abuse_key = \Drupal::service('key.repository')->getKey('abuseipdb')->getKeyValue();
+    $abuse_key = $this->keyRepository->getKey('abuseipdb')->getKeyValue();
     // Use cURL to get a new access token and refresh token.
     $ch = curl_init();
 
@@ -119,7 +128,7 @@ class LatestAutoBan {
     $params = [
       'ipAddress' => $ip,
       'maxAgeInDays' => 90,
-      'verbose' => ''
+      'verbose' => '',
     ];
     $url = 'https://api.abuseipdb.com/api/v2/check?' . http_build_query($params);
 
@@ -130,7 +139,7 @@ class LatestAutoBan {
 
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
       'Key: ' . $abuse_key,
-      'Accept: application/json'
+      'Accept: application/json',
     ]);
 
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
