@@ -694,8 +694,23 @@ function oit_news_update($entity) {
 function oit_servicealert_update($entity) {
   $meta_info = json_decode($entity->get('field_meta_tags')->getValue()[0]['value']) ?? [];
   if ((!isset($meta_info->twitter_cards_image) || !isset($meta_info->og_image)) && $entity->get('field_service_alert_dash_cat')) {
-    $meta_info["twitter_cards_type"] = "summary";
-    $set_dashboard = $entity->get('field_service_alert_dash_cat')->getValue()[0]['value'];
+    if (is_object($meta_info)) {
+      $meta_info->twitter_cards_type = "summary";
+    }
+    else {
+      $meta_info['twitter_cards_type'] = "summary";
+    }
+
+    $set_dashboard = $entity->get('field_service_alert_dash_cat')->getValue()[0]['target_id'];
+
+    $taxonomy = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load($set_dashboard);
+    $tax_image = $taxonomy->get('field_twitter_image');
+    $image_id = $tax_image->getValue()[0]['target_id'] ?? NULL;
+    $image_url = '';
+    if ($image_id) {
+      $image_style = new OitImageStyled($image_id, 'medium');
+      $image_url = $image_style->getImageUrl();
+    }
     $translated_dashboard = $set_dashboard - 1;
     $sa_dashboard = [
       'buffportal',
@@ -727,7 +742,12 @@ function oit_servicealert_update($entity) {
       'network', # wired_internet
     ];
     $host = \Drupal::request()->getSchemeAndHttpHost();
-    $social_image = "$host/sites/default/files/sa_images/sa_$sa_dashboard[$translated_dashboard].png";
+    if ($image_url) {
+      $social_image = $image_url;
+    }
+    else {
+      $social_image = "$host/sites/default/files/sa_images/sa_$sa_dashboard[$translated_dashboard].png";
+    }
     $meta = [];
     if (!isset($meta_info->twitter_cards_image) || $meta_info->twitter_cards_image != NULL) {
       $meta['twitter_cards_image'] = $social_image;
