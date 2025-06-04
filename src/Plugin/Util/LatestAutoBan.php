@@ -112,7 +112,7 @@ class LatestAutoBan {
         $this->state->set('ban_ip_questionable', $biq);
       }
     }
-    $this->teamsAlert->sendMessage("**Latest ip(s) Banned:**\n $banned_ips");
+    $this->teamsAlert->sendMessage("**Latest ip(s) Banned:**\n $banned_ips", ['live']);
     $this->setLastBanId();
   }
 
