@@ -31,6 +31,12 @@ oit_pass:
   css:
     theme:
       css/oit_pass.css: {}
+loading:
+  js:
+    js/loading.js: {}
+  css:
+    theme:
+      css/loading.css: {}
   license:
     name: 'GPL-2.0-or-later'
     url: 'https://www.drupal.org/licensing/faq'
