@@ -71,7 +71,7 @@ class CuHeader extends BlockBase implements
   public function build() {
     $theme_path = $this->themeHandler->getTheme('dingo')->getPath();
     $block = sprintf(
-      "<a href='%s'><img src='/%s/%s' alt='%s' class='culogo'></a>",
+      "<a href='%s'><img src='/%s/%s' alt='%s' class='culogo' width='300' height='28'></a>",
       'https://www.colorado.edu',
       $theme_path,
       'images/cuboulder.svg',
