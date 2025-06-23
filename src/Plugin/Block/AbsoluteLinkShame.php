@@ -92,7 +92,6 @@ class AbsoluteLinkShame extends BlockBase implements
         preg_match('/\=[\"\']http[s]*\:\/\/w*.?colorado.edu\/oit/', $body, $matches2, PREG_OFFSET_CAPTURE, 3);
         $match = !empty($matches1) || !empty($matches2) ? TRUE : FALSE;
 
-        // Check to see if the $body contains microsoft word classes or lang="EN-US".
         preg_match('/class="OutlineElement/', $body, $matches3, PREG_OFFSET_CAPTURE, 3);
         preg_match('/class="TextRun/', $body, $matches5, PREG_OFFSET_CAPTURE, 3);
         preg_match('/lang="EN-US"/', $body, $matches4, PREG_OFFSET_CAPTURE, 3);
