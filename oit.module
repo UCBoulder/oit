@@ -465,7 +465,10 @@ function oit_tokens($type, $tokens, array $data, array $options, BubbleableMetad
           $user = User::load(\Drupal::currentUser()->id());
           $user_name = '';
           if ($user->get('field_user_name') != NULL) {
-            $user_name = $user->get('field_user_name')->getValue()[0]['value'];
+            $user_name = $user->get('field_user_name')->getValue();
+            if (array_key_exists(0, $user_name)) {
+              $user_name = $user_name[0]['value'];
+            }
           }
           $replacements[$original] = $user_name;
           break;
