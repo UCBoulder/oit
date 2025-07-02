@@ -349,11 +349,11 @@ class OitController extends ControllerBase {
   }
 
   /**
-   * Request Portal page.
+   * Request Catalog page.
    */
   public function requestPortal() {
     $svg = $this->shortcodeSvgIcon;
-    $title = $this->t('Request Portal');
+    $title = $this->t('Request Catalog');
     $search = '<form action="/search/cse" method="get" id="search-request" accept-charset="UTF-8" class="search" data-drupal-form-fields="edit-keys"><label for="edit-keys" class="visually-hidden form-item__label">Search</label> <input title="Enter the terms you wish to search for." placeholder="Get help with..." autocomplete="off" type="search" id="search-keys" name="keys" value="" size="15" maxlength="128" class="form-search form-item__textfield"><input data-drupal-selector="submit-search" type="submit" id="submit-search" value="Search" class="button"></form>';
     $issue_query = $this->blockUuidQuery;
     $issue_query->getBidByUuid('04d5cc3e-8b9d-4bb7-8cab-16f162cb729a');

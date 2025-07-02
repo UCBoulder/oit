@@ -8,6 +8,7 @@
 use Drupal\Component\Utility\Random;
 use Drupal\menu_link_content\Entity\MenuLinkContent;
 use Drupal\node\Entity\Node;
+use Drupal\redirect\Entity\Redirect;
 use Drupal\user\Entity\User;
 
 /**
@@ -542,4 +543,16 @@ function oit_update_10010() {
   $biq = [];
   $biq = json_encode($biq);
   \Drupal::state()->set('ban_ip_questionable', $biq);
+}
+
+/**
+ * Create redirect from /request-portal to /request-catalog.
+ */
+function oit_update_10011() {
+  Redirect::create([
+    'redirect_source' => 'request-portal',
+    'redirect_redirect' => 'internal:/request-catalog',
+    'language' => 'und',
+    'status_code' => '301',
+  ])->save();
 }

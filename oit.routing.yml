@@ -1,5 +1,5 @@
 oit.request:
-  path: '/request-portal'
+  path: '/request-catalog'
   defaults:
     _controller: '\Drupal\oit\Controller\OitController::requestPortal'
     _title: ''
