@@ -104,6 +104,9 @@ class LatestAutoBan {
         $country = $abuse['data']['countryName'];
         $biq = $this->state->get('ban_ip_questionable');
         $biq = json_decode($biq, TRUE);
+        if ($score == NULL || $country == NULL) {
+          continue;
+        }
         $biq[$ip] = [
           'score' => $score,
           'country' => $country,

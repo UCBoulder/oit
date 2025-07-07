@@ -176,6 +176,9 @@ class AbuseController extends ControllerBase {
     $rows = [];
     if (!empty($this->abuseList)) {
       foreach ($this->abuseList as $key => $row) {
+        if (empty($key)) {
+          continue;
+        }
         // Link to AbuseIPDB for each IP.
         $url = Url::fromUri('https://www.abuseipdb.com/check/' . $key, [
           'attributes' => [
