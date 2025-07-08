@@ -8,18 +8,18 @@ use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Database\Connection;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Extension\ModuleExtensionList;
+use Drupal\Core\Link;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
+use Drupal\Core\Render\Markup;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\Core\Session\AccountInterface;
+use Drupal\Core\State\State;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Url;
-use Drupal\Core\Link;
 use Drupal\shortcode_svg\Plugin\ShortcodeIcon;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Drupal\Core\Render\Markup;
-use Drupal\Core\State\State;
 
 /**
  * Controller routines for zap routes.
@@ -176,7 +176,10 @@ class AbuseController extends ControllerBase {
     $rows = [];
     if (!empty($this->abuseList)) {
       foreach ($this->abuseList as $key => $row) {
-        if (empty($key)) {
+        if (!array_key_exists('score', $row) || !array_key_exists('country', $row)) {
+          continue;
+        }
+        if (empty($key) || $row['score'] === NULL || $row['country'] === NULL) {
           continue;
         }
         // Link to AbuseIPDB for each IP.
