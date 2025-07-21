@@ -156,7 +156,7 @@ class PageOverview extends BlockBase implements
         ],
       ];
     }
-    return '';
+    return [];
   }
 
   /**

@@ -1,0 +1,6 @@
+.loading-message {
+  position: absolute;
+  background: bisque;
+  z-index: 1000;
+  padding: .5em;
+}

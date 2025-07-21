@@ -135,7 +135,7 @@ class TutorialBlock extends BlockBase implements
         ],
       ];
     }
-    return '';
+    return [];
   }
 
   /**

@@ -1,0 +1,5 @@
+oit.abusetable:
+  route_name: oit.abusetable
+  title: 'Low Confidence Banned ips'
+  base_route: entity.autoban.list
+

@@ -123,7 +123,7 @@ class FrontActionLinks extends BlockBase implements
               <span>{{ phone | raw }}</span>
               {{ reportText }}
             </a></li>
-          <li><a class="icon button" href="/request-portal">
+          <li><a class="icon button" href="/request-catalog">
               <span>{{ check | raw }}</span>
               {{ requestText }}
             </a></li>
@@ -139,7 +139,7 @@ class FrontActionLinks extends BlockBase implements
         'saColor' => $count > 0 ? ' class=red' : "",
         'count' => $count > 0 ? "<span>$count</span>" : "",
         'reportText' => $this->t('Report an issue'),
-        'requestText' => $this->t('Request Portal'),
+        'requestText' => $this->t('Request Catalog'),
         'how' => $this->t('How do I'),
         'block' => $render,
         'important' => $icon->setIcon('exclamation-stroke', 20, '#fff'),

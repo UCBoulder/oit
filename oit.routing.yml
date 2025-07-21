@@ -1,5 +1,5 @@
 oit.request:
-  path: '/request-portal'
+  path: '/request-catalog'
   defaults:
     _controller: '\Drupal\oit\Controller\OitController::requestPortal'
     _title: ''
@@ -33,3 +33,31 @@ oit.useredit:
     _title: ''
   requirements:
     _role: 'authenticated'
+oit.abusetable:
+  path: '/admin/config/people/autoban/abusetable'
+  defaults:
+    _controller: '\Drupal\oit\Controller\AbuseController::abuseIpTable'
+    _title: 'Low Confidence Banned IPs'
+  requirements:
+    _permission: 'administer autoban'
+oit.abusekeep:
+  path: '/admin/config/people/autoban/abusetable/keep/{ip}'
+  defaults:
+    _controller: '\Drupal\oit\Controller\AbuseController::abuseIpKeep'
+    _title: ''
+  requirements:
+    _permission: 'administer autoban'
+oit.abusenokeep:
+  path: '/admin/config/people/autoban/abusetable/nokeep/{ip}'
+  defaults:
+    _controller: '\Drupal\oit\Controller\AbuseController::abuseIpNoKeep'
+    _title: ''
+  requirements:
+    _permission: 'administer autoban'
+oit.abusewhitelist:
+  path: '/admin/config/people/autoban/abusetable/whitelist/{ip}'
+  defaults:
+    _controller: '\Drupal\oit\Controller\AbuseController::abuseIpWhitelist'
+    _title: ''
+  requirements:
+    _permission: 'administer autoban'

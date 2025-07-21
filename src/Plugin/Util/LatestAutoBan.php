@@ -5,6 +5,7 @@ namespace Drupal\oit\Plugin\Util;
 use Drupal\Core\Database\Connection;
 use Drupal\oit\Plugin\TeamsAlert;
 use Drupal\Core\State\State;
+use Drupal\key\KeyRepositoryInterface;
 
 /**
  * Set archive status on old news.
@@ -39,6 +40,13 @@ class LatestAutoBan {
   protected $state;
 
   /**
+   * The key repository.
+   *
+   * @var \Drupal\key\KeyRepositoryInterface
+   */
+  protected $keyRepository;
+
+  /**
    * Get the latest banned id.
    *
    * @var int
@@ -56,10 +64,12 @@ class LatestAutoBan {
    * Construct object.
    */
   public function __construct(
+    KeyRepositoryInterface $key_repository,
     Connection $connection,
     TeamsAlert $teams_alert,
     State $state,
   ) {
+    $this->keyRepository = $key_repository;
     $this->connection = $connection;
     $this->teamsAlert = $teams_alert;
     $this->state = $state;
@@ -86,9 +96,71 @@ class LatestAutoBan {
     $banned_ips = '';
     foreach ($result as $row) {
       $banned_ips .= "- " . $row->ip . "\n";
+      $abuse = $this->abuseApi($row->ip);
+      $abuse = json_decode($abuse, TRUE);
+      if ($abuse['data']['abuseConfidenceScore'] < 10) {
+        $score = $abuse['data']['abuseConfidenceScore'];
+        $ip = $abuse['data']['ipAddress'];
+        $country = $abuse['data']['countryName'];
+        $biq = $this->state->get('ban_ip_questionable');
+        $biq = json_decode($biq, TRUE);
+        if ($score == NULL || $country == NULL) {
+          continue;
+        }
+        $biq[$ip] = [
+          'score' => $score,
+          'country' => $country,
+        ];
+        $biq = json_encode($biq);
+        $this->state->set('ban_ip_questionable', $biq);
+      }
     }
-    $this->teamsAlert->sendMessage("**Latest ip(s) Banned:**\n $banned_ips");
+    $this->teamsAlert->sendMessage("**Latest ip(s) Banned:**\n $banned_ips", ['live']);
     $this->setLastBanId();
+  }
+
+  /**
+   * Curl abuseipdb api.
+   */
+  public function abuseApi($ip) {
+    $abuse_key = $this->keyRepository->getKey('abuseipdb')->getKeyValue();
+    // Use cURL to get a new access token and refresh token.
+    $ch = curl_init();
+
+    // Define base URL with query parameters.
+    $params = [
+      'ipAddress' => $ip,
+      'maxAgeInDays' => 90,
+      'verbose' => '',
+    ];
+    $url = 'https://api.abuseipdb.com/api/v2/check?' . http_build_query($params);
+
+    curl_setopt($ch, CURLOPT_URL, $url);
+
+    // Set request to GET method (default)
+    curl_setopt($ch, CURLOPT_HTTPGET, TRUE);
+
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+      'Key: ' . $abuse_key,
+      'Accept: application/json',
+    ]);
+
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+
+    // Make the call.
+    $response = curl_exec($ch);
+
+    // Check for errors.
+    if ($response === FALSE) {
+      $error = curl_error($ch);
+      curl_close($ch);
+      throw new \Exception("cURL error: $error");
+    }
+
+    // Close the cURL handle.
+    curl_close($ch);
+
+    return $response;
   }
 
   /**

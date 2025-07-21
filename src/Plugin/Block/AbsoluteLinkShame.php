@@ -91,7 +91,13 @@ class AbsoluteLinkShame extends BlockBase implements
         preg_match('/\=[\"\']http[s]*\:\/\/oit.colorado.edu/', $body, $matches1, PREG_OFFSET_CAPTURE, 3);
         preg_match('/\=[\"\']http[s]*\:\/\/w*.?colorado.edu\/oit/', $body, $matches2, PREG_OFFSET_CAPTURE, 3);
         $match = !empty($matches1) || !empty($matches2) ? TRUE : FALSE;
-        if ($match) {
+
+        preg_match('/class="OutlineElement/', $body, $matches3, PREG_OFFSET_CAPTURE, 3);
+        preg_match('/class="TextRun/', $body, $matches5, PREG_OFFSET_CAPTURE, 3);
+        preg_match('/lang="EN-US"/', $body, $matches4, PREG_OFFSET_CAPTURE, 3);
+        $microsoft_word_match = !empty($matches3) || !empty($matches4) || !empty($matches5) ? TRUE : FALSE;
+
+        if ($match || $microsoft_word_match) {
           $fail_img = [
             'http://i.giphy.com/pcC2u7rl89b44.gif',
             'https://media.giphy.com/media/EimNpKJpihLY4/giphy.gif',
@@ -107,12 +113,34 @@ class AbsoluteLinkShame extends BlockBase implements
             'https://media.giphy.com/media/mUOdJLFQeHAf6/giphy.gif',
           ];
           $fail_img_rand = array_rand($fail_img, 1);
+
+          $ms_fail_img = [
+            'https://media3.giphy.com/media/mlvseq9yvZhba/giphy.gif',
+            'https://media0.giphy.com/media/9wGjpl8z1CJ5m/giphy.gif',
+            'https://media2.giphy.com/media/XEmf072nyBbQyXAbwm/giphy.gif',
+          ];
+          $ms_fail_img_rand = array_rand($ms_fail_img, 1);
+
           return [
             '#type' => 'inline_template',
-            '#template' => "<div class='banner banner--specific'><strong>{{ message }}</strong>  <br /><br /> <img src='{{ fail_img }}' alt='Much Shame on using absolute links' style='margin: 0 auto;' /></div>",
+            '#template' => "<div class='banner banner--specific'>
+            {% if match %}
+              <strong>{{ message }}</strong>  <br /><br />
+              <img src='{{ fail_img }}' alt='Much Shame on using absolute links' style='margin: 0 auto;' />
+            {% endif %}
+            {% if microsoft_word_match %}
+              <br /><br />
+              <strong>{{ ms_message }}</strong> <br /><br />
+              <img src='{{ ms_fail_img }}' alt='Much Shame on using Microsoft Word' style='margin: 0 auto;' />
+            {% endif %}
+            </div>",
             '#context' => [
+              'match' => $match,
               'message' => $this->t('There was a failure to use relative links on this page. Please update the offending links and/or images.'),
               'fail_img' => $fail_img[$fail_img_rand],
+              'microsoft_word_match' => $microsoft_word_match,
+              'ms_message' => $this->t('It appears that you have used Microsoft Word to paste this text. Please paste as plain text (CTRL+SHIFT+V) or (CMD+SHIFT+V) to remove unnecessary markup.'),
+              'ms_fail_img' => $ms_fail_img[$ms_fail_img_rand],
             ],
           ];
         }
