@@ -5,6 +5,8 @@ namespace Drupal\oit\Plugin\Util;
 use Drupal\Core\Database\Connection;
 use Drupal\oit\Plugin\TeamsAlert;
 use Drupal\Core\State\State;
+use Drupal\encrypt\EncryptServiceInterface;
+use Drupal\encrypt\Entity\EncryptionProfile;
 use Drupal\key\KeyRepositoryInterface;
 
 /**
@@ -47,6 +49,13 @@ class LatestAutoBan {
   protected $keyRepository;
 
   /**
+   * The encrypt service.
+   *
+   * @var \Drupal\encrypt\EncryptServiceInterface
+   */
+  protected $encryptService;
+
+  /**
    * Get the latest banned id.
    *
    * @var int
@@ -64,11 +73,13 @@ class LatestAutoBan {
    * Construct object.
    */
   public function __construct(
+    EncryptServiceInterface $encrypt_service,
     KeyRepositoryInterface $key_repository,
     Connection $connection,
     TeamsAlert $teams_alert,
     State $state,
   ) {
+    $this->encryptService = $encrypt_service;
     $this->keyRepository = $key_repository;
     $this->connection = $connection;
     $this->teamsAlert = $teams_alert;
@@ -123,7 +134,11 @@ class LatestAutoBan {
    * Curl abuseipdb api.
    */
   public function abuseApi($ip) {
-    $abuse_key = $this->keyRepository->getKey('abuseipdb')->getKeyValue();
+    $key = trim($this->keyRepository->getKey('abuseipdb_crypt')->getKeyValue());
+
+    $encryption_profile = EncryptionProfile::load('key_encryption');
+    $abuse_key = $this->encryptService->decrypt($key, $encryption_profile);
+
     // Use cURL to get a new access token and refresh token.
     $ch = curl_init();
 
