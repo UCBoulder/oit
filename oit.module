@@ -35,6 +35,12 @@ function oit_preprocess_html(&$variables) {
     $getEnv = \Drupal::service('oit.environment.icon');
     $variables['head_title'] = $getEnv->getEnv() . ' ' . $title[1] . ' | ' . $title[0];
   }
+
+  $env = getenv('PANTHEON_ENVIRONMENT');
+
+  if ($env != 'live') {
+    $variables['attributes']['class'][] = "env-$env";
+  }
 }
 
 /**
