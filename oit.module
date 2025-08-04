@@ -36,10 +36,12 @@ function oit_preprocess_html(&$variables) {
     $variables['head_title'] = $getEnv->getEnv() . ' ' . $title[1] . ' | ' . $title[0];
   }
 
-  $env = getenv('PANTHEON_ENVIRONMENT');
-
-  if ($env != 'live') {
+  $user = \Drupal::currentUser();
+  $roles = $user->getRoles();
+  if (in_array('administrator', $roles)) {
+    $env = getenv('PANTHEON_ENVIRONMENT');
     $variables['attributes']['class'][] = "env-$env";
+    $variables['#attached']['library'][] = 'oit/oit_env';
   }
 }
 
