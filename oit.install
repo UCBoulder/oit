@@ -556,3 +556,12 @@ function oit_update_10011() {
     'status_code' => '301',
   ])->save();
 }
+
+/**
+ * Delete old tutorials.
+ */
+function oit_update_10012() {
+  $controller = \Drupal::entityTypeManager()->getStorage('node');
+  $entities = $controller->loadMultiple([1560, 1561, 1563, 1566, 1568, 19726, 29301, 31301]);
+  $controller->delete($entities);
+}
