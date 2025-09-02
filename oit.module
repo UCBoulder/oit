@@ -407,6 +407,8 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
 function oit_news_gp_check(&$form, FormStateInterface $form_state) {
   $body = $form_state->getValue('body');
   $body_value = $body[0]['value'];
+  // Add body to watchdog.
+  \Drupal::logger('oit')->notice('Body value: @body', ['@body' => $body_value]);
   // Get body revision.
   $node = $form_state->getFormObject()->getEntity();
   if ($node->isNew()) {
@@ -415,6 +417,9 @@ function oit_news_gp_check(&$form, FormStateInterface $form_state) {
   else {
     $old_body = $node->get('body')->value;
   }
+
+  \Drupal::logger('oit')->notice('Old Body: @ogbody', ['@ogbody' => $old_body]);
+
   if (trim($body_value) == '' && !empty(trim($old_body))) {
     $form_state->setErrorByName('body', t('You went from having body content to none. As a hall monitor, I will not allow such tomfoolery.'));
   }
