@@ -109,7 +109,7 @@ class LatestAutoBan {
       $banned_ips .= "- " . $row->ip . "\n";
       $abuse = $this->abuseApi($row->ip);
       $abuse = json_decode($abuse, TRUE);
-      if ($abuse['data']['abuseConfidenceScore'] < 10) {
+      if ($abuse['data']['abuseConfidenceScore'] < 2) {
         $score = $abuse['data']['abuseConfidenceScore'];
         $ip = $abuse['data']['ipAddress'];
         $country = $abuse['data']['countryName'];
