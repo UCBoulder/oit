@@ -49,9 +49,23 @@ class ServiceMaintenanceCompletion {
     $this->connection = $connection;
     $this->entityTypeManager = $entity_type_manager;
     $this->teamsAlert = $teams_alert;
+
+    // Service Maintenance Scheduled to Service Maintenance Completed if past
+    // end date.
+    $this->statusChange('Service Maintenance Scheduled', 'Service Maintenance Completed');
+
+    // Service Maintenance Cancelled to Service Maintenance Completed if past
+    // end date.
+    $this->statusChange('Service Maintenance Cancelled', 'Service Maintenance Completed');
+  }
+
+  /**
+   * Change status if past end date.
+   */
+  public function statusChange($from_status, $to_status) {
     $query = $this->connection->select('node__field_service_alert_status', 'sa');
     $query->fields('sa', ['entity_id']);
-    $query->condition('sa.field_service_alert_status_value', 'Service Maintenance Scheduled');
+    $query->condition('sa.field_service_alert_status_value', $from_status);
     $result = $query->execute();
     $fetch = $result->fetchCol();
     foreach ($fetch as $nid) {
@@ -62,9 +76,9 @@ class ServiceMaintenanceCompletion {
       // If the end date is past now, set to service maintenance completed.
       if ($now > $end_timestamp) {
         $node->set('field_sympa_send', 0);
-        $node->set('field_service_alert_status', 'Service Maintenance Completed');
+        $node->set('field_service_alert_status', $to_status);
         $node->save();
-        $this->teamsAlert->sendMessage("Service maintenance set to completed. nid: $nid", ['live']);
+        $this->teamsAlert->sendMessage("Service maintenance set to '$to_status'. nid: $nid", ['live']);
       }
     }
   }
