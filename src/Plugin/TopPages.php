@@ -1,0 +1,201 @@
+<?php
+
+namespace Drupal\oit\Plugin;
+
+use Drupal\Core\Config\ConfigFactory;
+use Drupal\Core\Logger\LoggerChannelFactoryInterface;
+
+/**
+ * Environment icon to be used on header title.
+ *
+ * @TopPages (
+ *   id = "top_pages",
+ *   title = @Translation("Top Pages"),
+ *   description = @Translation("Get top pages from GH action json.")
+ * )
+ */
+class TopPages {
+
+  /**
+   * Host to pull page from.
+   *
+   * @var string
+   */
+  private $host = 'https://oit.ddev.site';
+
+  /**
+   * Iteration.
+   *
+   * @var int
+   */
+  private $iteration;
+
+  /**
+   * Top pages json.
+   *
+   * @var array
+   */
+  private $fullTopPages;
+
+  /**
+   * The Teams logging channel.
+   *
+   * @var \Drupal\Core\Logger\LoggerChannelFactoryInterface
+   */
+  protected $logger;
+
+  /**
+   * ConfigFactory.
+   *
+   * @var \Drupal\Core\Config\ConfigFactory
+   */
+  protected $configFactory;
+
+  /**
+   * Sets up to send message to Teams.
+   */
+  public function __construct(
+    LoggerChannelFactoryInterface $channelFactory,
+    ConfigFactory $config_factory,
+  ) {
+    $this->logger = $channelFactory->get('oit');
+    $this->configFactory = $config_factory;
+    // Get yesterdays date in the format YYYYMMDD.
+    $yesterday = date('Ymd', strtotime('-1 day'));
+    $data = file_get_contents("https://ucboulder.github.io/oit_dingo/top/$yesterday.json");
+
+    if ($data === FALSE) {
+      $this->logger->error('Could not retrieve top pages json.');
+      $data['requests']['data'] = [];
+    }
+    else {
+      $data = json_decode($data, TRUE);
+    }
+
+    $this->fullTopPages = $data['requests']['data'];
+
+    $this->whitelistIp();
+  }
+
+  /**
+   * Whitelist ip to prevent ban.
+   */
+  public function whitelistIp() {
+    // Get current user ip.
+    $ip = \Drupal::request()->getClientIp();
+    $autoban_settings = $this->configFactory->getEditable('autoban.settings');
+    $whitelist = $autoban_settings->get('autoban_whitelist');
+    // Add ip to whitelist if it doesn't already exist.
+    if (!str_contains($whitelist, $ip)) {
+      $whitelist .= "\n" . $ip;
+      $autoban_settings->set('autoban_whitelist', $whitelist)->save();
+      $this->logger->debug('Added ip to whitelist: ' . $ip);
+    }
+  }
+
+  /**
+   * Top Pages List.
+   */
+  public function getTopPages() {
+    $this->iteration = 0;
+    foreach ($this->fullTopPages as $page) {
+      $url = $page['data'];
+      $url = explode('?', $url)[0];
+
+
+      if (str_starts_with($url, '/services/')) {
+        if ($this->iteration < 9) {
+          $title = $this->titleLookup($url);
+
+          // if title does not contain 'Log in'.
+          if (str_contains($title, 'Log in') ||
+            str_contains($title, 'Computing Labs')
+          ) {
+            continue;
+          }
+
+          // If Title already exists.
+          if (isset($top_pages)) {
+            $titles = array_column($top_pages, 'title');
+            if (in_array($title, $titles)) {
+              continue;
+            }
+          }
+
+          $top_pages[] = [
+            'title' => $title,
+            'url' => $url
+          ];
+
+          $this->iteration++;
+        }
+      }
+    }
+
+    $this->logger->debug('Fetched top services.');
+  }
+
+  /**
+   * Top Tutorials List.
+   */
+  public function getTopTutorials() {
+    $this->iteration = 0;
+    foreach ($this->fullTopPages as $page) {
+      $url = $page['data'];
+      $url = explode('?', $url)[0];
+
+
+      if (str_starts_with($url, '/tutorial/')) {
+        if ($this->iteration < 9) {
+          $title = $this->titleLookup($url);
+
+          // if title does not contain 'Log in'.
+          if (str_contains($title, 'Log in') ||
+            str_contains($title, 'Clear the Mobile Web Browser Cache') ||
+            str_contains($title, 'Clear the Web Browser Cache')
+          ) {
+            continue;
+          }
+
+          // If Title already exists.
+          if (isset($top_pages)) {
+            $titles = array_column($top_pages, 'title');
+            if (in_array($title, $titles)) {
+              continue;
+            }
+          }
+
+          $top_tutorials[] = [
+            'title' => $title,
+            'url' => $url
+          ];
+
+          $this->iteration++;
+        }
+
+        $this->logger->debug('Fetched top tutorials.');
+      }
+    }
+  }
+
+  /**
+   * Top Tutorials List.
+   */
+  private function titleLookup($url) {
+    $response = \Drupal::httpClient()->request('GET', $this->host . $url);
+    $response_code = $response->getStatusCode();
+
+    if ($response_code == 200) {
+      $page = $response->getBody()->getContents();
+
+      preg_match("/<title>(.*)<\/title>/i", $page, $matches);
+      $title = $matches[1];
+      $title = explode(' | ', $title)[0];
+    } else {
+      $title = 'Log in';
+    }
+
+    return $title;
+  }
+
+}

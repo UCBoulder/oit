@@ -155,4 +155,26 @@ class OitCommands extends DrushCommands {
     $this->userClean->removeUsers($limit);
   }
 
+  /**
+   * Run top service pages report.
+   *
+   * @command oit:top-service-pages
+   * @aliases oit:tsp
+   */
+  public function topServicePages() {
+    $toppages = \Drupal::service('oit.toppages');
+    $toppages->getTopPages();
+  }
+
+  /**
+   * Run top tutorial pages report.
+   *
+   * @command oit:top-tutorial-pages
+   * @aliases oit:ttp
+   */
+  public function topTutorialPages() {
+    $toppages = \Drupal::service('oit.toppages');
+    $toppages->getTopTutorials();
+  }
+
 }

@@ -2,6 +2,9 @@ services:
   oit.teamsalert:
     class: Drupal\oit\Plugin\TeamsAlert
     arguments: ['@key.repository', '@encryption', '@logger.factory']
+  oit.toppages:
+    class: Drupal\oit\Plugin\TopPages
+    arguments: ['@logger.factory', '@config.factory']
   oit.smc:
     class: Drupal\oit\Plugin\Util\ServiceMaintenanceCompletion
     arguments: ['@database', '@entity_type.manager', '@oit.teamsalert']
