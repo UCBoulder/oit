@@ -5,7 +5,13 @@ services:
   oit.toppages:
     class: Drupal\oit\Plugin\TopPages
     arguments:
-      ["@logger.factory", "@config.factory", "@request_stack", "@http_client"]
+      [
+        "@logger.factory",
+        "@config.factory",
+        "@request_stack",
+        "@http_client",
+        "@entity_type.manager",
+      ]
   oit.smc:
     class: Drupal\oit\Plugin\Util\ServiceMaintenanceCompletion
     arguments: ["@database", "@entity_type.manager", "@oit.teamsalert"]

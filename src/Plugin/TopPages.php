@@ -3,6 +3,7 @@
 namespace Drupal\oit\Plugin;
 
 use Drupal\Core\Config\ConfigFactory;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use GuzzleHttp\ClientInterface;
@@ -68,6 +69,13 @@ class TopPages {
   protected $httpClient;
 
   /**
+   * The entity type manager.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   */
+  protected $entityTypeManager;
+
+  /**
    * Sets up to send message to Teams.
    */
   public function __construct(
@@ -75,11 +83,13 @@ class TopPages {
     ConfigFactory $config_factory,
     RequestStack $request_stack,
     ClientInterface $http_client,
+    EntityTypeManagerInterface $entity_type_manager,
   ) {
     $this->logger = $channelFactory->get('oit');
     $this->configFactory = $config_factory;
     $this->requestStack = $request_stack;
     $this->httpClient = $http_client;
+    $this->entityTypeManager = $entity_type_manager;
 
     // Get yesterdays date in the format YYYYMMDD.
     $yesterday = date('Ymd', strtotime('-1 day'));
@@ -163,9 +173,9 @@ class TopPages {
       $top_list_html .= '</ul>';
 
       $tsp_block_id = 152;
-      $block = \Drupal::service('entity_type.manager')->getStorage('block_content');
+      $block = $this->entityTypeManager->getStorage('block_content');
       $tsp_block = $block->load($tsp_block_id);
-      $tsp_block->set('body', $top_list_html);
+      $tsp_block->body->value = $top_list_html;
       $tsp_block->body->format = 'rich_text';
       $tsp_block->save();
 
@@ -225,9 +235,9 @@ class TopPages {
       $top_list_html .= '</ul>';
 
       $tsp_block_id = 153;
-      $block = \Drupal::service('entity_type.manager')->getStorage('block_content');
+      $block = $this->entityTypeManager->getStorage('block_content');
       $tsp_block = $block->load($tsp_block_id);
-      $tsp_block->set('body', $top_list_html);
+      $tsp_block->body->value = $top_list_html;
       $tsp_block->body->format = 'rich_text';
       $tsp_block->save();
 
