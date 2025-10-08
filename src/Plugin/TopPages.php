@@ -4,6 +4,8 @@ namespace Drupal\oit\Plugin;
 
 use Drupal\Core\Config\ConfigFactory;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
+use GuzzleHttp\ClientInterface;
 
 /**
  * Environment icon to be used on header title.
@@ -21,7 +23,7 @@ class TopPages {
    *
    * @var string
    */
-  private $host = 'https://oit.ddev.site';
+  private $host = 'https://oit.colorado.edu';
 
   /**
    * Iteration.
@@ -40,7 +42,7 @@ class TopPages {
   /**
    * The Teams logging channel.
    *
-   * @var \Drupal\Core\Logger\LoggerChannelFactoryInterface
+   * @var \Drupal\Core\Logger\LoggerChannelInterface
    */
   protected $logger;
 
@@ -52,14 +54,33 @@ class TopPages {
   protected $configFactory;
 
   /**
+   * The request stack.
+   *
+   * @var \Symfony\Component\HttpFoundation\RequestStack
+   */
+  protected $requestStack;
+
+  /**
+   * The HTTP client.
+   *
+   * @var \GuzzleHttp\ClientInterface
+   */
+  protected $httpClient;
+
+  /**
    * Sets up to send message to Teams.
    */
   public function __construct(
     LoggerChannelFactoryInterface $channelFactory,
     ConfigFactory $config_factory,
+    RequestStack $request_stack,
+    ClientInterface $http_client,
   ) {
     $this->logger = $channelFactory->get('oit');
     $this->configFactory = $config_factory;
+    $this->requestStack = $request_stack;
+    $this->httpClient = $http_client;
+
     // Get yesterdays date in the format YYYYMMDD.
     $yesterday = date('Ymd', strtotime('-1 day'));
     $data = file_get_contents("https://ucboulder.github.io/oit_dingo/top/$yesterday.json");
@@ -82,7 +103,7 @@ class TopPages {
    */
   public function whitelistIp() {
     // Get current user ip.
-    $ip = \Drupal::request()->getClientIp();
+    $ip = $this->requestStack->getCurrentRequest()->getClientIp();
     $autoban_settings = $this->configFactory->getEditable('autoban.settings');
     $whitelist = $autoban_settings->get('autoban_whitelist');
     // Add ip to whitelist if it doesn't already exist.
@@ -102,12 +123,11 @@ class TopPages {
       $url = $page['data'];
       $url = explode('?', $url)[0];
 
-
       if (str_starts_with($url, '/services/')) {
         if ($this->iteration < 9) {
           $title = $this->titleLookup($url);
 
-          // if title does not contain 'Log in'.
+          // If title does not contain 'Log in'.
           if (str_contains($title, 'Log in') ||
             str_contains($title, 'Computing Labs')
           ) {
@@ -124,7 +144,7 @@ class TopPages {
 
           $top_pages[] = [
             'title' => $title,
-            'url' => $url
+            'url' => $url,
           ];
 
           $this->iteration++;
@@ -144,12 +164,11 @@ class TopPages {
       $url = $page['data'];
       $url = explode('?', $url)[0];
 
-
       if (str_starts_with($url, '/tutorial/')) {
         if ($this->iteration < 9) {
           $title = $this->titleLookup($url);
 
-          // if title does not contain 'Log in'.
+          // If title does not contain 'Log in'.
           if (str_contains($title, 'Log in') ||
             str_contains($title, 'Clear the Mobile Web Browser Cache') ||
             str_contains($title, 'Clear the Web Browser Cache')
@@ -167,7 +186,7 @@ class TopPages {
 
           $top_tutorials[] = [
             'title' => $title,
-            'url' => $url
+            'url' => $url,
           ];
 
           $this->iteration++;
@@ -182,7 +201,7 @@ class TopPages {
    * Top Tutorials List.
    */
   private function titleLookup($url) {
-    $response = \Drupal::httpClient()->request('GET', $this->host . $url);
+    $response = $this->httpClient->request('GET', $this->host . $url);
     $response_code = $response->getStatusCode();
 
     if ($response_code == 200) {
@@ -191,7 +210,8 @@ class TopPages {
       preg_match("/<title>(.*)<\/title>/i", $page, $matches);
       $title = $matches[1];
       $title = explode(' | ', $title)[0];
-    } else {
+    }
+    else {
       $title = 'Log in';
     }
 

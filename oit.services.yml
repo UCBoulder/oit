@@ -1,40 +1,48 @@
 services:
   oit.teamsalert:
     class: Drupal\oit\Plugin\TeamsAlert
-    arguments: ['@key.repository', '@encryption', '@logger.factory']
+    arguments: ["@key.repository", "@encryption", "@logger.factory"]
   oit.toppages:
     class: Drupal\oit\Plugin\TopPages
-    arguments: ['@logger.factory', '@config.factory']
+    arguments:
+      ["@logger.factory", "@config.factory", "@request_stack", "@http_client"]
   oit.smc:
     class: Drupal\oit\Plugin\Util\ServiceMaintenanceCompletion
-    arguments: ['@database', '@entity_type.manager', '@oit.teamsalert']
+    arguments: ["@database", "@entity_type.manager", "@oit.teamsalert"]
   oit.dotn:
     class: Drupal\oit\Plugin\Util\DeleteOldTermNode
-    arguments: ['@database', '@entity_type.manager', '@oit.teamsalert']
+    arguments: ["@database", "@entity_type.manager", "@oit.teamsalert"]
   oit.archivenews:
     class: Drupal\oit\Plugin\Util\ArchiveNews
-    arguments: ['@database', '@entity_type.manager', '@oit.teamsalert']
+    arguments: ["@database", "@entity_type.manager", "@oit.teamsalert"]
   oit.latestAutoBan:
     class: Drupal\oit\Plugin\Util\LatestAutoBan
-    arguments: ['@encryption', '@key.repository', '@database', '@oit.teamsalert', '@state']
+    arguments:
+      [
+        "@encryption",
+        "@key.repository",
+        "@database",
+        "@oit.teamsalert",
+        "@state",
+      ]
   oit.userclean:
     class: Drupal\oit\Plugin\Util\UserClean
-    arguments: ['@entity_type.manager', '@oit.teamsalert']
+    arguments: ["@entity_type.manager", "@oit.teamsalert"]
   oit.servicehealth:
     class: Drupal\oit\Plugin\ServiceHealth
-    arguments: ['@config.factory', '@date.formatter', '@entity_type.manager']
+    arguments: ["@config.factory", "@date.formatter", "@entity_type.manager"]
   oit.redirect.add.analytics:
     class: Drupal\oit\Plugin\RedirectAddAnalytics
-    arguments: ['@database', '@logger.factory']
+    arguments: ["@database", "@logger.factory"]
   oit.environment.icon:
     class: Drupal\oit\Plugin\EnvironmentIcon
-    arguments: ['@current_user']
+    arguments: ["@current_user"]
   oit.block.uuid.query:
     class: Drupal\oit\Plugin\BlockUuidQuery
-    arguments: ['@database', '@entity_type.manager']
+    arguments: ["@database", "@entity_type.manager"]
   oit.domain:
     class: Drupal\oit\Plugin\Domain
-    arguments: ['@token']
+    arguments: ["@token"]
   oit.route_subscriber:
     class: Drupal\oit\Services\RouteSubscriber
     tags:
