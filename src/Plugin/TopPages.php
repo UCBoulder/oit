@@ -160,6 +160,7 @@ class TopPages {
    */
   public function getTopTutorials() {
     $this->iteration = 0;
+
     foreach ($this->fullTopPages as $page) {
       $url = $page['data'];
       $url = explode('?', $url)[0];
@@ -177,8 +178,8 @@ class TopPages {
           }
 
           // If Title already exists.
-          if (isset($top_pages)) {
-            $titles = array_column($top_pages, 'title');
+          if (isset($top_tutorials)) {
+            $titles = array_column($top_tutorials, 'title');
             if (in_array($title, $titles)) {
               continue;
             }
