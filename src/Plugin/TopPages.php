@@ -123,6 +123,7 @@ class TopPages {
       $url = $page['data'];
       $url = explode('?', $url)[0];
 
+
       if (str_starts_with($url, '/services/')) {
         if ($this->iteration < 9) {
           $title = $this->titleLookup($url);
@@ -152,7 +153,26 @@ class TopPages {
       }
     }
 
-    $this->logger->debug('Fetched top services.');
+    // if top_pages is empty, set to empty array.
+    if (count($top_pages) == 9) {
+      $top_list_html = "<ul class='gray-links force-list-style'>\n";
+
+      foreach ($top_pages as $page) {
+        $top_list_html .= '<li><a href="' . $page['url'] . '">' . $page['title'] . "</a></li>\n";
+      }
+
+      $top_list_html .= '</ul>';
+
+      $tsp_block_id = 152;
+      $block = \Drupal::service('entity_type.manager')->getStorage('block_content');
+      $tsp_block = $block->load($tsp_block_id);
+      $tsp_block->set('body', $top_list_html);
+      $tsp_block->body->format = 'rich_text';
+      $tsp_block->save();
+
+      $this->logger->debug('Fetched top services pages and updated block.');
+    }
+
   }
 
   /**
@@ -192,10 +212,29 @@ class TopPages {
 
           $this->iteration++;
         }
-
-        $this->logger->debug('Fetched top tutorials.');
       }
     }
+
+    // if top_pages is empty, set to empty array.
+    if (count($top_tutorials) == 9) {
+      $top_list_html = "<ul class='gray-links force-list-style'>\n";
+
+      foreach ($top_tutorials as $page) {
+        $top_list_html .= '<li><a href="' . $page['url'] . '">' . $page['title'] . "</a></li>\n";
+      }
+
+      $top_list_html .= '</ul>';
+
+      $tsp_block_id = 153;
+      $block = \Drupal::service('entity_type.manager')->getStorage('block_content');
+      $tsp_block = $block->load($tsp_block_id);
+      $tsp_block->set('body', $top_list_html);
+      $tsp_block->body->format = 'rich_text';
+      $tsp_block->save();
+
+      $this->logger->debug('Fetched top tutorials and updated block.');
+    }
+
   }
 
   /**
