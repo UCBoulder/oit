@@ -123,7 +123,6 @@ class TopPages {
       $url = $page['data'];
       $url = explode('?', $url)[0];
 
-
       if (str_starts_with($url, '/services/')) {
         if ($this->iteration < 9) {
           $title = $this->titleLookup($url);
@@ -153,7 +152,7 @@ class TopPages {
       }
     }
 
-    // if top_pages is empty, set to empty array.
+    // If top_pages is empty, set to empty array.
     if (count($top_pages) == 9) {
       $top_list_html = "<ul class='gray-links force-list-style'>\n";
 
@@ -215,7 +214,7 @@ class TopPages {
       }
     }
 
-    // if top_pages is empty, set to empty array.
+    // If top_pages is empty, set to empty array.
     if (count($top_tutorials) == 9) {
       $top_list_html = "<ul class='gray-links force-list-style'>\n";
 
