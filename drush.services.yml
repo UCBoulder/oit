@@ -7,5 +7,6 @@ services:
       - '@oit.teamsalert'
       - '@database'
       - '@oit.userclean'
+      - '@oit.toppages'
     tags:
       - { name: drush.command }

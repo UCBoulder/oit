@@ -6,6 +6,7 @@ use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\servicenow\Plugin\PrincessList;
 use Drush\Commands\DrushCommands;
 use Drupal\oit\Plugin\TeamsAlert;
+use Drupal\oit\Plugin\TopPages;
 use Drupal\Core\Database\Connection;
 use Drupal\oit\Plugin\Util\UserClean;
 
@@ -45,9 +46,16 @@ class OitCommands extends DrushCommands {
   /**
    * User Clean.
    *
-   * @var \Drupal\oit\Plugin\UserClean
+   * @var \Drupal\oit\Plugin\Util\UserClean
    */
   protected $userClean;
+
+  /**
+   * Top Pages.
+   *
+   * @var \Drupal\oit\Plugin\TopPages
+   */
+  protected $topPages;
 
   /**
    * Construct object.
@@ -58,6 +66,7 @@ class OitCommands extends DrushCommands {
     TeamsAlert $teams_alert,
     Connection $database,
     UserClean $user_clean,
+    TopPages $top_pages,
   ) {
     parent::__construct();
     $this->princessList = $princess_list;
@@ -65,6 +74,7 @@ class OitCommands extends DrushCommands {
     $this->teamsAlert = $teams_alert;
     $this->database = $database;
     $this->userClean = $user_clean;
+    $this->topPages = $top_pages;
   }
 
   /**
@@ -162,8 +172,7 @@ class OitCommands extends DrushCommands {
    * @aliases oit:tsp
    */
   public function topServicePages() {
-    $toppages = \Drupal::service('oit.toppages');
-    $toppages->getTopPages();
+    $this->topPages->getTopPages();
   }
 
   /**
@@ -173,8 +182,7 @@ class OitCommands extends DrushCommands {
    * @aliases oit:ttp
    */
   public function topTutorialPages() {
-    $toppages = \Drupal::service('oit.toppages');
-    $toppages->getTopTutorials();
+    $this->topPages->getTopTutorials();
   }
 
 }
