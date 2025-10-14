@@ -164,10 +164,10 @@ class TopPages {
 
     // If top_pages is empty, set to empty array.
     if (count($top_pages) == 9) {
-      $top_list_html = "<ul class='gray-links force-list-style'>\n";
+      $top_list_html = "<h2><a href='/services#az'>Top Service Pages</a></h2><ul class='top-services gray-links'>\n";
 
       foreach ($top_pages as $page) {
-        $top_list_html .= '<li><a href="' . $page['url'] . '">' . $page['title'] . "</a></li>\n";
+        $top_list_html .= '<li class="truncate"><a href="' . $page['url'] . '">' . $page['title'] . "</a></li>\n";
       }
 
       $top_list_html .= '</ul>';
@@ -226,10 +226,10 @@ class TopPages {
 
     // If top_pages is empty, set to empty array.
     if (count($top_tutorials) == 9) {
-      $top_list_html = "<ul class='gray-links force-list-style'>\n";
+      $top_list_html = "<h2><a href='/tutorial/search'>Top Tutorials</a></h2><ul class='top-tutorials gray-links'>\n";
 
       foreach ($top_tutorials as $page) {
-        $top_list_html .= '<li><a href="' . $page['url'] . '">' . $page['title'] . "</a></li>\n";
+        $top_list_html .= '<li class="truncate"><a href="' . $page['url'] . '">' . $page['title'] . "</a></li>\n";
       }
 
       $top_list_html .= '</ul>';
