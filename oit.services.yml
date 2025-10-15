@@ -10,6 +10,7 @@ services:
         "@config.factory",
         "@request_stack",
         "@http_client",
+        "@oit.teamsalert",
         "@entity_type.manager",
       ]
   oit.smc:

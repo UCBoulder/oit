@@ -5,6 +5,7 @@ namespace Drupal\oit\Plugin;
 use Drupal\Core\Config\ConfigFactory;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
+use Drupal\oit\Plugin\TeamsAlert;
 use Symfony\Component\HttpFoundation\RequestStack;
 use GuzzleHttp\ClientInterface;
 
@@ -62,6 +63,13 @@ class TopPages {
   protected $requestStack;
 
   /**
+   * Send teams alert.
+   *
+   * @var \Drupal\oit\Plugin\TeamsAlert
+   */
+  protected $teamsAlert;
+
+  /**
    * The HTTP client.
    *
    * @var \GuzzleHttp\ClientInterface
@@ -83,12 +91,14 @@ class TopPages {
     ConfigFactory $config_factory,
     RequestStack $request_stack,
     ClientInterface $http_client,
+    TeamsAlert $teams_alert,
     EntityTypeManagerInterface $entity_type_manager,
   ) {
     $this->logger = $channelFactory->get('oit');
     $this->configFactory = $config_factory;
     $this->requestStack = $request_stack;
     $this->httpClient = $http_client;
+    $this->teamsAlert = $teams_alert;
     $this->entityTypeManager = $entity_type_manager;
 
     // Get yesterdays date in the format YYYYMMDD.
@@ -162,25 +172,7 @@ class TopPages {
       }
     }
 
-    // If top_pages is empty, set to empty array.
-    if (count($top_pages) == 9) {
-      $top_list_html = "<h2><a href='/services#az'>Top Service Pages</a></h2><ul class='top-services gray-links force-list-style'>\n";
-
-      foreach ($top_pages as $page) {
-        $top_list_html .= '<li class="truncate"><a href="' . $page['url'] . '">' . $page['title'] . "</a></li>\n";
-      }
-
-      $top_list_html .= '</ul>';
-
-      $tsp_block_id = 152;
-      $block = $this->entityTypeManager->getStorage('block_content');
-      $tsp_block = $block->load($tsp_block_id);
-      $tsp_block->body->value = $top_list_html;
-      $tsp_block->body->format = 'rich_text';
-      $tsp_block->save();
-
-      $this->logger->debug('Fetched top services pages and updated block.');
-    }
+    $this->buildSaveBlock(9, $top_pages, 152, "Top Service Pages", "/services#az", "top-services");
 
   }
 
@@ -224,30 +216,47 @@ class TopPages {
       }
     }
 
-    // If top_pages is empty, set to empty array.
-    if (count($top_tutorials) == 9) {
-      $top_list_html = "<h2><a href='/tutorial/search'>Top Tutorials</a></h2><ul class='top-tutorials gray-links force-list-style'>\n";
+    $this->buildSaveBlock(9, $top_tutorials, 153, "Top Tutorials", "/tutorial/search", "top-tutorials");
 
-      foreach ($top_tutorials as $page) {
+  }
+
+  /**
+   * Build and save block.
+   */
+  private function buildSaveBlock($count, $top_pages, $block_id, $block_title, $block_url, $block_class) {
+    if($top_pages === null) {
+      $this->logger->debug('Faulty JSON');
+      $this->teamsAlert->sendMessage("Front Page - $block_title - Faulty JSON", ['live']);
+      return;
+    }
+
+    // If top_pages is empty, set to empty array.
+    if (count($top_pages) == $count) {
+      $top_list_html = "<h2><a href='$block_url'>$block_title</a></h2><ul class='$block_class gray-links force-list-style'>\n";
+
+      foreach ($top_pages as $page) {
         $top_list_html .= '<li class="truncate"><a href="' . $page['url'] . '">' . $page['title'] . "</a></li>\n";
       }
 
       $top_list_html .= '</ul>';
 
-      $tsp_block_id = 153;
       $block = $this->entityTypeManager->getStorage('block_content');
-      $tsp_block = $block->load($tsp_block_id);
+      $tsp_block = $block->load($block_id);
       $tsp_block->body->value = $top_list_html;
       $tsp_block->body->format = 'rich_text';
       $tsp_block->save();
 
-      $this->logger->debug('Fetched top tutorials and updated block.');
+      $this->teamsAlert->sendMessage("Fetched $block_title and updated block.", ['live']);
+      $this->logger->debug("Fetched $block_title and updated block.");
     }
-
+    else {
+      $this->teamsAlert->sendMessage($block_title . ' count set to ' . $count .  ', but the returned count is ' . count($top_pages) . ' instead. So no update happened.', ['live']);
+      $this->logger->debug($block_title . ' count set to ' . $count .  ', but the returned count is ' . count($top_pages) . ' instead. So no update happened.');
+    }
   }
 
   /**
-   * Top Tutorials List.
+   * Need to parse html to grab titles.
    */
   private function titleLookup($url) {
     $response = $this->httpClient->request('GET', $this->host . $url);
