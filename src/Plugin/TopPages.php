@@ -5,7 +5,6 @@ namespace Drupal\oit\Plugin;
 use Drupal\Core\Config\ConfigFactory;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
-use Drupal\oit\Plugin\TeamsAlert;
 use Symfony\Component\HttpFoundation\RequestStack;
 use GuzzleHttp\ClientInterface;
 
@@ -224,7 +223,7 @@ class TopPages {
    * Build and save block.
    */
   private function buildSaveBlock($count, $top_pages, $block_id, $block_title, $block_url, $block_class) {
-    if($top_pages === null) {
+    if ($top_pages === NULL) {
       $this->logger->debug('Faulty JSON');
       $this->teamsAlert->sendMessage("Front Page - $block_title - Faulty JSON", ['live']);
       return;
@@ -250,8 +249,8 @@ class TopPages {
       $this->logger->debug("Fetched $block_title and updated block.");
     }
     else {
-      $this->teamsAlert->sendMessage($block_title . ' count set to ' . $count .  ', but the returned count is ' . count($top_pages) . ' instead. So no update happened.', ['live']);
-      $this->logger->debug($block_title . ' count set to ' . $count .  ', but the returned count is ' . count($top_pages) . ' instead. So no update happened.');
+      $this->teamsAlert->sendMessage($block_title . ' count set to ' . $count . ', but the returned count is ' . count($top_pages) . ' instead. So no update happened.', ['live']);
+      $this->logger->debug($block_title . ' count set to ' . $count . ', but the returned count is ' . count($top_pages) . ' instead. So no update happened.');
     }
   }
 
