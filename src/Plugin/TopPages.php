@@ -109,10 +109,10 @@ class TopPages {
       $data['requests']['data'] = [];
     }
     else {
-      $data = json_decode($data, TRUE);
+      $data = json_decode($data, TRUE)['requests']['data'];
     }
 
-    $this->fullTopPages = $data['requests']['data'];
+    $this->fullTopPages = $data;
 
     $this->whitelistIp();
   }
