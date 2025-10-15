@@ -109,7 +109,14 @@ class TopPages {
       $data['requests']['data'] = [];
     }
     else {
-      $data = json_decode($data, TRUE)['requests']['data'];
+      $data = json_decode($data, TRUE);
+      if ($data == NULL) {
+        $this->logger->error('Could not decode top pages json.');
+        $data = [];
+      }
+      else {
+        $data = $data['requests']['data'];
+      }
     }
 
     $this->fullTopPages = $data;
