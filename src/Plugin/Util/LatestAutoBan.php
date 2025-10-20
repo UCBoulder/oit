@@ -96,7 +96,7 @@ class LatestAutoBan {
   }
 
   /**
-   * Send message to teams listing new banned ip's..
+   * Send message to teams listing new banned ip's.
    */
   public function messageLatestIps() {
     $query = $this->connection->select('ban_ip', 'bi');
