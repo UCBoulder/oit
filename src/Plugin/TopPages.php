@@ -155,6 +155,7 @@ class TopPages {
 
           // If title does not contain 'Log in'.
           if (str_contains($title, 'Log in') ||
+            str_contains($title, 'Federated Identity Service') ||
             str_contains($title, 'Computing Labs')
           ) {
             continue;
@@ -198,6 +199,7 @@ class TopPages {
 
           // If title does not contain 'Log in'.
           if (str_contains($title, 'Log in') ||
+            str_contains($title, 'Federated Identity Service') ||
             str_contains($title, 'Clear the Mobile Web Browser Cache') ||
             str_contains($title, 'Clear the Web Browser Cache')
           ) {
@@ -274,6 +276,11 @@ class TopPages {
       preg_match("/<title>(.*)<\/title>/i", $page, $matches);
       $title = $matches[1];
       $title = explode(' | ', $title)[0];
+
+      // Make sure no redirect to SSO login.
+      if ($response->getHeader('Server')[0] != 'nginx') {
+        $title = 'Log in';
+      }
     }
     else {
       $title = 'Log in';
