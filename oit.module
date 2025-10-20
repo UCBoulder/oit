@@ -614,29 +614,78 @@ function oit_entity_view(array &$build, EntityInterface $entity, EntityViewDispl
  * Implements hook_cron().
  */
 function oit_cron() {
-
-  $midnight = FALSE;
-  if ((date('G', time()) == 00) && (date('i', time()) < 30)) {
-    $midnight = TRUE;
+  if ((date('G', time()) == 23) && (date('i', time()) > 45)) {
+    // Reset cron run state after 11:45 PM.
+    $cron_run = [
+      'analytics' => 1,
+      'autoban' => 1,
+      'top_services' => 1,
+      'top_tutorials' => 1,
+      'archive_news' => 1,
+      'archive_service_maintenance' => 1,
+    ];
+    $cron_run = json_encode($cron_run);
+    \Drupal::state()->set('oit_cron_run', $cron_run);
   }
-  if ($midnight) {
-    // Add analytics to redirects.
-    \Drupal::service('oit.redirect.add.analytics');
+  else {
+    // Run each cron task one at a time, once per day after midnight.
+    $cron_run = \Drupal::state()->get('oit_cron_run');
+    $cron_run = json_decode($cron_run, TRUE);
 
-    // Send service alert message when new banned ip is added.
-    $latest_ban = \Drupal::service('oit.latestAutoBan');
-    $current_ban_id = $latest_ban->latestBanId;
-    $last_ban_id = $latest_ban->lastBanId;
-    if ($current_ban_id != $last_ban_id) {
-      $latest_ban->messageLatestIps();
+    $save_state = 0;
+
+    if ($cron_run['analytics']) {
+      // Add analytics to redirects.
+      \Drupal::service('oit.redirect.add.analytics');
+
+      $cron_run['analytics'] = 0;
+      \Drupal::state()->set('oit_cron_run', json_encode($cron_run));
+    }
+    elseif ($cron_run['autoban']) {
+      // Send service alert message when new banned ip is added.
+      $latest_ban = \Drupal::service('oit.latestAutoBan');
+      $current_ban_id = $latest_ban->latestBanId;
+      $last_ban_id = $latest_ban->lastBanId;
+      if ($current_ban_id != $last_ban_id) {
+        $latest_ban->messageLatestIps();
+      }
+
+      $cron_run['autoban'] = 0;
+      $save_state = 1;
+    }
+    elseif ($cron_run['top_services']) {
+      \Drupal::service('oit.toppages')->getTopPages();
+
+      $cron_run['top_services'] = 0;
+      $save_state = 1;
+    }
+    elseif ($cron_run['top_tutorials']) {
+      \Drupal::service('oit.toppages')->getTopTutorials();
+
+      $cron_run['top_tutorials'] = 0;
+      $save_state = 1;
+    }
+    elseif ($cron_run['archive_news']) {
+      // Archive news older than 90 days.
+      $cut_off = strtotime("-90 days");
+      $archivenews = \Drupal::service('oit.archivenews');
+      $archivenews->archive($cut_off);
+
+      $cron_run['archive_news'] = 0;
+      $save_state = 1;
+    }
+    elseif ($cron_run['archive_service_maintenance']) {
+      // Archive service maintenance past completion date.
+      \Drupal::service('oit.smc');
+
+      $cron_run['archive_service_maintenance'] = 0;
+      $save_state = 1;
+    }
+
+    if ($save_state) {
+      \Drupal::state()->set('oit_cron_run', json_encode($cron_run));
     }
   }
-  // Archive news older than 90 days.
-  $cut_off = strtotime("-90 days");
-  $archivenews = \Drupal::service('oit.archivenews');
-  $archivenews->archive($cut_off);
-  // Archive service maintenance past completion date.
-  \Drupal::service('oit.smc');
 }
 
 /**

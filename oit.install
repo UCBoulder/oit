@@ -565,3 +565,19 @@ function oit_update_10012() {
   $entities = $controller->loadMultiple([1560, 1561, 1563, 1566, 1568, 19726, 29301, 31301]);
   $controller->delete($entities);
 }
+
+/**
+ * Create new oit_cron_run state.
+ */
+function oit_update_10013() {
+  $cron_run = [
+    'analytics' => 0,
+    'autoban' => 0,
+    'top_services' => 0,
+    'top_tutorials' => 0,
+    'archive_news' => 0,
+    'archive_service_maintenance' => 0,
+  ];
+  $cron_run = json_encode($cron_run);
+  \Drupal::state()->set('oit_cron_run', $cron_run);
+}
