@@ -614,7 +614,8 @@ function oit_entity_view(array &$build, EntityInterface $entity, EntityViewDispl
  * Implements hook_cron().
  */
 function oit_cron() {
-  if ((date('G', time()) == 23) && (date('i', time()) > 45)) {
+  $env = getenv('PANTHEON_ENVIRONMENT');
+  if ((date('G', time()) == 23) && (date('i', time()) > 45) && ($env == 'live')) {
     // Reset cron run state after 11:45 PM.
     $cron_run = [
       'analytics' => 1,
