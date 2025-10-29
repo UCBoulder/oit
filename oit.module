@@ -701,10 +701,11 @@ function oit_responsive_menu_off_canvas_tree_alter(array &$rendered_tree) {
   $twitter = oit_social_links(t('twitter'), 'http://www.x.com/CUBoulderOIT');
   $facebook = oit_social_links(t('facebook'), 'https://www.facebook.com/CUBoulderOIT');
   $youtube = oit_social_links(t('youtube'), 'https://www.youtube.com/CUBoulderOIT');
+  $instagram = oit_social_links(t('instagram'), 'https://www.instagram.com/cuboulderoit');
 
   $domain = \Drupal::service('oit.domain')->getDomain();
   if ($domain == 'oit') {
-    $rendered_tree['#suffix'] = "<div class='feedback-social'><ul class='feedback-social-inner'><li>$facebook</li><li>$twitter</li><li>$youtube</li><li>$feedback</li><li>$close</li></ul></div>";
+    $rendered_tree['#suffix'] = "<div class='feedback-social'><ul class='feedback-social-inner'><li>$facebook</li><li>$twitter</li><li>$youtube</li><li>$instagram</li><li>$feedback</li><li>$close</li></ul></div>";
   }
 }
 
