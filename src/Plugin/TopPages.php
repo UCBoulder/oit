@@ -254,7 +254,6 @@ class TopPages {
       $tsp_block->body->format = 'rich_text';
       $tsp_block->save();
 
-      $this->teamsAlert->sendMessage("Fetched $block_title and updated block.", ['live']);
       $this->logger->debug("Fetched $block_title and updated block.");
     }
     else {
