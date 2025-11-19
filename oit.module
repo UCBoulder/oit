@@ -627,6 +627,8 @@ function oit_cron() {
     ];
     $cron_run = json_encode($cron_run);
     \Drupal::state()->set('oit_cron_run', $cron_run);
+
+    \Drupal::service('oit')->sendMessage('Cron State reset');
   }
   else {
     // Run each cron task one at a time, once per day after midnight.
@@ -665,6 +667,8 @@ function oit_cron() {
 
       $cron_run['top_tutorials'] = 0;
       $save_state = 1;
+
+      \Drupal::service('oit')->sendMessage('Cron: top tutorials ran');
     }
     elseif ($cron_run['archive_news']) {
       // Archive news older than 90 days.
@@ -674,6 +678,8 @@ function oit_cron() {
 
       $cron_run['archive_news'] = 0;
       $save_state = 1;
+
+      \Drupal::service('oit')->sendMessage('Cron: archive news ran');
     }
     elseif ($cron_run['archive_service_maintenance']) {
       // Archive service maintenance past completion date.
@@ -681,6 +687,8 @@ function oit_cron() {
 
       $cron_run['archive_service_maintenance'] = 0;
       $save_state = 1;
+
+      \Drupal::service('oit')->sendMessage('Cron: archive service maintenance ran');
     }
 
     if ($save_state) {
