@@ -111,11 +111,11 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
 
         if ($captcha_config) {
           $button_text = t('Add captcha to form');
-          $form['#prefix'] = "<a href='/admin/config/people/captcha/captcha-points/add?destination=node/$node_id&webform_id=$node_id' class='button'>$button_text</a><br /><br />";
+          $form['#prefix'] = "<ul class='no-list-style'><li class='red'><a href='/admin/config/people/captcha/captcha-points/add?destination=node/$node_id&webform_id=$node_id' class='button icon'>⬇️ $button_text</a></li></ul>";
         }
         else {
           $button_text = t('Remove captcha from form');
-          $form['#prefix'] = "<a href='/admin/config/people/captcha/captcha-points/webform_add_$node_id/delete?destination=node/$node_id' class='button'>$button_text</a><br /><br />";
+          $form['#prefix'] = "<ul class='no-list-style'><li class='red'><a href='/admin/config/people/captcha/captcha-points/webform_add_$node_id/delete?destination=node/$node_id' class='button icon'>🔥 $button_text</a></li></ul>";
         }
 
       }
