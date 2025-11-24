@@ -618,7 +618,7 @@ function oit_cron() {
   $save_state = 0;
 
 //  if ((date('G', time()) == 23) && ($env == 'live')) {
-  if ((date('G', time()) == 9) && ($env == 'dev')) {
+  if ((date('G', time()) == 23) && ($env == 'dev')) {
     // Reset cron run state after 11PM.
     $cron_run = [
       'analytics' => 1,
