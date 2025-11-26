@@ -617,8 +617,7 @@ function oit_cron() {
   $env = getenv('PANTHEON_ENVIRONMENT');
   $save_state = 0;
 
-//  if ((date('G', time()) == 23) && ($env == 'live')) {
-  if ((date('G', time()) == 23) && ($env == 'dev')) {
+  if ((date('G', time()) == 23) && ($env == 'live')) {
     // Reset cron run state after 11PM.
     $cron_run = [
       'analytics' => 1,
@@ -642,6 +641,8 @@ function oit_cron() {
 
       $cron_run['analytics'] = 0;
       $save_state = 1;
+
+      \Drupal::service('oit.teamsalert')->sendMessage('Cron: analytics ran');
     }
     elseif ($cron_run['autoban']) {
       // Send service alert message when new banned ip is added.
@@ -654,6 +655,8 @@ function oit_cron() {
 
       $cron_run['autoban'] = 0;
       $save_state = 1;
+
+      \Drupal::service('oit.teamsalert')->sendMessage('Cron: autoban ran');
     }
     elseif ($cron_run['top_services']) {
       \Drupal::service('oit.toppages')->getTopPages();
