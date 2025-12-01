@@ -186,7 +186,7 @@ class TopPages {
       }
     }
 
-    if ($top_pages) {
+    if (isset($top_pages)) {
       $this->buildSaveBlock(9, $top_pages, 152, "Top Service Pages", "/services#az", "top-services");
     }
 
@@ -235,7 +235,7 @@ class TopPages {
       }
     }
 
-    if ($top_tutorials) {
+    if (isset($top_tutorials)) {
       $this->buildSaveBlock(9, $top_tutorials, 153, "Top Tutorials", "/tutorial/search", "top-tutorials");
     }
 
