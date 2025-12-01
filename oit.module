@@ -689,6 +689,11 @@ function oit_cron() {
     \Drupal::state()->set('oit_cron_run', json_encode($cron_run));
   }
 
+  // Report status on Monday mornings at 8:00 AM.
+  if ((date('G', time()) == 8) && (date('i', time()) < 25 ) && (date('w', time()) == 1) && ($env == 'live')) {
+    \Drupal::service('oit.teamsalert')->sendMessage('Oit cron status: ' . json_encode($cron_run), ['live']);
+  }
+
 }
 
 /**
