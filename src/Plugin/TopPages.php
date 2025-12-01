@@ -107,21 +107,27 @@ class TopPages {
   private function fetchData() {
     // Get yesterdays date in the format YYYYMMDD.
     $yesterday = date('Ymd', strtotime('-1 day'));
-    $data = file_get_contents("https://ucboulder.github.io/oit_dingo/top/$yesterday.json");
 
-    if ($data === FALSE) {
-      $this->logger->error('Could not retrieve top pages json.');
-      $data['requests']['data'] = [];
-    }
-    else {
-      $data = json_decode($data, TRUE);
-      if ($data == NULL) {
-        $this->logger->error('Could not decode top pages json.');
+    try {
+      $response = $this->httpClient->request('GET', "https://ucboulder.github.io/oit_dingo/top/$yesterday.json");
+      $raw_data = $response->getBody()->getContents();
+
+      // Clean invalid UTF-8 characters.
+      $raw_data = mb_convert_encoding($raw_data, 'UTF-8', 'UTF-8');
+
+      $data = json_decode($raw_data, TRUE);
+      if ($data === NULL) {
+        $json_error = json_last_error_msg();
+        $this->logger->error('Could not decode top pages json. Error: ' . $json_error);
         $data = [];
       }
       else {
-        $data = $data['requests']['data'];
+        $data = $data['requests']['data'] ?? [];
       }
+    }
+    catch (\Exception $e) {
+      $this->logger->error('Could not retrieve top pages json: ' . $e->getMessage());
+      $data = [];
     }
 
     $this->fullTopPages = $data;
