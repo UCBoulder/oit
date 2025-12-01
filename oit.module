@@ -99,14 +99,14 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
       $config = \Drupal::config('webform.webform.' . $webform_id);
       $roles = $config->get('access.create.roles');
 
-      $annon_set = FALSE;
+      $anonymous_set = FALSE;
       foreach ($roles as $key => $role) {
         if ($role == 'anonymous') {
-          $annon_set = TRUE;
+          $anonymous_set = TRUE;
         }
       }
 
-      if ($annon_set) {
+      if ($anonymous_set) {
         $captcha_config = \Drupal::config('captcha.captcha_point.webform_add_' . $node_id)->isNew();
 
         if ($captcha_config) {
