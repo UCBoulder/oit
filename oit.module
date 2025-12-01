@@ -85,6 +85,61 @@ function oit_preprocess(&$variables, $hook) {
  * Implements hook_form_alter().
  */
 function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+
+  if (array_key_exists('#webform_id', $form)) {
+    // Get node id current webform is on.
+    $node = \Drupal::routeMatch()->getParameter('node');
+    $node_id = is_string($node) ? 0 : $node->id();
+    $current_user = \Drupal::currentUser();
+    $roles = $current_user->getRoles();
+
+    if ($node_id && in_array('administrator', $roles)) {
+      $webform_id = $form['#webform_id'];
+      $config = \Drupal::config('webform.webform.' . $webform_id);
+      $webform_roles = $config->get('access.create.roles');
+      if (!is_array($roles)) {
+        $roles = [];
+      }
+
+      $anonymous_set = FALSE;
+      foreach ($webform_roles as $webform_role) {
+        if ($webform_role == 'anonymous') {
+          $anonymous_set = TRUE;
+        }
+      }
+
+      if ($anonymous_set) {
+        $captcha_config = \Drupal::config('captcha.captcha_point.webform_add_' . $node_id)->isNew();
+
+        if ($captcha_config) {
+          $button_text = t('Add captcha to form');
+          $form['#prefix'] = Xss::filter("<ul class='no-list-style'><li class='red'><a href='/admin/config/people/captcha/captcha-points/add?destination=node/$node_id&webform_id=$node_id' class='button icon'>⬇️ $button_text</a></li></ul>");
+        }
+        else {
+          $button_text = t('Remove captcha from form');
+          $form['#prefix'] = Xss::filter("<ul class='no-list-style'><li class='red'><a href='/admin/config/people/captcha/captcha-points/webform_add_$node_id/delete?destination=node/$node_id' class='button icon'>🔥 $button_text</a></li></ul>");
+        }
+
+      }
+    }
+  }
+
+  // admin/config/people/captcha/captcha-points/add
+  // Set defaults if 'webform_id' is in query string.
+  if ($form_id == 'captcha_point_add_form') {
+    // Get 'webform_id' from query string.
+    $request = \Drupal::request();
+    $webform_id = $request->get('webform_id');
+    $webform_id = is_numeric($webform_id) ? intval($webform_id) : 0;
+
+    if ($webform_id == 0) {
+      return;
+    }
+
+    $form['label']['#default_value'] = 'webform_' . $webform_id;
+    $form['formId']['#default_value'] = 'webform_add_' . $webform_id;
+  }
+
   if ($form_id == 'node_news_form' || $form_id == 'node_news_edit_form' ||
     $form_id == 'node_service_alert_form' || $form_id == 'node_service_alert_edit_form'
   ) {
