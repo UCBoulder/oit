@@ -96,11 +96,11 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
     if ($node_id && in_array('administrator', $roles)) {
       $webform_id = $form['#webform_id'];
       $config = \Drupal::config('webform.webform.' . $webform_id);
-      $roles = $config->get('access.create.roles');
+      $webform_roles = $config->get('access.create.roles');
 
       $anonymous_set = FALSE;
-      foreach ($roles as $key => $role) {
-        if ($role == 'anonymous') {
+      foreach ($webform_roles as $key => $webform_role) {
+        if ($webform_role == 'anonymous') {
           $anonymous_set = TRUE;
         }
       }
