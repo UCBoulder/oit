@@ -671,16 +671,16 @@ function oit_cron() {
       $save_state = 1;
     }
     elseif ($cron_run['top_services']) {
-      \Drupal::service('oit.toppages')->getTopPages();
-
       $cron_run['top_services'] = 0;
       $save_state = 1;
+
+      \Drupal::service('oit.toppages')->getTopPages();
     }
     elseif ($cron_run['top_tutorials']) {
-      \Drupal::service('oit.toppages')->getTopTutorials();
-
       $cron_run['top_tutorials'] = 0;
       $save_state = 1;
+
+      \Drupal::service('oit.toppages')->getTopTutorials();
     }
 
   }

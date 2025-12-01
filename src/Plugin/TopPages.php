@@ -99,7 +99,12 @@ class TopPages {
     $this->httpClient = $http_client;
     $this->teamsAlert = $teams_alert;
     $this->entityTypeManager = $entity_type_manager;
+  }
 
+  /**
+   * Get data.
+   */
+  private function fetchData() {
     // Get yesterdays date in the format YYYYMMDD.
     $yesterday = date('Ymd', strtotime('-1 day'));
     $data = file_get_contents("https://ucboulder.github.io/oit_dingo/top/$yesterday.json");
@@ -144,6 +149,8 @@ class TopPages {
    * Top Pages List.
    */
   public function getTopPages() {
+    $this->fetchData();
+
     $this->iteration = 0;
     foreach ($this->fullTopPages as $page) {
       $url = $page['data'];
@@ -179,7 +186,9 @@ class TopPages {
       }
     }
 
-    $this->buildSaveBlock(9, $top_pages, 152, "Top Service Pages", "/services#az", "top-services");
+    if ($top_pages) {
+      $this->buildSaveBlock(9, $top_pages, 152, "Top Service Pages", "/services#az", "top-services");
+    }
 
   }
 
@@ -187,6 +196,8 @@ class TopPages {
    * Top Tutorials List.
    */
   public function getTopTutorials() {
+    $this->fetchData();
+
     $this->iteration = 0;
 
     foreach ($this->fullTopPages as $page) {
@@ -224,7 +235,9 @@ class TopPages {
       }
     }
 
-    $this->buildSaveBlock(9, $top_tutorials, 153, "Top Tutorials", "/tutorial/search", "top-tutorials");
+    if ($top_tutorials) {
+      $this->buildSaveBlock(9, $top_tutorials, 153, "Top Tutorials", "/tutorial/search", "top-tutorials");
+    }
 
   }
 
