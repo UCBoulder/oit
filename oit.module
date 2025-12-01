@@ -94,7 +94,6 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
     $roles = $current_user->getRoles();
 
     if ($node_id && in_array('administrator', $roles)) {
-      $node_type = is_string($node) ? '' : $node->getType();
       $webform_id = $form['#webform_id'];
       $config = \Drupal::config('webform.webform.' . $webform_id);
       $roles = $config->get('access.create.roles');
