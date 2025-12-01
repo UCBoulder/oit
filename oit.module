@@ -97,9 +97,12 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
       $webform_id = $form['#webform_id'];
       $config = \Drupal::config('webform.webform.' . $webform_id);
       $webform_roles = $config->get('access.create.roles');
+      if (!is_array($roles)) {
+        $roles = [];
+      }
 
       $anonymous_set = FALSE;
-      foreach ($webform_roles as $key => $webform_role) {
+      foreach ($webform_roles as $webform_role) {
         if ($webform_role == 'anonymous') {
           $anonymous_set = TRUE;
         }
