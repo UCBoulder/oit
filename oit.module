@@ -622,10 +622,10 @@ function oit_cron() {
     $cron_run = [
       'analytics' => 1,
       'autoban' => 1,
-      'top_services' => 1,
-      'top_tutorials' => 1,
       'archive_news' => 1,
       'archive_service_maintenance' => 1,
+      'top_services' => 1,
+      'top_tutorials' => 1,
     ];
 
     $save_state = 1;
@@ -641,8 +641,6 @@ function oit_cron() {
 
       $cron_run['analytics'] = 0;
       $save_state = 1;
-
-      \Drupal::service('oit.teamsalert')->sendMessage('Cron: analytics ran');
     }
     elseif ($cron_run['autoban']) {
       // Send service alert message when new banned ip is added.
@@ -655,24 +653,6 @@ function oit_cron() {
 
       $cron_run['autoban'] = 0;
       $save_state = 1;
-
-      \Drupal::service('oit.teamsalert')->sendMessage('Cron: autoban ran');
-    }
-    elseif ($cron_run['top_services']) {
-      \Drupal::service('oit.toppages')->getTopPages();
-
-      $cron_run['top_services'] = 0;
-      $save_state = 1;
-
-      \Drupal::service('oit.teamsalert')->sendMessage('Cron: top services ran');
-    }
-    elseif ($cron_run['top_tutorials']) {
-      \Drupal::service('oit.toppages')->getTopTutorials();
-
-      $cron_run['top_tutorials'] = 0;
-      $save_state = 1;
-
-      \Drupal::service('oit.teamsalert')->sendMessage('Cron: top tutorials ran');
     }
     elseif ($cron_run['archive_news']) {
       // Archive news older than 90 days.
@@ -682,8 +662,6 @@ function oit_cron() {
 
       $cron_run['archive_news'] = 0;
       $save_state = 1;
-
-      \Drupal::service('oit.teamsalert')->sendMessage('Cron: archive news ran');
     }
     elseif ($cron_run['archive_service_maintenance']) {
       // Archive service maintenance past completion date.
@@ -691,8 +669,18 @@ function oit_cron() {
 
       $cron_run['archive_service_maintenance'] = 0;
       $save_state = 1;
+    }
+    elseif ($cron_run['top_services']) {
+      \Drupal::service('oit.toppages')->getTopPages();
 
-      \Drupal::service('oit.teamsalert')->sendMessage('Cron: archive service maintenance ran');
+      $cron_run['top_services'] = 0;
+      $save_state = 1;
+    }
+    elseif ($cron_run['top_tutorials']) {
+      \Drupal::service('oit.toppages')->getTopTutorials();
+
+      $cron_run['top_tutorials'] = 0;
+      $save_state = 1;
     }
 
   }
