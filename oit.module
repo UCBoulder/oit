@@ -110,11 +110,11 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
 
         if ($captcha_config) {
           $button_text = t('Add captcha to form');
-          $form['#prefix'] = "<ul class='no-list-style'><li class='red'><a href='/admin/config/people/captcha/captcha-points/add?destination=node/$node_id&webform_id=$node_id' class='button icon'>⬇️ $button_text</a></li></ul>";
+          $form['#prefix'] = Xss::filter("<ul class='no-list-style'><li class='red'><a href='/admin/config/people/captcha/captcha-points/add?destination=node/$node_id&webform_id=$node_id' class='button icon'>⬇️ $button_text</a></li></ul>");
         }
         else {
           $button_text = t('Remove captcha from form');
-          $form['#prefix'] = "<ul class='no-list-style'><li class='red'><a href='/admin/config/people/captcha/captcha-points/webform_add_$node_id/delete?destination=node/$node_id' class='button icon'>🔥 $button_text</a></li></ul>";
+          $form['#prefix'] = Xss::filter("<ul class='no-list-style'><li class='red'><a href='/admin/config/people/captcha/captcha-points/webform_add_$node_id/delete?destination=node/$node_id' class='button icon'>🔥 $button_text</a></li></ul>");
         }
 
       }
@@ -133,7 +133,7 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
       return;
     }
 
-    $form['label']['#default_value'] = 'webform_submission_oit_project_accessibility_review_node_' . $webform_id . '_add_form';
+    $form['label']['#default_value'] = 'webform_' . $webform_id;
     $form['formId']['#default_value'] = 'webform_add_' . $webform_id;
   }
 
