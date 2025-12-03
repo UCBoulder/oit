@@ -11,12 +11,14 @@ use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\PageCache\ResponsePolicy\KillSwitch;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\Core\Session\AccountInterface;
+use Drupal\Core\State\StateInterface;
 use Drupal\Core\Url;
 use Drupal\oit\Plugin\BlockUuidQuery;
 use Drupal\oit\Plugin\ServiceHealth;
 use Drupal\shortcode_svg\Plugin\ShortcodeIcon;
 use Drupal\views\Views;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -103,6 +105,13 @@ class OitController extends ControllerBase {
   protected $shortcodeSvgIcon;
 
   /**
+   * The state service.
+   *
+   * @var \Drupal\Core\State\StateInterface
+   */
+  protected $state;
+
+  /**
    * Constructs request stuff.
    *
    * @param \Drupal\Core\Session\AccountInterface $account
@@ -127,6 +136,8 @@ class OitController extends ControllerBase {
    *   Load entity.
    * @param \Drupal\shortcode_svg\Plugin\ShortcodeIcon $shortcode_svg_icon
    *   Call shortcode svg icon.
+   * @param \Drupal\Core\State\StateInterface $state
+   *   The state service.
    */
   public function __construct(
     AccountInterface $account,
@@ -140,6 +151,7 @@ class OitController extends ControllerBase {
     ServiceHealth $service_health,
     EntityTypeManagerInterface $entity_type_manager,
     ShortcodeIcon $shortcode_svg_icon,
+    StateInterface $state,
   ) {
     $this->account = $account;
     $this->requestStack = $request_stack->getCurrentRequest();
@@ -152,6 +164,7 @@ class OitController extends ControllerBase {
     $this->serviceHealth = $service_health;
     $this->entityTypeManager = $entity_type_manager;
     $this->shortcodeSvgIcon = $shortcode_svg_icon;
+    $this->state = $state;
   }
 
   /**
@@ -169,7 +182,8 @@ class OitController extends ControllerBase {
       $container->get('renderer'),
       $container->get('oit.servicehealth'),
       $container->get('entity_type.manager'),
-      $container->get('shortcode_svg.icon')
+      $container->get('shortcode_svg.icon'),
+      $container->get('state')
     );
   }
 
@@ -291,7 +305,37 @@ class OitController extends ControllerBase {
   }
 
   /**
-   * Routes for zap.
+   * Routes for cron json.
+   */
+  public function oitCronJson() {
+    // Get state 'oit_dashboard_delete'.
+    $dashboard_delete = $this->state->get('oit_dashboard_delete');
+    if ($dashboard_delete == NULL || $dashboard_delete == '' || $dashboard_delete == '[]') {
+      $dash_delete = FALSE;
+    }
+    else {
+      $dash_delete = TRUE;
+    }
+
+    $dashboard_add = $this->state->get('oit_dashboard_add');
+
+    if ($dashboard_add == NULL || $dashboard_add == '' || $dashboard_add == '[]') {
+      $dash_add = FALSE;
+    }
+    else {
+      $dash_add = TRUE;
+    }
+
+    $response = new JsonResponse(['dashboard_delete' => $dash_delete, 'dashboard_add' => $dash_add]);
+
+    // Disable page caching for this response.
+    $this->killSwitch->trigger();
+
+    return $response;
+  }
+
+  /**
+   * Routes for denied.
    */
   public function oitDenied() {
     $content = $this->deniedContent();
