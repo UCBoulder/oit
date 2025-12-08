@@ -142,6 +142,7 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
 
   if ($form_id == "taxonomy_term_service_dashboard_category_form") {
     $form['actions']['submit']['#submit'][] = 'oit_servicealert_dashboard_category_add';
+    $form['actions']['overview']['#submit'][] = 'oit_servicealert_dashboard_category_add';
   }
 
   if ($form_id == "taxonomy_term_service_dashboard_category_delete_form") {
