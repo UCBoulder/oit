@@ -89,6 +89,10 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
   if (array_key_exists('#webform_id', $form)) {
     // Get node id current webform is on.
     $node = \Drupal::routeMatch()->getParameter('node');
+    if ($node == NULL) {
+      return;
+    }
+
     $node_id = is_string($node) ? 0 : $node->id();
     $current_user = \Drupal::currentUser();
     $roles = $current_user->getRoles();
