@@ -143,6 +143,15 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
     $form['formId']['#default_value'] = 'webform_add_' . $webform_id;
   }
 
+  if ($form_id == "taxonomy_term_service_dashboard_category_form") {
+    $form['actions']['submit']['#submit'][] = 'oit_servicealert_dashboard_category_add';
+    $form['actions']['overview']['#submit'][] = 'oit_servicealert_dashboard_category_add';
+  }
+
+  if ($form_id == "taxonomy_term_service_dashboard_category_delete_form") {
+    $form['actions']['submit']['#submit'][] = 'oit_servicealert_dashboard_category_delete';
+  }
+
   if ($form_id == 'node_news_form' || $form_id == 'node_news_edit_form' ||
     $form_id == 'node_service_alert_form' || $form_id == 'node_service_alert_edit_form'
   ) {
@@ -457,6 +466,42 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
       $form['upload']['#group'] = 'oit_page_extras';
       break;
   }
+}
+
+/**
+ * Service alert dashboard category add handler.
+ */
+function oit_servicealert_dashboard_category_add($form, FormStateInterface $form_state) {
+  $name = Xss::filter($form_state->getValue('name')[0]['value']);
+  $dashboard_state = \Drupal::state()->get('oit_dashboard_add');
+
+  if ($dashboard_state) {
+    $dashboard_state = json_decode($dashboard_state, TRUE);
+  }
+
+  $dashboard_state[]= $name;
+
+  // Add term_name to a drupal state for future GH action processing.
+  \Drupal::state()->set('oit_dashboard_add', json_encode($dashboard_state));
+}
+
+/**
+ * Service alert dashboard category delete handler.
+ */
+function oit_servicealert_dashboard_category_delete($form, FormStateInterface $form_state) {
+  $term = $form_state->getFormObject()->getEntity();
+  $term_name = $term->getName();
+
+  $dashboard_state = \Drupal::state()->get('oit_dashboard_delete');
+
+  if ($dashboard_state) {
+    $dashboard_state = json_decode($dashboard_state, TRUE);
+  }
+
+  $dashboard_state[]= $term_name;
+
+  // Add term_name to a drupal state for future GH action processing.
+  \Drupal::state()->set('oit_dashboard_delete', json_encode($dashboard_state));
 }
 
 /**
