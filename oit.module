@@ -89,41 +89,40 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
   if (array_key_exists('#webform_id', $form)) {
     // Get node id current webform is on.
     $node = \Drupal::routeMatch()->getParameter('node');
-    if ($node == NULL) {
-      return;
-    }
+    if ($node != NULL) {
 
-    $node_id = is_string($node) ? 0 : $node->id();
-    $current_user = \Drupal::currentUser();
-    $roles = $current_user->getRoles();
+      $node_id = is_string($node) ? 0 : $node->id();
+      $current_user = \Drupal::currentUser();
+      $roles = $current_user->getRoles();
 
-    if ($node_id && in_array('administrator', $roles)) {
-      $webform_id = $form['#webform_id'];
-      $config = \Drupal::config('webform.webform.' . $webform_id);
-      $webform_roles = $config->get('access.create.roles');
-      if (!is_array($roles)) {
-        $roles = [];
-      }
-
-      $anonymous_set = FALSE;
-      foreach ($webform_roles as $webform_role) {
-        if ($webform_role == 'anonymous') {
-          $anonymous_set = TRUE;
-        }
-      }
-
-      if ($anonymous_set) {
-        $captcha_config = \Drupal::config('captcha.captcha_point.webform_add_' . $node_id)->isNew();
-
-        if ($captcha_config) {
-          $button_text = t('Add captcha to form');
-          $form['#prefix'] = Xss::filter("<ul class='no-list-style'><li class='red'><a href='/admin/config/people/captcha/captcha-points/add?destination=node/$node_id&webform_id=$node_id' class='button icon'>⬇️ $button_text</a></li></ul>");
-        }
-        else {
-          $button_text = t('Remove captcha from form');
-          $form['#prefix'] = Xss::filter("<ul class='no-list-style'><li class='red'><a href='/admin/config/people/captcha/captcha-points/webform_add_$node_id/delete?destination=node/$node_id' class='button icon'>🔥 $button_text</a></li></ul>");
+      if ($node_id && in_array('administrator', $roles)) {
+        $webform_id = $form['#webform_id'];
+        $config = \Drupal::config('webform.webform.' . $webform_id);
+        $webform_roles = $config->get('access.create.roles');
+        if (!is_array($roles)) {
+          $roles = [];
         }
 
+        $anonymous_set = FALSE;
+        foreach ($webform_roles as $webform_role) {
+          if ($webform_role == 'anonymous') {
+            $anonymous_set = TRUE;
+          }
+        }
+
+        if ($anonymous_set) {
+          $captcha_config = \Drupal::config('captcha.captcha_point.webform_add_' . $node_id)->isNew();
+
+          if ($captcha_config) {
+            $button_text = t('Add captcha to form');
+            $form['#prefix'] = Xss::filter("<ul class='no-list-style'><li class='red'><a href='/admin/config/people/captcha/captcha-points/add?destination=node/$node_id&webform_id=$node_id' class='button icon'>⬇️ $button_text</a></li></ul>");
+          }
+          else {
+            $button_text = t('Remove captcha from form');
+            $form['#prefix'] = Xss::filter("<ul class='no-list-style'><li class='red'><a href='/admin/config/people/captcha/captcha-points/webform_add_$node_id/delete?destination=node/$node_id' class='button icon'>🔥 $button_text</a></li></ul>");
+          }
+
+        }
       }
     }
   }
