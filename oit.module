@@ -744,24 +744,32 @@ function oit_entity_view(array &$build, EntityInterface $entity, EntityViewDispl
  */
 function oit_cron() {
   $env = getenv('PANTHEON_ENVIRONMENT');
+  $cron_run = \Drupal::state()->get('oit_cron_run');
   $save_state = 0;
 
-  if ((date('G', time()) == 23) && ($env == 'live')) {
-    // Reset cron run state after 11PM.
-    $cron_run = [
-      'analytics' => 1,
-      'autoban' => 1,
-      'archive_news' => 1,
-      'archive_service_maintenance' => 1,
-      'top_services' => 1,
-      'top_tutorials' => 1,
-    ];
+  if ((date('G', time()) == 00 || date('i', time()) < 15)
+    && (strpos($cron_run, '1') === FALSE)
+    && ($env == 'live')
+  ) {
+    if(date('G', time()) == 23) {
+      // Reset cron run state after 11PM.
+      $cron_run = [
+        'analytics' => 1,
+        'autoban' => 1,
+        'archive_news' => 1,
+        'archive_service_maintenance' => 1,
+        'top_services' => 1,
+        'top_tutorials' => 1,
+      ];
+    } elseif (date('i', time()) < 15) {
+      $cron_run = json_decode($cron_run, TRUE);
+      $cron_run['archive_service_maintenance'] = 1;
+    }
 
     $save_state = 1;
   }
   else {
     // Run each cron task one at a time, once per day after midnight.
-    $cron_run = \Drupal::state()->get('oit_cron_run');
     $cron_run = json_decode($cron_run, TRUE);
 
     if ($cron_run['analytics']) {
