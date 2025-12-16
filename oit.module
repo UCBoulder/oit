@@ -399,6 +399,8 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
       $form['#attached']['library'][] = 'webform/webform.element.select2';
       $form['#attached']['library'][] = 'oit/oit_node_news_form';
       $form['#validate'][] = 'oit_news_types_categories';
+      // Add submit handler.
+      $form['actions']['submit']['#submit'][] = 'news_node_form_submit';
       break;
 
     case "user_login_form":
@@ -465,6 +467,30 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
       $form['field_tut_comp_type_d7']['#group'] = 'oit_page_extras';
       $form['upload']['#group'] = 'oit_page_extras';
       break;
+  }
+}
+
+function news_node_form_submit(&$form, FormStateInterface $form_state) {
+  if ($form_state->getValues()['promote']['value']) {
+    $node = $form_state->getFormObject()->getEntity();
+    $node_id = $node->id();
+
+    $node_storage = \Drupal::entityTypeManager()->getStorage('node');
+    $query = $node_storage->getQuery();
+    $query->condition('type', 'news');
+    $query->condition('promote', 1);
+    $query->condition('nid', $node_id, '!=');
+    $query->accessCheck(TRUE);
+    $query->sort('created', 'DESC');
+    $nids = $query->execute();
+
+    foreach ($nids as $nid) {
+      $node = $node_storage->load($nid);
+      $node->set('promote', 0);
+      $node->set('field_sympa_send', 0);
+      $node->save();
+    }
+
   }
 }
 

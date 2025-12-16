@@ -581,3 +581,29 @@ function oit_update_10013() {
   $cron_run = json_encode($cron_run);
   \Drupal::state()->set('oit_cron_run', $cron_run);
 }
+
+/**
+ * Remove promote from all news.
+ */
+function oit_update_10014() {
+  // Entity query to get the most recent node type of 'news' with promote = 1.
+  $node_storage = \Drupal::entityTypeManager()->getStorage('node');
+  $query = $node_storage->getQuery();
+  $query->condition('type', 'news');
+  $query->condition('promote', 1);
+  $query->accessCheck(FALSE);
+  $query->sort('created', 'DESC');
+  $nids = $query->execute();
+
+  $n = 0;
+
+  foreach ($nids as $nid) {
+    if ($n != 0) {
+      $node = $node_storage->load($nid);
+      $node->set('promote', 0);
+      $node->set('field_sympa_send', 0);
+      $node->save();
+    }
+    $n++;
+  }
+}
