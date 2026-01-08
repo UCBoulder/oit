@@ -607,3 +607,21 @@ function oit_update_10014() {
     $n++;
   }
 }
+
+/**
+ * Revert schema.
+ */
+function oit_update_10015() {
+  // Revert system schema version because of drupal downgrade.
+  $connection = \Drupal::database();
+  $connection->update('key_value')
+    ->fields(['value' => 'i:10400;'])
+    ->condition('collection', 'system.schema')
+    ->condition('name', 'system')
+    ->execute();
+
+  $connection->delete('key_value')
+    ->condition('collection', 'core.equivalent_updates')
+    ->condition('name', 'system')
+    ->execute();
+}
