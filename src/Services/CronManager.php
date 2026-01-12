@@ -50,14 +50,28 @@ class CronManager {
    * Update Top Services block.
    */
   public static function topServices() {
-    \Drupal::service('oit.toppages')->getTopPages();
+    $env = getenv('PANTHEON_ENVIRONMENT');
+
+    if ($env === 'live') {
+      \Drupal::service('oit.toppages')->getTopPages();
+    }
+    else {
+      \Drupal::logger('oit')->notice('Top Services not run. This is the @env environment', ['@env' => $env]);
+    }
   }
 
   /**
    * Update Top tutorials block.
    */
   public static function topTutorials() {
-    \Drupal::service('oit.toppages')->getTopTutorials();
+    $env = getenv('PANTHEON_ENVIRONMENT');
+
+    if ($env === 'live') {
+      \Drupal::service('oit.toppages')->getTopTutorials();
+    }
+    else {
+      \Drupal::logger('oit')->notice('Top Tutorials not run. This is the @env environment', ['@env' => $env]);
+    }
   }
 
 }
