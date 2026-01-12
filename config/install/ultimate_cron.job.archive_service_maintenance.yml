@@ -1,0 +1,29 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - oit
+title: 'Archive Service Maintenance'
+id: archive_service_maintenance
+weight: 0
+module: oit
+callback: '\Drupal\oit\Services\CronManager::archiveServiceMaintenance'
+scheduler:
+  id: crontab
+  configuration:
+    rules:
+      - '0 */4 * * *'
+    catch_up: 14400
+launcher:
+  id: serial
+  configuration:
+    timeouts:
+      lock_timeout: 3600
+    launcher:
+      thread: 0
+logger:
+  id: database
+  configuration:
+    method: '3'
+    expire: 1209600
+    retain: 1000
