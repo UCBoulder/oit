@@ -625,3 +625,10 @@ function oit_update_10015() {
     ->condition('name', 'system')
     ->execute();
 }
+
+/**
+ * Delete state oit_cron_run.
+ */
+function oit_update_10016() {
+  \Drupal::state()->delete('oit_cron_run');
+}
