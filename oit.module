@@ -762,7 +762,7 @@ function oit_cron() {
         'top_tutorials' => 1,
       ];
     } elseif (date('i', time()) < 15) {
-      $cron_run = json_decode($cron_run, TRUE);
+      $cron_run = is_array($cron_run) ? $cron_run : json_decode($cron_run, TRUE);
       $cron_run['archive_service_maintenance'] = 1;
     }
 
@@ -770,7 +770,7 @@ function oit_cron() {
   }
   else {
     // Run each cron task one at a time, once per day after midnight.
-    $cron_run = json_decode($cron_run, TRUE);
+    $cron_run = is_array($cron_run) ? $cron_run : json_decode($cron_run, TRUE);
 
     if ($cron_run['analytics']) {
       // Add analytics to redirects.
@@ -780,7 +780,7 @@ function oit_cron() {
       $save_state = 1;
     }
     elseif ($cron_run['autoban']) {
-      // Send service alert message when new banned ip is added.
+      // Send message when new banned ip is added.
       $latest_ban = \Drupal::service('oit.latestAutoBan');
       $current_ban_id = $latest_ban->latestBanId;
       $last_ban_id = $latest_ban->lastBanId;
