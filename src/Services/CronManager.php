@@ -38,8 +38,9 @@ class CronManager {
   }
 
   /**
-   * Archive Service Alerts categorized as service maintenance - past
-   * completion date.
+   * Archive Service Alerts categorized as service maintenance.
+   *
+   * Archives service alerts that are past their completion date.
    */
   public static function archiveServiceMaintenance() {
     \Drupal::service('oit.smc');
