@@ -5,7 +5,7 @@ dependencies:
     - oit
 title: 'Archive News'
 id: archive_news
-weight: 0
+weight: -11
 module: oit
 callback: '\Drupal\oit\Services\CronManager::archiveNews'
 scheduler:

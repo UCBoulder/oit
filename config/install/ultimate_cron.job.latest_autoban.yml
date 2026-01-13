@@ -5,7 +5,7 @@ dependencies:
     - oit
 title: 'Message Latest Autoban'
 id: latest_autoban
-weight: 0
+weight: -9
 module: oit
 callback: '\Drupal\oit\Services\CronManager::autoBan'
 scheduler:

@@ -5,7 +5,7 @@ dependencies:
     - oit
 title: 'Top Tutorials'
 id: top_tutorials
-weight: 0
+weight: 13
 module: oit
 callback: '\Drupal\oit\Services\CronManager::topTutorials'
 scheduler:

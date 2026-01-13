@@ -5,7 +5,7 @@ dependencies:
     - oit
 title: 'Analytics Add Redirects'
 id: oit_redirect_add_analytics
-weight: 0
+weight: -12
 module: oit
 callback: '\Drupal\oit\Services\CronManager::addAnalyticsRedirects'
 scheduler:

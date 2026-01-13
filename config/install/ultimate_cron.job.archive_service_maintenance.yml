@@ -5,7 +5,7 @@ dependencies:
     - oit
 title: 'Archive Service Maintenance'
 id: archive_service_maintenance
-weight: 0
+weight: -10
 module: oit
 callback: '\Drupal\oit\Services\CronManager::archiveServiceMaintenance'
 scheduler:

@@ -5,7 +5,7 @@ dependencies:
     - oit
 title: 'Top Services'
 id: top_services
-weight: 0
+weight: 12
 module: oit
 callback: '\Drupal\oit\Services\CronManager::topServices'
 scheduler:
