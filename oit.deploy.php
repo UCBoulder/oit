@@ -171,6 +171,100 @@ function oit_replicate_menu_tree($menu_id, $menu_label, $menu_description, $root
 }
 
 /**
+ * Helper function to update nodes' menu links from main menu to new menus.
+ *
+ * @param array $menu_mappings
+ *   Array of menu mappings with 'old_root_id' and 'new_menu_id'.
+ *
+ * @return array
+ *   Statistics about updated menu links.
+ */
+function oit_update_node_menu_links(array $menu_mappings) {
+  $menu_link_storage = \Drupal::entityTypeManager()->getStorage('menu_link_content');
+  $stats = [];
+  
+  // Temporarily disable pathauto to avoid entity errors during deletion.
+  $pathauto_state = NULL;
+  if (\Drupal::moduleHandler()->moduleExists('pathauto')) {
+    $pathauto_state = \Drupal::configFactory()->getEditable('pathauto.settings')->get('enabled');
+    \Drupal::configFactory()->getEditable('pathauto.settings')->set('enabled', FALSE)->save();
+  }
+  
+  foreach ($menu_mappings as $mapping) {
+    $old_root_id = $mapping['old_root_id'];
+    $new_menu_id = $mapping['new_menu_id'];
+    $deleted_count = 0;
+    
+    // Get all menu links under the old root in main menu.
+    $old_root = $menu_link_storage->load($old_root_id);
+    if (!$old_root) {
+      continue;
+    }
+    
+    $old_root_uuid = $old_root->uuid();
+    
+    // Find all descendants of this root in main menu recursively.
+    $database = \Drupal::database();
+    
+    // Get all menu links that belong to this tree in main menu.
+    $all_links_to_delete = [];
+    $find_descendants = function($parent_uuid) use (&$find_descendants, $database, &$all_links_to_delete) {
+      $query = $database->select('menu_link_content_data', 'mlcd');
+      $query->join('menu_link_content', 'mlc', 'mlcd.id = mlc.id');
+      $query->fields('mlcd', ['id']);
+      $query->addField('mlc', 'uuid', 'uuid');
+      $query->condition('mlcd.menu_name', 'main');
+      $query->condition('mlcd.parent', 'menu_link_content:' . $parent_uuid);
+      $results = $query->execute()->fetchAll();
+      
+      foreach ($results as $row) {
+        $all_links_to_delete[] = $row->id;
+        // Recursively find children.
+        $find_descendants($row->uuid);
+      }
+    };
+    
+    // Start with root and find all descendants.
+    $all_links_to_delete[] = $old_root_id;
+    $find_descendants($old_root_uuid);
+    
+    // Delete all the old menu links from main menu.
+    foreach ($all_links_to_delete as $link_id) {
+      $link = $menu_link_storage->load($link_id);
+      if ($link && $link->get('menu_name')->value === 'main') {
+        try {
+          $link->delete();
+          $deleted_count++;
+        }
+        catch (\TypeError $e) {
+          // Skip this item if we get a Pathauto TypeError.
+          \Drupal::logger('oit_update')->warning('Skipped deleting menu link (ID: @id) due to error: @message', [
+            '@id' => $link_id,
+            '@message' => $e->getMessage(),
+          ]);
+        }
+        catch (\Exception $e) {
+          // Log other exceptions but continue.
+          \Drupal::logger('oit_update')->warning('Error deleting menu link (ID: @id): @message', [
+            '@id' => $link_id,
+            '@message' => $e->getMessage(),
+          ]);
+        }
+      }
+    }
+    
+    $stats[$new_menu_id] = $deleted_count;
+  }
+  
+  // Re-enable pathauto if it was enabled.
+  if ($pathauto_state !== NULL) {
+    \Drupal::configFactory()->getEditable('pathauto.settings')->set('enabled', $pathauto_state)->save();
+  }
+  
+  return $stats;
+}
+
+/**
  * Update dash tax from current dashboard categories.
  */
 function oit_deploy_10001_mapcats() {
@@ -373,6 +467,39 @@ function oit_deploy_10002_menu() {
 
   return t('Created @total service category menus: @results', [
     '@total' => count($menus),
+    '@results' => implode('; ', $results),
+  ]);
+}
+
+/**
+ * Update nodes' menu links from main menu to new service category menus.
+ */
+function oit_deploy_10003_update_node_menus() {
+  // Define mappings from old root IDs to new menu IDs.
+  $menu_mappings = [
+    ['old_root_id' => 3175, 'new_menu_id' => 'services-conferencing'],
+    ['old_root_id' => 3179, 'new_menu_id' => 'services-consulting-prof'],
+    ['old_root_id' => 3178, 'new_menu_id' => 'services-transfer-store'],
+    ['old_root_id' => 3598, 'new_menu_id' => 'services-security'],
+    ['old_root_id' => 9032, 'new_menu_id' => 'services-identity'],
+    ['old_root_id' => 3165, 'new_menu_id' => 'services-learning'],
+    ['old_root_id' => 3542, 'new_menu_id' => 'services-messaging'],
+    ['old_root_id' => 3174, 'new_menu_id' => 'services-network-internet'],
+    ['old_root_id' => 3183, 'new_menu_id' => 'services-research-computing'],
+    ['old_root_id' => 42696, 'new_menu_id' => 'services-software-licensing'],
+    ['old_root_id' => 3167, 'new_menu_id' => 'services-teaching-learning'],
+    ['old_root_id' => 8829, 'new_menu_id' => 'services-voice-coms'],
+    ['old_root_id' => 3184, 'new_menu_id' => 'services-web-content'],
+  ];
+  
+  $stats = oit_update_node_menu_links($menu_mappings);
+  
+  $results = [];
+  foreach ($stats as $menu_id => $count) {
+    $results[] = "$menu_id: $count links deleted from main menu";
+  }
+  
+  return t('Removed old menu links from main menu. @results', [
     '@results' => implode('; ', $results),
   ]);
 }
