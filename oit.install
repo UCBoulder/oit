@@ -632,3 +632,556 @@ function oit_update_10015() {
 function oit_update_10016() {
   \Drupal::state()->delete('oit_cron_run');
 }
+
+/**
+ * Create new menu 'services - conferencing services' and replicate menu items.
+ */
+function oit_update_10017() {
+  $entity_type_manager = \Drupal::entityTypeManager();
+  $menu_storage = $entity_type_manager->getStorage('menu');
+  $menu_link_storage = $entity_type_manager->getStorage('menu_link_content');
+
+  // Create new menu.
+  $menu = $menu_storage->create([
+    'id' => 'services-conferencing-services',
+    'label' => 'Services - Conferencing Services',
+    'description' => 'Menu for conferencing services',
+  ]);
+  $menu->save();
+
+  // Map to track old ID -> new ID for parent relationships.
+  $id_map = [];
+  $total_count = 0;
+
+  // Start with Conferencing Services menu item (ID: 3175).
+  $root_id = 3175;
+
+  // Recursive function to replicate menu items and their children.
+  $replicate_menu_tree = function($source_id, $new_parent = '') use (&$replicate_menu_tree, $menu_link_storage, &$id_map, &$total_count) {
+    $source_link = $menu_link_storage->load($source_id);
+
+    if (!$source_link) {
+      return;
+    }
+
+    // Create new menu link in the new menu.
+    $new_link = MenuLinkContent::create([
+      'title' => $source_link->getTitle(),
+      'link' => $source_link->get('link')->getValue(),
+      'menu_name' => 'services-conferencing-services',
+      'weight' => $source_link->getWeight(),
+      'enabled' => $source_link->isEnabled(),
+      'expanded' => $source_link->isExpanded(),
+      'parent' => $new_parent,
+    ]);
+
+    // Copy description if it exists.
+    if ($source_link->hasField('description') && !$source_link->get('description')->isEmpty()) {
+      $new_link->set('description', $source_link->get('description')->getValue());
+    }
+
+    $new_link->save();
+    $new_id = $new_link->id();
+    $new_uuid = $new_link->uuid();
+    $id_map[$source_id] = $new_id;
+    $total_count++;
+
+    // Get UUID of source link to find its children.
+    $source_uuid = $source_link->uuid();
+
+    // Find all children of this menu item.
+    $database = \Drupal::database();
+    $query = $database->select('menu_link_content_data', 'mlcd');
+    $query->fields('mlcd', ['id']);
+    $query->condition('mlcd.parent', 'menu_link_content:' . $source_uuid);
+    $query->orderBy('mlcd.weight');
+    $query->orderBy('mlcd.id');
+    $child_ids = $query->execute()->fetchCol();
+
+    // Recursively replicate each child with UUID-based parent.
+    foreach ($child_ids as $child_id) {
+      $replicate_menu_tree($child_id, 'menu_link_content:' . $new_uuid);
+    }
+  };
+
+  // Start replication from the root.
+  $replicate_menu_tree($root_id);
+
+  return t('Created menu "Services - Conferencing Services" and replicated @count menu items across all levels.', [
+    '@count' => $total_count,
+  ]);
+}
+
+/**
+ * Create new menu 'Services - Consulting & Prof Services' and replicate menu items.
+ */
+function oit_update_10018() {
+  $entity_type_manager = \Drupal::entityTypeManager();
+  $menu_storage = $entity_type_manager->getStorage('menu');
+  $menu_link_storage = $entity_type_manager->getStorage('menu_link_content');
+
+  // Create new menu.
+  $menu = $menu_storage->create([
+    'id' => 'services-consulting-prof-svc',
+    'label' => 'Services - Consulting & Prof Services',
+    'description' => 'Menu for consulting and professional services',
+  ]);
+  $menu->save();
+
+  // Map to track old ID -> new ID for parent relationships.
+  $id_map = [];
+  $total_count = 0;
+
+  // Start with Consulting & Professional Services menu item (ID: 3179).
+  $root_id = 3179;
+
+  // Recursive function to replicate menu items and their children.
+  $replicate_menu_tree = function($source_id, $new_parent = '') use (&$replicate_menu_tree, $menu_link_storage, &$id_map, &$total_count) {
+    $source_link = $menu_link_storage->load($source_id);
+
+    if (!$source_link) {
+      return;
+    }
+
+    // Create new menu link in the new menu.
+    $new_link = MenuLinkContent::create([
+      'title' => $source_link->getTitle(),
+      'link' => $source_link->get('link')->getValue(),
+      'menu_name' => 'services-consulting-prof-svc',
+      'weight' => $source_link->getWeight(),
+      'enabled' => $source_link->isEnabled(),
+      'expanded' => $source_link->isExpanded(),
+      'parent' => $new_parent,
+    ]);
+
+    // Copy description if it exists.
+    if ($source_link->hasField('description') && !$source_link->get('description')->isEmpty()) {
+      $new_link->set('description', $source_link->get('description')->getValue());
+    }
+
+    $new_link->save();
+    $new_id = $new_link->id();
+    $new_uuid = $new_link->uuid();
+    $id_map[$source_id] = $new_id;
+    $total_count++;
+
+    // Get UUID of source link to find its children.
+    $source_uuid = $source_link->uuid();
+
+    // Find all children of this menu item.
+    $database = \Drupal::database();
+    $query = $database->select('menu_link_content_data', 'mlcd');
+    $query->fields('mlcd', ['id']);
+    $query->condition('mlcd.parent', 'menu_link_content:' . $source_uuid);
+    $query->orderBy('mlcd.weight');
+    $query->orderBy('mlcd.id');
+    $child_ids = $query->execute()->fetchCol();
+
+    // Recursively replicate each child with UUID-based parent.
+    foreach ($child_ids as $child_id) {
+      $replicate_menu_tree($child_id, 'menu_link_content:' . $new_uuid);
+    }
+  };
+
+  // Start replication from the root.
+  $replicate_menu_tree($root_id);
+
+  return t('Created menu "Services - Consulting & Prof Services" and replicated @count menu items across all levels.', [
+    '@count' => $total_count,
+  ]);
+}
+
+/**
+ * Create new menu 'Services - Transfer, Storage, & Infrastructure' and replicate menu items.
+ */
+function oit_update_10019() {
+  $entity_type_manager = \Drupal::entityTypeManager();
+  $menu_storage = $entity_type_manager->getStorage('menu');
+  $menu_link_storage = $entity_type_manager->getStorage('menu_link_content');
+
+  // Create new menu.
+  $menu = $menu_storage->create([
+    'id' => 'services-transfer-storage',
+    'label' => 'Services - Transfer, Storage, & Infrastructure',
+    'description' => 'Menu for file transfer, storage and infrastructure services',
+  ]);
+  $menu->save();
+
+  // Map to track old ID -> new ID for parent relationships.
+  $id_map = [];
+  $total_count = 0;
+
+  // Start with File Transfer, Storage & Infrastructure menu item (ID: 3178).
+  $root_id = 3178;
+
+  // Recursive function to replicate menu items and their children.
+  $replicate_menu_tree = function($source_id, $new_parent = '') use (&$replicate_menu_tree, $menu_link_storage, &$id_map, &$total_count) {
+    $source_link = $menu_link_storage->load($source_id);
+
+    if (!$source_link) {
+      return;
+    }
+
+    // Create new menu link in the new menu.
+    $new_link = MenuLinkContent::create([
+      'title' => $source_link->getTitle(),
+      'link' => $source_link->get('link')->getValue(),
+      'menu_name' => 'services-transfer-storage',
+      'weight' => $source_link->getWeight(),
+      'enabled' => $source_link->isEnabled(),
+      'expanded' => $source_link->isExpanded(),
+      'parent' => $new_parent,
+    ]);
+
+    // Copy description if it exists.
+    if ($source_link->hasField('description') && !$source_link->get('description')->isEmpty()) {
+      $new_link->set('description', $source_link->get('description')->getValue());
+    }
+
+    $new_link->save();
+    $new_id = $new_link->id();
+    $new_uuid = $new_link->uuid();
+    $id_map[$source_id] = $new_id;
+    $total_count++;
+
+    // Get UUID of source link to find its children.
+    $source_uuid = $source_link->uuid();
+
+    // Find all children of this menu item.
+    $database = \Drupal::database();
+    $query = $database->select('menu_link_content_data', 'mlcd');
+    $query->fields('mlcd', ['id']);
+    $query->condition('mlcd.parent', 'menu_link_content:' . $source_uuid);
+    $query->orderBy('mlcd.weight');
+    $query->orderBy('mlcd.id');
+    $child_ids = $query->execute()->fetchCol();
+
+    // Recursively replicate each child with UUID-based parent.
+    foreach ($child_ids as $child_id) {
+      $replicate_menu_tree($child_id, 'menu_link_content:' . $new_uuid);
+    }
+  };
+
+  // Start replication from the root.
+  $replicate_menu_tree($root_id);
+
+  return t('Created menu "Services - Transfer, Storage, & Infrastructure" and replicated @count menu items across all levels.', [
+    '@count' => $total_count,
+  ]);
+}
+
+/**
+ * Create new menu 'Services - IT Security' and replicate menu items.
+ */
+function oit_update_10020() {
+  $entity_type_manager = \Drupal::entityTypeManager();
+  $menu_storage = $entity_type_manager->getStorage('menu');
+  $menu_link_storage = $entity_type_manager->getStorage('menu_link_content');
+
+  // Create new menu.
+  $menu = $menu_storage->create([
+    'id' => 'services-it-security',
+    'label' => 'Services - IT Security',
+    'description' => 'Menu for IT security services',
+  ]);
+  $menu->save();
+
+  // Map to track old ID -> new ID for parent relationships.
+  $id_map = [];
+  $total_count = 0;
+
+  // Start with IT Security menu item (ID: 3598).
+  $root_id = 3598;
+
+  // Recursive function to replicate menu items and their children.
+  $replicate_menu_tree = function($source_id, $new_parent = '') use (&$replicate_menu_tree, $menu_link_storage, &$id_map, &$total_count) {
+    $source_link = $menu_link_storage->load($source_id);
+
+    if (!$source_link) {
+      return;
+    }
+
+    // Create new menu link in the new menu.
+    $new_link = MenuLinkContent::create([
+      'title' => $source_link->getTitle(),
+      'link' => $source_link->get('link')->getValue(),
+      'menu_name' => 'services-it-security',
+      'weight' => $source_link->getWeight(),
+      'enabled' => $source_link->isEnabled(),
+      'expanded' => $source_link->isExpanded(),
+      'parent' => $new_parent,
+    ]);
+
+    // Copy description if it exists.
+    if ($source_link->hasField('description') && !$source_link->get('description')->isEmpty()) {
+      $new_link->set('description', $source_link->get('description')->getValue());
+    }
+
+    $new_link->save();
+    $new_id = $new_link->id();
+    $new_uuid = $new_link->uuid();
+    $id_map[$source_id] = $new_id;
+    $total_count++;
+
+    // Get UUID of source link to find its children.
+    $source_uuid = $source_link->uuid();
+
+    // Find all children of this menu item.
+    $database = \Drupal::database();
+    $query = $database->select('menu_link_content_data', 'mlcd');
+    $query->fields('mlcd', ['id']);
+    $query->condition('mlcd.parent', 'menu_link_content:' . $source_uuid);
+    $query->orderBy('mlcd.weight');
+    $query->orderBy('mlcd.id');
+    $child_ids = $query->execute()->fetchCol();
+
+    // Recursively replicate each child with UUID-based parent.
+    foreach ($child_ids as $child_id) {
+      $replicate_menu_tree($child_id, 'menu_link_content:' . $new_uuid);
+    }
+  };
+
+  // Start replication from the root.
+  $replicate_menu_tree($root_id);
+
+  return t('Created menu "Services - IT Security" and replicated @count menu items across all levels.', [
+    '@count' => $total_count,
+  ]);
+}
+
+/**
+ * Create new menu 'Services - Identity & Access Management' and replicate menu items.
+ */
+function oit_update_10021() {
+  $entity_type_manager = \Drupal::entityTypeManager();
+  $menu_storage = $entity_type_manager->getStorage('menu');
+  $menu_link_storage = $entity_type_manager->getStorage('menu_link_content');
+
+  // Create new menu.
+  $menu = $menu_storage->create([
+    'id' => 'services-identity-access',
+    'label' => 'Services - Identity & Access Management',
+    'description' => 'Menu for identity and access management services',
+  ]);
+  $menu->save();
+
+  // Map to track old ID -> new ID for parent relationships.
+  $id_map = [];
+  $total_count = 0;
+
+  // Start with Identity & Access Management menu item (ID: 9032).
+  $root_id = 9032;
+
+  // Recursive function to replicate menu items and their children.
+  $replicate_menu_tree = function($source_id, $new_parent = '') use (&$replicate_menu_tree, $menu_link_storage, &$id_map, &$total_count) {
+    $source_link = $menu_link_storage->load($source_id);
+
+    if (!$source_link) {
+      return;
+    }
+
+    // Create new menu link in the new menu.
+    $new_link = MenuLinkContent::create([
+      'title' => $source_link->getTitle(),
+      'link' => $source_link->get('link')->getValue(),
+      'menu_name' => 'services-identity-access',
+      'weight' => $source_link->getWeight(),
+      'enabled' => $source_link->isEnabled(),
+      'expanded' => $source_link->isExpanded(),
+      'parent' => $new_parent,
+    ]);
+
+    // Copy description if it exists.
+    if ($source_link->hasField('description') && !$source_link->get('description')->isEmpty()) {
+      $new_link->set('description', $source_link->get('description')->getValue());
+    }
+
+    $new_link->save();
+    $new_id = $new_link->id();
+    $new_uuid = $new_link->uuid();
+    $id_map[$source_id] = $new_id;
+    $total_count++;
+
+    // Get UUID of source link to find its children.
+    $source_uuid = $source_link->uuid();
+
+    // Find all children of this menu item.
+    $database = \Drupal::database();
+    $query = $database->select('menu_link_content_data', 'mlcd');
+    $query->fields('mlcd', ['id']);
+    $query->condition('mlcd.parent', 'menu_link_content:' . $source_uuid);
+    $query->orderBy('mlcd.weight');
+    $query->orderBy('mlcd.id');
+    $child_ids = $query->execute()->fetchCol();
+
+    // Recursively replicate each child with UUID-based parent.
+    foreach ($child_ids as $child_id) {
+      $replicate_menu_tree($child_id, 'menu_link_content:' . $new_uuid);
+    }
+  };
+
+  // Start replication from the root.
+  $replicate_menu_tree($root_id);
+
+  return t('Created menu "Services - Identity & Access Management" and replicated @count menu items across all levels.', [
+    '@count' => $total_count,
+  ]);
+}
+
+/**
+ * Create new menu 'Services - Learning Spaces Technology' and replicate menu items.
+ */
+function oit_update_10022() {
+  $entity_type_manager = \Drupal::entityTypeManager();
+  $menu_storage = $entity_type_manager->getStorage('menu');
+  $menu_link_storage = $entity_type_manager->getStorage('menu_link_content');
+
+  // Create new menu.
+  $menu = $menu_storage->create([
+    'id' => 'services-learning-spaces',
+    'label' => 'Services - Learning Spaces Technology',
+    'description' => 'Menu for learning spaces technology services',
+  ]);
+  $menu->save();
+
+  // Map to track old ID -> new ID for parent relationships.
+  $id_map = [];
+  $total_count = 0;
+
+  // Start with Learning Spaces Technology menu item (ID: 3165).
+  $root_id = 3165;
+
+  // Recursive function to replicate menu items and their children.
+  $replicate_menu_tree = function($source_id, $new_parent = '') use (&$replicate_menu_tree, $menu_link_storage, &$id_map, &$total_count) {
+    $source_link = $menu_link_storage->load($source_id);
+
+    if (!$source_link) {
+      return;
+    }
+
+    // Create new menu link in the new menu.
+    $new_link = MenuLinkContent::create([
+      'title' => $source_link->getTitle(),
+      'link' => $source_link->get('link')->getValue(),
+      'menu_name' => 'services-learning-spaces',
+      'weight' => $source_link->getWeight(),
+      'enabled' => $source_link->isEnabled(),
+      'expanded' => $source_link->isExpanded(),
+      'parent' => $new_parent,
+    ]);
+
+    // Copy description if it exists.
+    if ($source_link->hasField('description') && !$source_link->get('description')->isEmpty()) {
+      $new_link->set('description', $source_link->get('description')->getValue());
+    }
+
+    $new_link->save();
+    $new_id = $new_link->id();
+    $new_uuid = $new_link->uuid();
+    $id_map[$source_id] = $new_id;
+    $total_count++;
+
+    // Get UUID of source link to find its children.
+    $source_uuid = $source_link->uuid();
+
+    // Find all children of this menu item.
+    $database = \Drupal::database();
+    $query = $database->select('menu_link_content_data', 'mlcd');
+    $query->fields('mlcd', ['id']);
+    $query->condition('mlcd.parent', 'menu_link_content:' . $source_uuid);
+    $query->orderBy('mlcd.weight');
+    $query->orderBy('mlcd.id');
+    $child_ids = $query->execute()->fetchCol();
+
+    // Recursively replicate each child with UUID-based parent.
+    foreach ($child_ids as $child_id) {
+      $replicate_menu_tree($child_id, 'menu_link_content:' . $new_uuid);
+    }
+  };
+
+  // Start replication from the root.
+  $replicate_menu_tree($root_id);
+
+  return t('Created menu "Services - Learning Spaces Technology" and replicated @count menu items across all levels.', [
+    '@count' => $total_count,
+  ]);
+}
+
+/**
+ * Create new menu 'Services - Messaging & Collaboration' and replicate menu items.
+ */
+function oit_update_10023() {
+  $entity_type_manager = \Drupal::entityTypeManager();
+  $menu_storage = $entity_type_manager->getStorage('menu');
+  $menu_link_storage = $entity_type_manager->getStorage('menu_link_content');
+
+  // Create new menu.
+  $menu = $menu_storage->create([
+    'id' => 'services-messaging-collab',
+    'label' => 'Services - Messaging & Collaboration',
+    'description' => 'Menu for messaging and collaboration services',
+  ]);
+  $menu->save();
+
+  // Map to track old ID -> new ID for parent relationships.
+  $id_map = [];
+  $total_count = 0;
+
+  // Start with Messaging & Collaboration menu item (ID: 3542).
+  $root_id = 3542;
+
+  // Recursive function to replicate menu items and their children.
+  $replicate_menu_tree = function($source_id, $new_parent = '') use (&$replicate_menu_tree, $menu_link_storage, &$id_map, &$total_count) {
+    $source_link = $menu_link_storage->load($source_id);
+
+    if (!$source_link) {
+      return;
+    }
+
+    // Create new menu link in the new menu.
+    $new_link = MenuLinkContent::create([
+      'title' => $source_link->getTitle(),
+      'link' => $source_link->get('link')->getValue(),
+      'menu_name' => 'services-messaging-collab',
+      'weight' => $source_link->getWeight(),
+      'enabled' => $source_link->isEnabled(),
+      'expanded' => $source_link->isExpanded(),
+      'parent' => $new_parent,
+    ]);
+
+    // Copy description if it exists.
+    if ($source_link->hasField('description') && !$source_link->get('description')->isEmpty()) {
+      $new_link->set('description', $source_link->get('description')->getValue());
+    }
+
+    $new_link->save();
+    $new_id = $new_link->id();
+    $new_uuid = $new_link->uuid();
+    $id_map[$source_id] = $new_id;
+    $total_count++;
+
+    // Get UUID of source link to find its children.
+    $source_uuid = $source_link->uuid();
+
+    // Find all children of this menu item.
+    $database = \Drupal::database();
+    $query = $database->select('menu_link_content_data', 'mlcd');
+    $query->fields('mlcd', ['id']);
+    $query->condition('mlcd.parent', 'menu_link_content:' . $source_uuid);
+    $query->orderBy('mlcd.weight');
+    $query->orderBy('mlcd.id');
+    $child_ids = $query->execute()->fetchCol();
+
+    // Recursively replicate each child with UUID-based parent.
+    foreach ($child_ids as $child_id) {
+      $replicate_menu_tree($child_id, 'menu_link_content:' . $new_uuid);
+    }
+  };
+
+  // Start replication from the root.
+  $replicate_menu_tree($root_id);
+
+  return t('Created menu "Services - Messaging & Collaboration" and replicated @count menu items across all levels.', [
+    '@count' => $total_count,
+  ]);
+}
