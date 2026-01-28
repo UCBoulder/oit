@@ -71,13 +71,32 @@ function oit_replicate_menu_tree($menu_id, $menu_label, $menu_description, $root
   $menu_storage = $entity_type_manager->getStorage('menu');
   $menu_link_storage = $entity_type_manager->getStorage('menu_link_content');
 
-  // Create new menu.
-  $menu = $menu_storage->create([
-    'id' => $menu_id,
-    'label' => $menu_label,
-    'description' => $menu_description,
-  ]);
-  $menu->save();
+  // Check if menu already exists (from config import).
+  $menu = $menu_storage->load($menu_id);
+  if (!$menu) {
+    // Create new menu if it doesn't exist.
+    $menu = $menu_storage->create([
+      'id' => $menu_id,
+      'label' => $menu_label,
+      'description' => $menu_description,
+    ]);
+    $menu->save();
+  }
+
+  // Check if menu already has items - skip replication if it does.
+  $existing_query = $menu_link_storage->getQuery()
+    ->condition('menu_name', $menu_id)
+    ->accessCheck(FALSE)
+    ->range(0, 1);
+  $existing_links = $existing_query->execute();
+  
+  if (!empty($existing_links)) {
+    // Menu already has items, skip replication.
+    return count($menu_link_storage->getQuery()
+      ->condition('menu_name', $menu_id)
+      ->accessCheck(FALSE)
+      ->execute());
+  }
 
   // Map to track old ID -> new ID for parent relationships.
   $id_map = [];
