@@ -2,6 +2,8 @@
 
 namespace Drupal\oit\Plugin;
 
+use Drupal\Component\Utility\Xss;
+
 /**
  * Fetches data from google sheets.
  *
@@ -36,9 +38,17 @@ class GoogleSheetsFetch {
   /**
    * Fetch google sheet.
    */
-  public function __construct($key, $gid, $shift = 0) {
-    // See https://gist.github.com/pamelafox/770584
-    $feed = "https://docs.google.com/spreadsheets/d/$key/pub?gid=$gid&single=true&output=csv";
+  public function __construct($key, $gid, $shift = 0, $shentity = FALSE) {
+    if ($shentity) {
+      // Check the url starts with 'https://docs.google.com'.
+      $feed = !empty($key) && strpos($key, 'https://docs.google.com') === 0 ? $key : NULL;
+    }
+    else {
+      $key = !empty($key) ? Xss::filter($key) : NULL;
+      $gid = $gid >= 0 ? $gid : NULL;
+      // See https://gist.github.com/pamelafox/770584
+      $feed = "https://docs.google.com/spreadsheets/d/$key/pub?gid=$gid&single=true&output=csv";
+    }
     // Arrays we'll use later.
     $newArray = [];
     // Do it.
