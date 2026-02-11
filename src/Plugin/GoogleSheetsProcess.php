@@ -35,6 +35,11 @@ class GoogleSheetsProcess {
     $allowed_processes = ['ss', 'custom'];
     $process = in_array($process, $allowed_processes, TRUE) ? $process : 'ss';
 
+    // Validate sheet_letters is a string before processing.
+    if (!is_string($sheet_letters)) {
+      $sheet_letters = '';
+    }
+
     // Sanitize sheet letters input.
     $sheet_letters = strtolower($sheet_letters);
     $sheet_letters = str_replace(' ', '', $sheet_letters);
