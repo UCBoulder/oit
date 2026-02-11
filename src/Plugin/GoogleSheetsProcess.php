@@ -25,6 +25,17 @@ class GoogleSheetsProcess {
    * Process google sheet.
    */
   public function __construct($gsheet_returned_data, $sheet_letters, $process = 'ss') {
+    // Validate input data.
+    if (!is_array($gsheet_returned_data) || empty($gsheet_returned_data)) {
+      $this->processedData = ['rows' => [], 'header' => []];
+      return;
+    }
+    
+    // Validate and sanitize process parameter.
+    $allowed_processes = ['ss', 'custom'];
+    $process = in_array($process, $allowed_processes, TRUE) ? $process : 'ss';
+    
+    // Sanitize sheet letters input.
     $sheet_letters = strtolower($sheet_letters);
     $sheet_letters = str_replace(' ', '', $sheet_letters);
     $sheet_letters = explode(',', Xss::filter($sheet_letters));
@@ -54,27 +65,36 @@ class GoogleSheetsProcess {
       'v' => 21,
       'w' => 22,
       'x' => 23,
-      'y' => 25,
-      'z' => 26,
+      'y' => 24,
+      'z' => 25,
     ];
+    $sheet_items = [];
     foreach ($sheet_letters as $sheet_letter) {
-      $sheet_items[] = $alphabet[$sheet_letter];
+      if (isset($alphabet[$sheet_letter])) {
+        $sheet_items[] = $alphabet[$sheet_letter];
+      }
     }
-    // @todo looking for $process but there may be a better way to clean this up
-    // later. Fix some day.
-    if ($process == 'custom') {
+    if ($process === 'custom') {
+      $sheet_header = [];
       foreach ($gsheet_returned_data[0] as $key => $value) {
         $sheet_header[] = $key;
         $i++;
       }
+      $headers = [];
       foreach ($sheet_items as $value) {
-        $headers[] = $sheet_header[$value];
+        if (isset($sheet_header[$value])) {
+          $headers[] = $sheet_header[$value];
+        }
       }
 
       $format = "markdown";
+      $rows = [];
       foreach ($gsheet_returned_data as $key => $value) {
+        $item = [];
         foreach ($headers as $key => $header) {
-          $item[$key] = isset($value[$header]) ? check_markup($value[$header], $format) : '';
+          // Sanitize data from external spreadsheet.
+          $raw_value = isset($value[$header]) ? $value[$header] : '';
+          $item[$key] = check_markup(Xss::filter($raw_value), $format);
         }
         $rows[] = [
           'data' => $item,
@@ -82,22 +102,30 @@ class GoogleSheetsProcess {
       }
     }
     else {
+      $sheet_header = [];
       foreach ($gsheet_returned_data[0] as $key => $value) {
         $sheet_header[] = $value;
         $i++;
       }
+      $headers = [];
       foreach ($sheet_items as $value) {
-        $headers[] = $sheet_header[$value];
+        if (isset($sheet_header[$value])) {
+          $headers[] = $sheet_header[$value];
+        }
       }
 
       $format = "markdown";
+      $rows = [];
       $rows_exist = isset($gsheet_returned_data[1]) ? TRUE : FALSE;
       if ($rows_exist) {
         foreach ($gsheet_returned_data as $key => $value) {
           // Skip first header row.
-          if ($key != 0) {
+          if ($key !== 0) {
+            $item = [];
             foreach ($sheet_items as $key => $header) {
-              $item[$key]['data']['#markup'] = isset($value[$header]) ? check_markup($value[$header], $format) : '';
+              // Sanitize data from external spreadsheet.
+              $raw_value = isset($value[$header]) ? $value[$header] : '';
+              $item[$key]['data']['#markup'] = check_markup(Xss::filter($raw_value), $format);
             }
             $rows[] = $item;
           }

@@ -17,10 +17,10 @@
             var selection = this.value;
             if (selection) {
               $('#' + inputId).val(selection);
-              searchTable(selection, 'gdoc-table');
+              searchTable(selection, tableId);
             } else {
               $('#' + inputId).val('');
-              searchTable(selection, 'gdoc-table');
+              searchTable(selection, tableId);
             }
           }).change();
         }
