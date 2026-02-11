@@ -28,8 +28,8 @@ class GoogleSheetsApi {
   /**
    * Grabbing the sheet data.
    */
-  public function sheetDefined($key, $sheet_letters, $gid = 0, $shift = 0) {
-    $fetchData = new GoogleSheetsFetch($key, $gid, $shift);
+  public function sheetDefined($key, $sheet_letters, $gid = 0, $shift = 0, $shentity = FALSE) {
+    $fetchData = new GoogleSheetsFetch($key, $gid, $shift, $shentity);
     $newArray = $fetchData->getFetchedSheet();
     $processData = new GoogleSheetsProcess($newArray, $sheet_letters);
     $gSheetData = $processData->getProcessedData();
