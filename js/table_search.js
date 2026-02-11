@@ -1,7 +1,7 @@
 (function ($) {
   $(document).ready(function () {
     if ( $( ".table-search" ).length ) {
-      $('.table-search').each(function(i, elem) {
+      $('.table-search').each(function (i, elem) {
         var $ts = $(elem);
         var tableId = $ts.next().attr('id');
         var inputId = 'searchtable-' + i;

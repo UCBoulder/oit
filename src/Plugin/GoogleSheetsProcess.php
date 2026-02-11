@@ -30,11 +30,11 @@ class GoogleSheetsProcess {
       $this->processedData = ['rows' => [], 'header' => []];
       return;
     }
-    
+
     // Validate and sanitize process parameter.
     $allowed_processes = ['ss', 'custom'];
     $process = in_array($process, $allowed_processes, TRUE) ? $process : 'ss';
-    
+
     // Sanitize sheet letters input.
     $sheet_letters = strtolower($sheet_letters);
     $sheet_letters = str_replace(' ', '', $sheet_letters);
@@ -93,7 +93,7 @@ class GoogleSheetsProcess {
         $item = [];
         foreach ($headers as $key => $header) {
           // Sanitize data from external spreadsheet.
-          $raw_value = isset($value[$header]) ? $value[$header] : '';
+          $raw_value = $value[$header] ?? '';
           $item[$key] = check_markup(Xss::filter($raw_value), $format);
         }
         $rows[] = [
@@ -124,7 +124,7 @@ class GoogleSheetsProcess {
             $item = [];
             foreach ($sheet_items as $key => $header) {
               // Sanitize data from external spreadsheet.
-              $raw_value = isset($value[$header]) ? $value[$header] : '';
+              $raw_value = $value[$header] ?? '';
               $item[$key]['data']['#markup'] = check_markup(Xss::filter($raw_value), $format);
             }
             $rows[] = $item;
