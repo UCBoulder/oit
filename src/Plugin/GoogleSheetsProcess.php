@@ -36,6 +36,8 @@ class GoogleSheetsProcess {
     $process = in_array($process, $allowed_processes, TRUE) ? $process : 'ss';
 
     // Validate sheet_letters is a string before processing.
+    // If not a string (e.g., NULL, array), default to empty string
+    // which results in no columns being selected for processing.
     if (!is_string($sheet_letters)) {
       $sheet_letters = '';
     }
