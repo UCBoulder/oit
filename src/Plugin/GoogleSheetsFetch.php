@@ -45,7 +45,7 @@ class GoogleSheetsFetch {
     }
     else {
       $key = !empty($key) ? Xss::filter($key) : NULL;
-      $gid = $gid >= 0 ? $gid : NULL;
+      $gid = ctype_digit((string) $gid) && (int) $gid >= 0 ? (int) $gid : NULL;
       // See https://gist.github.com/pamelafox/770584
       $feed = "https://docs.google.com/spreadsheets/d/$key/pub?gid=$gid&single=true&output=csv";
     }
