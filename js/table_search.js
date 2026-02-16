@@ -6,7 +6,7 @@
         var tableId = $ts.next().attr('id');
         var inputId = 'searchtable-' + i;
         var clearId = 'clear-' + inputId;
-        $ts.before('<div style="position: relative; width: fit-content;"><label for="' + inputId + '"><strong>Enter keyword to search </strong></label><input id="' + inputId + '" autosave="csrsearch" results="1" placeholder="search" name="s"><a href="#" id="' + clearId + '" class="search-clear" style="display:none; position: absolute; right: 5px; top: 2px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 34 34" class="svg-icon x-skinny" width="10"><use fill="#000" xlink:href="/sites/default/files/svg/sprite_8.svg#x-skinny"></use></svg><span style="position:absolute; left:-10000px; top:auto; width:1px; height:1px; overflow:hidden;">Clear</span></a></div>');
+        $ts.before('<div style="position: relative; width: fit-content;"><label for="' + inputId + '"><strong>Enter keyword to search </strong></label><input id="' + inputId + '" autosave="csrsearch" results="1" placeholder="search" name="s"><a href="#" id="' + clearId + '" class="search-clear" style="display:none; position: absolute; right: 5px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 34 34" class="svg-icon x-skinny" width="10"><use fill="#000" xlink:href="/sites/default/files/svg/sprite_8.svg#x-skinny"></use></svg><span style="position:absolute; left:-10000px; top:auto; width:1px; height:1px; overflow:hidden;">Clear</span></a></div>');
 
         var $input = $('#' + inputId);
         var $clear = $('#' + clearId);
