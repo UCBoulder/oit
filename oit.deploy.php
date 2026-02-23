@@ -143,3 +143,29 @@ function oit_deploy_10001_mapcats() {
   }
 
 }
+
+/**
+ * Update dashboard category weights.
+ */
+function oit_deploy_10002_dashboard_weight() {
+  $term_update = [
+    1286 => 0,
+    1290 => 1,
+    1270 => 2,
+    1291 => 3,
+    1269 => 4,
+    1276 => 5,
+    1277 => 6,
+    1274 => 7,
+    1279 => 8,
+  ];
+
+  foreach ($term_update as $tid => $weight) {
+    $term = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load($tid);
+    if ($term) {
+      $term->set('field_weight', $weight);
+      $term->save();
+    }
+  }
+}
+

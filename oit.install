@@ -632,3 +632,25 @@ function oit_update_10015() {
 function oit_update_10016() {
   \Drupal::state()->delete('oit_cron_run');
 }
+
+/**
+ * Rename taxonomy terms for service dashboard categories.
+ */
+function oit_update_10017() {
+  $term_storage = \Drupal::entityTypeManager()->getStorage('taxonomy_term');
+
+  // Update UCB Guest Wireless (tid: 1285) to 'CU Guest'.
+  $term = $term_storage->load(1285);
+  if ($term) {
+    $term->setName('CU Guest');
+    $term->save();
+  }
+
+  // Update UCB Wireless (tid: 1286) to 'CU Secure'.
+  $term = $term_storage->load(1286);
+  if ($term) {
+    $term->setName('CU Secure');
+    $term->save();
+  }
+}
+
