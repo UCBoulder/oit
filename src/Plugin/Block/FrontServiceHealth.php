@@ -95,39 +95,39 @@ class FrontServiceHealth extends BlockBase implements
         }
       }
     }
-    // Force the following order for for all status 0 categories.
-    $service_order = [
-      'UCB Wireless',
-      'Wired Internet',
-      'Canvas',
-      'Zoom',
-      'Buff Portal',
-      'Identity Manager',
-      'Microsoft 365',
-      'Google Workspace',
-      'OIT Data Centers',
-    ];
-    foreach ($service_order as $so) {
+    // Sort categories with status 0 by weight field.
+    $status_zero_categories = [];
+    foreach ($clean_category as $service_name => $cat) {
+      if ($cat['status'] === 0) {
+        $service_key = $cat['key'];
+        // Get weight from original category array.
+        $weight = isset($category[$service_key]['weight']) ? $category[$service_key]['weight'] : 10;
+        $status_zero_categories[$service_name] = [
+          'status' => $cat['status'],
+          'key' => $service_key,
+          'weight' => $weight,
+        ];
+      }
+    }
+    // Sort by weight (lower weight values appear first).
+    uasort($status_zero_categories, function ($a, $b) {
+      return $a['weight'] <=> $b['weight'];
+    });
+    foreach ($status_zero_categories as $service_name => $cat) {
       if ($n < 9) {
-        // Don't show the category if it already is shown with a higher status.
-        if (isset($category["1-$so"]) || isset($category["2-$so"])) {
-          continue;
+        $n++;
+        $service_key = $cat['key'];
+        $svg = $service_dashboard->statusCircle($category[$service_key]['status']);
+        $service_name_id = strtolower(str_replace(' ', '', $service_name));
+        $link = !empty($category[$service_key]['link']) ? $category[$service_key]['link'] : '';
+        $services .= "<li class='truncate'>$svg ";
+        if (empty($link)) {
+          $services .= "<a href='/service-health#$service_name_id'>$service_name</a>";
         }
-        if (isset($category["0-$so"])) {
-          $n++;
-          $svg = $service_dashboard->statusCircle($category["0-$so"]['status']);
-          $service_name = $category["0-$so"]['service'];
-          $service_name_id = strtolower(str_replace(' ', '', $service_name));
-          $link = !empty($category["0-$so"]['link']) ? $category["0-$so"]['link'] : '';
-          $services .= "<li class='truncate'>$svg ";
-          if (empty($link)) {
-            $services .= "<a href='/service-health#$service_name_id'>$service_name</a>";
-          }
-          else {
-            $services .= "$link";
-          }
-          $services .= "</li>";
+        else {
+          $services .= "$link";
         }
+        $services .= "</li>";
       }
     }
     $services .= "</ul>";

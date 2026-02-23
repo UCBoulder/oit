@@ -71,9 +71,15 @@ class ServiceHealth {
 
     foreach ($dashboard_categories as $dashboard_category) {
       $dashboard_category_key = $dashboard_category->tid;
-      $dashboard_category = $dashboard_category->name;
+      $dashboard_category_name = $dashboard_category->name;
       // Setup array with proper key with category.
-      $sa_dashboard_key_category[$dashboard_category_key] = $dashboard_category;
+      $sa_dashboard_key_category[$dashboard_category_key] = $dashboard_category_name;
+      // Load full term to get weight field.
+      $term_storage = $this->entityTypeManager->getStorage('taxonomy_term');
+      $term = $term_storage->load($dashboard_category_key);
+      $dashboard_category_weight = $term->hasField('field_weight') && !$term->get('field_weight')->isEmpty()
+        ? (int) $term->get('field_weight')->value
+        : 10;
       $entity_storage = $this->entityTypeManager->getStorage('node');
       $query = $entity_storage->getQuery()
         ->accessCheck(FALSE)
@@ -83,10 +89,11 @@ class ServiceHealth {
         ->sort('created', 'ASC');
       $results = $query->execute();
       if (empty($results)) {
-        $category["0-$dashboard_category"] = [
-          'service' => $dashboard_category,
+        $category["0-$dashboard_category_name"] = [
+          'service' => $dashboard_category_name,
           'tid' => $dashboard_category_key,
           'status' => 0,
+          'weight' => $dashboard_category_weight,
           'link' => '',
           'button' => '',
           'last_update' => '',
@@ -97,26 +104,28 @@ class ServiceHealth {
           $node_storage = $this->entityTypeManager->getStorage($entityType);
           $sa = $node_storage->load($result);
           $sa_button = $this->nidLink($result, $this->t('View'), ['button']);
-          $sa_link = $this->nidLink($result, $dashboard_category . ' - ' . $this->t('View Service Alert'), ['text-color--blue']);
+          $sa_link = $this->nidLink($result, $dashboard_category_name . ' - ' . $this->t('View Service Alert'), ['text-color--blue']);
           $created = $sa->get('created')->value;
           $timeago = $this->dateFormatter->formatTimeDiffSince($created);
           $timeago .= " " . $this->t('ago');
           $status = $sa->get('field_service_alert_status')->value;
           if ($status == 'Service Issue Reported' || $status == 'Service Issue Updated') {
-            $category["2-$dashboard_category"] = [
-              'service' => $dashboard_category,
+            $category["2-$dashboard_category_name"] = [
+              'service' => $dashboard_category_name,
               'tid' => $dashboard_category_key,
               'status' => 2,
+              'weight' => $dashboard_category_weight,
               'link' => $sa_link,
               'button' => $sa_button,
               'last_update' => $timeago,
             ];
           }
           elseif ($status == 'Service Maintenance Scheduled') {
-            $category["1-$dashboard_category"] = [
-              'service' => $dashboard_category,
+            $category["1-$dashboard_category_name"] = [
+              'service' => $dashboard_category_name,
               'tid' => $dashboard_category_key,
               'status' => 1,
+              'weight' => $dashboard_category_weight,
               'link' => $sa_link,
               'button' => $sa_button,
               'last_update' => $timeago,
@@ -124,11 +133,12 @@ class ServiceHealth {
           }
           else {
             $sa_button = $this->nidLink($result, $this->t('View Latest'), ['button']);
-            $sa_link = $this->nidLink($result, $dashboard_category . ' - ' . $this->t('View Service Alert'), ['text-color--blue']);
-            $category["0-$dashboard_category"] = [
-              'service' => $dashboard_category,
+            $sa_link = $this->nidLink($result, $dashboard_category_name . ' - ' . $this->t('View Service Alert'), ['text-color--blue']);
+            $category["0-$dashboard_category_name"] = [
+              'service' => $dashboard_category_name,
               'tid' => $dashboard_category_key,
               'status' => 0,
+              'weight' => $dashboard_category_weight,
               'link' => '',
               'button' => $sa_button,
               'last_update' => $timeago,
