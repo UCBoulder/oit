@@ -101,7 +101,7 @@ class FrontServiceHealth extends BlockBase implements
       if ($cat['status'] === 0) {
         $service_key = $cat['key'];
         // Get weight from original category array.
-        $weight = isset($category[$service_key]['weight']) ? $category[$service_key]['weight'] : 10;
+        $weight = $category[$service_key]['weight'] ?? 10;
         $status_zero_categories[$service_name] = [
           'status' => $cat['status'],
           'key' => $service_key,
