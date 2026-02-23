@@ -652,5 +652,37 @@ function oit_update_10017() {
     $term->setName('CU Secure');
     $term->save();
   }
+
+  // Delete Duplicate CU Secure term.
+  $term = $term_storage->load(1300);
+  if ($term) {
+    $term->delete();
+  }
+
+  // Delete Duplicate CU Guest term.
+  $term = $term_storage->load(1301);
+  if ($term) {
+    $term->delete();
+  }
+}
+
+/**
+ * Add tid 1285 to field_service_alert_dash_cat for node 32357.
+ */
+function oit_update_10018() {
+  $node = Node::load(32357);
+  if ($node) {
+    $current_values = $node->get('field_service_alert_dash_cat')->getValue();
+    $current_values[] = ['target_id' => 1286];
+    $node->set('field_service_alert_dash_cat', $current_values);
+    $node->save();
+  }
+  $node = Node::load(32357);
+  if ($node) {
+    $current_values = $node->get('field_service_alert_dash_cat')->getValue();
+    $current_values[] = ['target_id' => 1285];
+    $node->set('field_service_alert_dash_cat', $current_values);
+    $node->save();
+  }
 }
 
