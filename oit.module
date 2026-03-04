@@ -169,29 +169,7 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
   $domain = \Drupal::service('oit.domain')->getDomain();
 
   if ($domain == 'oit') {
-
-    if (isset($form['field_domain_access'])) {
-      $env = getenv('PANTHEON_ENVIRONMENT');
-
-      // Add on dev, test, and live.
-      if ($env != 'local' && strpos($env, 'md-') !== 0) {
-
-        // Auto fill for admins as they are the only ones that can see the field
-        // to set it.
-        if (in_array('administrator', \Drupal::currentUser()->getRoles())) {
-          $form['field_domain_access']['widget']['#default_value'][] = 'oit_colorado_edu';
-          $form['field_domain_source']['widget']['#default_value'][] = 'oit_colorado_edu';
-        }
-
-        // Force access and source if not set and on OIT site.
-        array_unshift($form['actions']['submit']['#submit'], '_oit_set_oit_domain');
-      } else {
-        // Disable source locally.
-        $form['field_domain_source']['widget']['#default_value'] = [];
-        $form['field_domain_source']['widget']['#default_value'][] = '_none';
-      }
-    }
-
+    oit_set_domain_defaults($form, 'oit', 'oit_colorado_edu');
   }
 
   if ($form_id == "views_form_content_page_1") {
@@ -486,11 +464,62 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
  * Set domain on content to match site domain
  */
 function _oit_set_oit_domain(&$form, FormStateInterface $form_state) {
+  _oit_set_domain_submit($form, $form_state, 'oit', 'oit_colorado_edu');
+}
+
+/**
+ * Shared: Set domain defaults on form for the given domain.
+ *
+ * Used by oit and oda modules to auto-fill domain access/source fields.
+ *
+ * @param array $form
+ *   The form array.
+ * @param string $domain_name
+ *   The domain name (e.g. 'oit', 'oda').
+ * @param string $domain_id
+ *   The domain ID (e.g. 'oit_colorado_edu', 'oda_colorado_edu').
+ */
+function oit_set_domain_defaults(array &$form, $domain_name, $domain_id) {
+  if (isset($form['field_domain_access'])) {
+    $env = getenv('PANTHEON_ENVIRONMENT');
+
+    // Add on dev, test, and live.
+    if ($env != 'local' && strpos($env, 'md-') !== 0) {
+
+      // Auto fill for admins as they are the only ones that can see the field
+      // to set it.
+      if (in_array('administrator', \Drupal::currentUser()->getRoles())) {
+        $form['field_domain_access']['widget']['#default_value'][] = $domain_id;
+        $form['field_domain_source']['widget']['#default_value'][] = $domain_id;
+      }
+
+      // Force access and source if not set.
+      array_unshift($form['actions']['submit']['#submit'], '_' . $domain_name . '_set_' . $domain_name . '_domain');
+    } else {
+      // Disable source locally.
+      $form['field_domain_source']['widget']['#default_value'] = [];
+      $form['field_domain_source']['widget']['#default_value'][] = '_none';
+    }
+  }
+}
+
+/**
+ * Shared: Submit handler to force domain access/source values.
+ *
+ * @param array $form
+ *   The form array.
+ * @param \Drupal\Core\Form\FormStateInterface $form_state
+ *   The form state.
+ * @param string $domain_name
+ *   The domain name (e.g. 'oit', 'oda').
+ * @param string $domain_id
+ *   The domain ID (e.g. 'oit_colorado_edu', 'oda_colorado_edu').
+ */
+function _oit_set_domain_submit(array &$form, FormStateInterface $form_state, $domain_name, $domain_id) {
   $domain = \Drupal::service('oit.domain')->getDomain();
-  $data = $form_state->getValues();
-  if ($domain == 'oit' && (!$form_state->getValues()['field_domain_access'] || !$form_state->getValues()['field_domain_source'])) {
-    $form_state->setValue('field_domain_access', ['target_id' => 'oit_colorado_edu']);
-    $form_state->setValue('field_domain_source', ['target_id' => 'oit_colorado_edu']);
+  if ($domain == $domain_name && (!$form_state->getValues()['field_domain_access'] || !$form_state->getValues()['field_domain_source'])) {
+    $form_state->setValue('field_domain_access', ['target_id' => $domain_id]);
+    $form_state->setValue('field_domain_source', ['target_id' => $domain_id]);
   }
 }
 
