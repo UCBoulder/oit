@@ -700,7 +700,7 @@ function oit_tokens($type, $tokens, array $data, array $options, BubbleableMetad
             $replacements[$original] = '';
             if ($data['node']->getType() == 'news') {
               $sa_image = $data['node']->get('field_news_front_image')->getValue()[0]['target_id'];
-              $sa_image_style = new OitImageStyled($sa_image, 'large');
+              $sa_image_style = new OitImageStyled($sa_image, 'large', '', \Drupal::entityTypeManager());
               $sa_image_styled = $sa_image_style->getImageUrl();
               $replacements[$original] = $sa_image_styled;
             }
@@ -712,7 +712,7 @@ function oit_tokens($type, $tokens, array $data, array $options, BubbleableMetad
               $image_id = $tax_image->getValue()[0]['target_id'] ?? NULL;
               $image_url = '';
               if ($image_id) {
-                $image_style = new OitImageStyled($image_id, 'large');
+                $image_style = new OitImageStyled($image_id, 'large', '', \Drupal::entityTypeManager());
                 $image_url = $image_style->getImageUrl();
               }
 
@@ -868,7 +868,7 @@ function oit_news_update($entity) {
     || (isset($meta_info['twitter_cards_image']) && strpos($meta_info['twitter_cards_image'], '/system/temporary') !== FALSE);
   if (!isset($meta_info['twitter_cards_image']) || !isset($meta_info['og_image']) || $is_temp_image) {
     $image_id = $entity->get('field_news_front_image')->getValue()[0]['target_id'];
-    $image_style = new OitImageStyled($image_id, 'large', 'front_news');
+    $image_style = new OitImageStyled($image_id, 'large', 'front_news', \Drupal::entityTypeManager());
     $image_styled = $image_style->getImageUrl();
     if ($image_styled && (!isset($meta_info['twitter_cards_image']) || $meta_info['twitter_cards_image'] != NULL)) {
       $meta_info['twitter_cards_image'] = $image_styled;
@@ -904,7 +904,7 @@ function oit_servicealert_update($entity) {
     $image_id = $tax_image->getValue()[0]['target_id'] ?? NULL;
     $image_url = '';
     if ($image_id) {
-      $image_style = new OitImageStyled($image_id, 'large');
+      $image_style = new OitImageStyled($image_id, 'large', '', \Drupal::entityTypeManager());
       $image_url = $image_style->getImageUrl();
     }
 
