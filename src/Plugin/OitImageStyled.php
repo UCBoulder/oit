@@ -2,7 +2,6 @@
 
 namespace Drupal\oit\Plugin;
 
-use Drupal\file\Entity\File;
 use Drupal\image\Entity\ImageStyle;
 
 /**
@@ -28,10 +27,13 @@ class OitImageStyled {
   public function __construct($image_id, $style = "max_325x325", $filefield_replace = '') {
     $style = ImageStyle::load($style);
     if (!empty($image_id)) {
-      $photo_file = File::load($image_id);
+      $photo_file = \Drupal::entityTypeManager()->getStorage('file')->loadUnchanged($image_id);
       $photo_uri = $photo_file->getFileUri();
       if (preg_match('/^public:\/\/filefield_paths/i', $photo_uri) && !empty($filefield_replace)) {
         $photo_uri = preg_replace('/filefield_paths/i', $filefield_replace, $photo_uri);
+      }
+      elseif (preg_match('/^temporary:\/\/filefield_paths/i', $photo_uri) && !empty($filefield_replace)) {
+        $photo_uri = preg_replace('/^temporary:\/\/filefield_paths/i', 'public://' . $filefield_replace, $photo_uri);
       }
       $image_url = $style->buildUrl($photo_uri);
     }
