@@ -653,6 +653,10 @@ function oit_token_info() {
     'name' => t("Twitter Picture"),
     'description' => t('Sets the twitter picture for news/service alerts.'),
   ];
+  $node['og_image'] = [
+    'name' => t("OG Image"),
+    'description' => t('Sets the Open Graph image for news/service alerts at 1200x630 for LinkedIn and other platforms.'),
+  ];
   $node['sa_status'] = [
     'name' => t("Service Alert Status"),
     'description' => t('Set status of the service alert node type.'),
@@ -726,6 +730,30 @@ function oit_tokens($type, $tokens, array $data, array $options, BubbleableMetad
               }
 
               $replacements[$original] = $twitter_image;
+            }
+          }
+          break;
+
+        case 'og_image':
+          if (!empty($data['node'])) {
+            $replacements[$original] = '';
+            if ($data['node']->getType() == 'news') {
+              $og_image_id = $data['node']->get('field_news_front_image')->getValue()[0]['target_id'];
+              $og_image_style = new OitImageStyled($og_image_id, 'social_share', '', \Drupal::entityTypeManager());
+              $replacements[$original] = $og_image_style->getImageUrl();
+            }
+            if ($data['node']->getType() == 'service_alert' && count($data['node']->get('field_service_alert_dash_cat')->getValue()) !== 0) {
+              $set_dashboard = $data['node']->get('field_service_alert_dash_cat')->getValue()[0]['value'];
+              $taxonomy = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load($set_dashboard);
+              $tax_image = $taxonomy->get('field_twitter_image');
+              $image_id = $tax_image->getValue()[0]['target_id'] ?? NULL;
+              $image_url = '';
+              if ($image_id) {
+                $image_style = new OitImageStyled($image_id, 'social_share', '', \Drupal::entityTypeManager());
+                $image_url = $image_style->getImageUrl();
+              }
+              $host = \Drupal::request()->getSchemeAndHttpHost();
+              $replacements[$original] = $image_url ?: "$host/sites/default/files/sa_images/sa_other.png";
             }
           }
           break;
@@ -866,15 +894,18 @@ function oit_news_update($entity) {
   $meta_info = json_decode($entity->get('field_meta_tags')->getValue()[0]['value'], TRUE) ?? [];
   $is_temp_image = (isset($meta_info['og_image']) && strpos($meta_info['og_image'], '/system/temporary') !== FALSE)
     || (isset($meta_info['twitter_cards_image']) && strpos($meta_info['twitter_cards_image'], '/system/temporary') !== FALSE);
-  if (!isset($meta_info['twitter_cards_image']) || !isset($meta_info['og_image']) || $is_temp_image) {
+  $og_using_large = isset($meta_info['og_image']) && strpos($meta_info['og_image'], '/styles/large/') !== FALSE;
+  if (!isset($meta_info['twitter_cards_image']) || !isset($meta_info['og_image']) || $is_temp_image || $og_using_large) {
     $image_id = $entity->get('field_news_front_image')->getValue()[0]['target_id'];
-    $image_style = new OitImageStyled($image_id, 'large', 'front_news', \Drupal::entityTypeManager());
-    $image_styled = $image_style->getImageUrl();
-    if ($image_styled && (!isset($meta_info['twitter_cards_image']) || $meta_info['twitter_cards_image'] != NULL)) {
-      $meta_info['twitter_cards_image'] = $image_styled;
+    $twitter_style = new OitImageStyled($image_id, 'large', 'front_news', \Drupal::entityTypeManager());
+    $twitter_styled = $twitter_style->getImageUrl();
+    if ($twitter_styled && (!isset($meta_info['twitter_cards_image']) || $meta_info['twitter_cards_image'] != NULL)) {
+      $meta_info['twitter_cards_image'] = $twitter_styled;
     }
-    if ($image_styled && (!isset($meta_info['og_image']) || $meta_info['og_image'] != NULL)) {
-      $meta_info['og_image'] = $image_styled;
+    $og_style = new OitImageStyled($image_id, 'social_share', 'front_news', \Drupal::entityTypeManager());
+    $og_styled = $og_style->getImageUrl();
+    if ($og_styled && (!isset($meta_info['og_image']) || $meta_info['og_image'] != NULL)) {
+      $meta_info['og_image'] = $og_styled;
     }
     $meta_serial = json_encode($meta_info);
     $entity->set('field_meta_tags', $meta_serial);
