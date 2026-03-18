@@ -5,6 +5,9 @@
  * Deploy hooks for OIT.
  */
 
+use Drupal\media\Entity\Media;
+use Drupal\file\Entity\File;
+
 /**
  * Dashboard taxonomy add.
  */
@@ -170,7 +173,7 @@ function oit_deploy_10002_dashboard_weight() {
 }
 
 /**
- * Migrate news hero images from field_news_front_image to field_media_hero_image.
+ * Migrate hero images from field_news_front_image to field_media_hero_image.
  */
 function oit_deploy_10003_news_hero_media(&$sandbox) {
   if (!isset($sandbox['progress'])) {
@@ -204,7 +207,7 @@ function oit_deploy_10003_news_hero_media(&$sandbox) {
     }
 
     $image_value = $node->get('field_news_front_image')->first()->getValue();
-    $file = \Drupal\file\Entity\File::load($image_value['target_id']);
+    $file = File::load($image_value['target_id']);
 
     if (!$file) {
       \Drupal::logger('oit')->warning('News node @nid: file @fid not found, skipping.', [
@@ -215,7 +218,7 @@ function oit_deploy_10003_news_hero_media(&$sandbox) {
     }
 
     // Create media entity from the existing file.
-    $media = \Drupal\media\Entity\Media::create([
+    $media = Media::create([
       'bundle' => 'news_images',
       'name' => $node->getTitle(),
       'field_media_image_2' => [
