@@ -52,7 +52,54 @@
         }
       });
     }
+
+    if ($('.list-search').length) {
+      $('.list-search').each(function (i, elem) {
+        var $ls = $(elem);
+        var listId = $ls.next().attr('id');
+        var inputId = 'searchlist-' + i;
+        var clearId = 'clear-' + inputId;
+        $ls.before('<div style="position: relative; width: fit-content;"><label for="' + inputId + '"><strong>Enter keyword to search </strong></label><input id="' + inputId + '" autosave="csrsearch" results="1" placeholder="search" name="s"><a href="#" id="' + clearId + '" class="search-clear" style="display:none; position: absolute; right: 5px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 34 34" class="svg-icon x-skinny" width="10"><use fill="#000" xlink:href="/sites/default/files/svg/sprite_8.svg#x-skinny"></use></svg><span style="position:absolute; left:-10000px; top:auto; width:1px; height:1px; overflow:hidden;">Clear</span></a></div>');
+
+        var $input = $('#' + inputId);
+        var $clear = $('#' + clearId);
+
+        $input.keyup(function (e) {
+          var val = $(this).val();
+
+          if (e.key === 'Escape' || e.keyCode === 27) {
+            $(this).val('');
+            searchList('', listId);
+            $clear.hide();
+            return;
+          }
+
+          searchList(val, listId);
+          $clear.toggle(val.length > 0);
+        });
+
+        $clear.click(function (e) {
+          e.preventDefault();
+          $input.val('');
+          searchList('', listId);
+          $clear.hide();
+          $input.focus();
+        });
+      });
+    }
   });
+
+  function searchList(inputVal, listId) {
+    var list = $('#' + listId);
+    list.find('li').each(function (index, li) {
+      var regExp = new RegExp(inputVal, 'i');
+      if (regExp.test($(li).text())) {
+        $(li).show();
+      } else {
+        $(li).hide();
+      }
+    });
+  }
 
   function searchTable(inputVal, tableId) {
     var table = $('#' + tableId);
