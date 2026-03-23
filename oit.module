@@ -897,18 +897,20 @@ function oit_news_update($entity) {
   $og_using_large = isset($meta_info['og_image']) && strpos($meta_info['og_image'], '/styles/large/') !== FALSE;
   if (!isset($meta_info['twitter_cards_image']) || !isset($meta_info['og_image']) || $is_temp_image || $og_using_large) {
     $image_id = oit_get_hero_image_fid($entity);
-    $twitter_style = new OitImageStyled($image_id, 'large', '', \Drupal::entityTypeManager());
-    $twitter_styled = $twitter_style->getImageUrl();
-    if ($twitter_styled && (!isset($meta_info['twitter_cards_image']) || $meta_info['twitter_cards_image'] != NULL)) {
-      $meta_info['twitter_cards_image'] = $twitter_styled;
+    if (!empty($image_id)) {
+      $twitter_style = new OitImageStyled($image_id, 'large', '', \Drupal::entityTypeManager());
+      $twitter_styled = $twitter_style->getImageUrl();
+      if ($twitter_styled && (!isset($meta_info['twitter_cards_image']) || $meta_info['twitter_cards_image'] != NULL)) {
+        $meta_info['twitter_cards_image'] = $twitter_styled;
+      }
+      $og_style = new OitImageStyled($image_id, 'social_share', '', \Drupal::entityTypeManager());
+      $og_styled = $og_style->getImageUrl();
+      if ($og_styled && (!isset($meta_info['og_image']) || $meta_info['og_image'] != NULL)) {
+        $meta_info['og_image'] = $og_styled;
+      }
+      $meta_serial = json_encode($meta_info);
+      $entity->set('field_meta_tags', $meta_serial);
     }
-    $og_style = new OitImageStyled($image_id, 'social_share', '', \Drupal::entityTypeManager());
-    $og_styled = $og_style->getImageUrl();
-    if ($og_styled && (!isset($meta_info['og_image']) || $meta_info['og_image'] != NULL)) {
-      $meta_info['og_image'] = $og_styled;
-    }
-    $meta_serial = json_encode($meta_info);
-    $entity->set('field_meta_tags', $meta_serial);
   }
   if ($entity->getType() == 'news' && $entity->get('field_news_archive')->getValue()[0]['value'] == 2) {
     $entity->set('unpublish_on', strtotime("100 days"));
