@@ -698,9 +698,11 @@ function oit_tokens($type, $tokens, array $data, array $options, BubbleableMetad
             $replacements[$original] = '';
             if ($data['node']->getType() == 'news') {
               $sa_image = oit_get_hero_image_fid($data['node']);
-              $sa_image_style = new OitImageStyled($sa_image, 'large', '', \Drupal::entityTypeManager());
-              $sa_image_styled = $sa_image_style->getImageUrl();
-              $replacements[$original] = $sa_image_styled;
+              if ($sa_image) {
+                $sa_image_style = new OitImageStyled($sa_image, 'large', '', \Drupal::entityTypeManager());
+                $sa_image_styled = $sa_image_style->getImageUrl();
+                $replacements[$original] = $sa_image_styled;
+              }
             }
             if ($data['node']->getType() == 'service_alert' && count($data['node']->get('field_service_alert_dash_cat')->getValue()) !== 0) {
               $set_dashboard = $data['node']->get('field_service_alert_dash_cat')->getValue()[0]['value'];
