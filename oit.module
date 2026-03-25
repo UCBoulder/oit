@@ -743,10 +743,14 @@ function oit_tokens($type, $tokens, array $data, array $options, BubbleableMetad
               $replacements[$original] = $og_image_url;
             }
             if ($data['node']->getType() == 'service_alert' && count($data['node']->get('field_service_alert_dash_cat')->getValue()) !== 0) {
-              $set_dashboard = $data['node']->get('field_service_alert_dash_cat')->getValue()[0]['value'];
+              $set_dashboard = $data['node']->get('field_service_alert_dash_cat')->getValue()[0]['target_id'];
               $taxonomy = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load($set_dashboard);
-              $tax_image = $taxonomy->get('field_twitter_image');
-              $image_id = $tax_image->getValue()[0]['target_id'] ?? NULL;
+              $image_id = NULL;
+              if ($taxonomy !== NULL) {
+                $tax_image = $taxonomy->get('field_twitter_image');
+                $tax_image_values = $tax_image->getValue();
+                $image_id = !empty($tax_image_values) ? ($tax_image_values[0]['target_id'] ?? NULL) : NULL;
+              }
               $image_url = '';
               if ($image_id) {
                 $image_style = new OitImageStyled($image_id, 'social_share', '', \Drupal::entityTypeManager());
