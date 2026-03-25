@@ -5,6 +5,9 @@
  * Deploy hooks for OIT.
  */
 
+use Drupal\media\Entity\Media;
+use Drupal\file\Entity\File;
+
 /**
  * Dashboard taxonomy add.
  */
@@ -167,4 +170,81 @@ function oit_deploy_10002_dashboard_weight() {
       $term->save();
     }
   }
+}
+
+/**
+ * Migrate hero images from field_news_front_image to field_media_hero_image.
+ */
+function oit_deploy_10003_news_hero_media(&$sandbox) {
+  if (!isset($sandbox['progress'])) {
+    $sandbox['nids'] = array_values(
+      \Drupal::entityQuery('node')
+        ->condition('type', 'news')
+        ->exists('field_news_front_image')
+        ->accessCheck(FALSE)
+        ->execute()
+    );
+    $sandbox['total'] = count($sandbox['nids']);
+    $sandbox['progress'] = 0;
+    $sandbox['migrated'] = 0;
+  }
+
+  $batch_size = 25;
+  $nids = array_slice($sandbox['nids'], $sandbox['progress'], $batch_size);
+  $node_storage = \Drupal::entityTypeManager()->getStorage('node');
+
+  foreach ($nids as $nid) {
+    $sandbox['progress']++;
+    $node = $node_storage->load($nid);
+
+    if (!$node || $node->get('field_news_front_image')->isEmpty()) {
+      continue;
+    }
+
+    // Skip if already migrated.
+    if ($node->hasField('field_media_hero_image') && !$node->get('field_media_hero_image')->isEmpty()) {
+      continue;
+    }
+
+    $image_value = $node->get('field_news_front_image')->first()->getValue();
+    $file = File::load($image_value['target_id']);
+
+    if (!$file) {
+      \Drupal::logger('oit')->warning('News node @nid: file @fid not found, skipping.', [
+        '@nid' => $nid,
+        '@fid' => $image_value['target_id'],
+      ]);
+      continue;
+    }
+
+    // Create media entity from the existing file.
+    $media = Media::create([
+      'bundle' => 'news_images',
+      'name' => $node->getTitle(),
+      'field_media_image_2' => [
+        'target_id' => $file->id(),
+        'alt' => $image_value['alt'] ?? $node->getTitle(),
+        'title' => $image_value['title'] ?? '',
+      ],
+      'uid' => $node->getOwnerId(),
+      'status' => 1,
+    ]);
+    $media->save();
+
+    // Set the new media reference field.
+    $node->set('field_media_hero_image', ['target_id' => $media->id()]);
+    $node->set('field_sympa_send', 0);
+    $node->save();
+
+    $sandbox['migrated']++;
+  }
+
+  $sandbox['#finished'] = $sandbox['total'] > 0
+    ? $sandbox['progress'] / $sandbox['total']
+    : 1;
+
+  return t('Migrated @count of @total news hero images to media entities.', [
+    '@count' => $sandbox['migrated'],
+    '@total' => $sandbox['total'],
+  ]);
 }
