@@ -686,3 +686,14 @@ function oit_update_10018() {
   }
 }
 
+/**
+ * Clear field_news_front_image values from news nodes and delete associated files.
+ */
+function oit_update_10019() {
+  $database = \Drupal::database();
+
+  // Clear field values from current revisions and revision history.
+  $database->truncate('node__field_news_front_image')->execute();
+  $database->truncate('node_revision__field_news_front_image')->execute();
+}
+
