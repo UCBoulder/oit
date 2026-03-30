@@ -111,6 +111,12 @@ class AbsoluteLinkShame extends BlockBase implements
             'https://media.giphy.com/media/13lTgtSUmqMrlu/giphy.gif',
             'https://media.giphy.com/media/JKswczDIOEG2Y/giphy.gif',
             'https://media.giphy.com/media/mUOdJLFQeHAf6/giphy.gif',
+            'https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3U0aGs1dWp5a2kyMXU2cWxneW1keHF6cm1kOXhtOXgxNGd5NjFsaCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/guJZ84aiImq5i/giphy.gif',
+            'https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExNWhsNGRta2w4ZHJhcWJ6ajN0czh2Mnh3eW9naDgybzd3M2h1dHlwZiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/6CZNCogaCL7d8HLTp3/giphy.gif',
+            'https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExanFjd29yMWV5dnYxa3Nzamo2cnoxaWw3bXh6bjBoYjN4Z2I3N2xmNiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/BxWTWalKTUAdq/giphy.gif',
+            'https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExN3BycnRydWJocnhrdHQ5OWhvaGgzZGZhM2pnaXJoM2hzMW5tNjVxeCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/N35rW3vRNeaDC/giphy.gif',
+            'https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExb3JxZWR2ZGE3ZnpyN3BiaWhkbWZycDBseGFtZmU3d3gyNDlxYnRzdiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/wayIsQY5itxRe/giphy.gif',
+            'https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExOGx5d3dtOW84Mjhtd2hvbnA5YzJkZTFmYWhpaHdkZnF1Y29mcGM3cyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/DAQPViKDezujAL1FLF/giphy.gif',
           ];
           $fail_img_rand = array_rand($fail_img, 1);
 
