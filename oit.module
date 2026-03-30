@@ -127,6 +127,9 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
     }
   }
 
+  // Show a deployment window warning on webform nodes and entities.
+  _oit_security_window_warning($form, $form_id);
+
   // admin/config/people/captcha/captcha-points/add
   // Set defaults if 'webform_id' is in query string.
   if ($form_id == 'captcha_point_add_form') {
@@ -1031,4 +1034,42 @@ function oit_block_access(Block $block, $operation, AccountInterface $account) {
       }
     }
   }
+}
+
+/**
+ * Shows a warning on webform nodes and entities during the security window.
+ *
+ * Displayed Wednesday 1600–2200 UTC to administrator and pseudo_admin roles.
+ *
+ * @param array $form
+ *   The form array.
+ * @param string $form_id
+ *   The form ID.
+ */
+function _oit_security_window_warning(array &$form, string $form_id): void {
+  // Only act on webform submission forms (nodes) or webform entity forms.
+  $is_webform_node = array_key_exists('#webform_id', $form);
+  $is_webform_entity = str_starts_with($form_id, 'webform_') && str_ends_with($form_id, '_form');
+  if (!$is_webform_node && !$is_webform_entity) {
+    return;
+  }
+
+  // Only show to administrator and pseudo_admin roles.
+  $roles = \Drupal::currentUser()->getRoles();
+  if (!in_array('administrator', $roles) && !in_array('pseudo_admin', $roles)) {
+    return;
+  }
+
+  // Check if it's Wednesday between 1600 and 2200 UTC.
+  $now = new \DateTime('now', new \DateTimeZone('UTC'));
+  $day_of_week = (int) $now->format('N'); // ISO: 3 = Wednesday.
+  $hour = (int) $now->format('G');        // 0–23.
+  if ($day_of_week !== 3 || $hour < 16 || $hour >= 22) {
+    return;
+  }
+
+  $emoji = '🚨🚨🚨🚨';
+  $message = t("@emoji This is the deployment window. The sites config will be backed up around 11am and any changes will be subject to loss if there's a deployment today. @emoji", ['@emoji' => $emoji]);
+
+  \Drupal::messenger()->addMessage($message, 'warning');
 }
