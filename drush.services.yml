@@ -2,7 +2,6 @@ services:
   oit.commands:
     class: \Drupal\oit\Commands\OitCommands
     arguments:
-      - '@servicenow.princess.list'
       - '@messenger'
       - '@oit.teamsalert'
       - '@database'
