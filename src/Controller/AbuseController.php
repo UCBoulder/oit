@@ -2,7 +2,6 @@
 
 namespace Drupal\oit\Controller;
 
-use Drupal\Component\Utility\Xss;
 use Drupal\Core\Config\ConfigFactory;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Database\Connection;
@@ -18,7 +17,6 @@ use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Url;
 use Drupal\shortcode_svg\Plugin\ShortcodeIcon;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
@@ -244,129 +242,6 @@ class AbuseController extends ControllerBase {
     ];
 
     return $build;
-  }
-
-  /**
-   * Keep ip Banned.
-   *
-   * @param string $ip
-   *   The IP address to keep banned.
-   */
-  public function abuseIpKeep($ip) {
-    $this->abuseAction($ip, 1);
-
-    return new RedirectResponse(Url::fromRoute('oit.abusetable')->toString());
-  }
-
-  /**
-   * Remove ip Banned from list.
-   */
-  private function abuseIpRemove($ip) {
-    $abuse = $this->abuseList;
-
-    // Remove the ip from the list.
-    if (isset($abuse[$ip])) {
-      unset($abuse[$ip]);
-    }
-
-    $abuse = json_encode($abuse);
-    $this->state->set('ban_ip_questionable', $abuse);
-  }
-
-  /**
-   * Remove IP from ban_ip table.
-   *
-   * @param string $ip
-   *   The IP address to remove.
-   */
-  private function banIpRemove($ip) {
-    // Remove the ip from the ban_ip table.
-    $this->database->delete('ban_ip')
-      ->condition('ip', $ip)
-      ->execute();
-  }
-
-  /**
-   * Don't Keep ip Banned.
-   *
-   * @param string $ip
-   *   The IP address to unban.
-   */
-  public function abuseIpNoKeep($ip) {
-    $this->abuseAction($ip, 2);
-
-    return new RedirectResponse(Url::fromRoute('oit.abusetable')->toString());
-  }
-
-  /**
-   * Add IP to whitelist.
-   *
-   * @param string $ip
-   *   The IP address to whitelist.
-   */
-  private function ipWhitelist($ip) {
-    $autoban_settings = $this->configFactory->getEditable('autoban.settings');
-    $whitelist = $autoban_settings->get('autoban_whitelist');
-    $whitelist .= "\n" . $ip;
-    // Save the updated whitelist back to the config.
-    $autoban_settings->set('autoban_whitelist', $whitelist)->save();
-  }
-
-  /**
-   * Whitelist ip Banned.
-   *
-   * @param string $ip
-   *   The IP address to whitelist.
-   */
-  public function abuseIpWhitelist($ip) {
-    $this->abuseAction($ip, 3);
-
-    return new RedirectResponse(Url::fromRoute('oit.abusetable')->toString());
-  }
-
-  /**
-   * Whitelist ip Banned.
-   *
-   * @param string $ip
-   *   The IP address to whitelist.
-   * @param int $action
-   *   The action to perform on the IP address.
-   */
-  private function abuseAction($ip, $action) {
-    $ip = urldecode(Xss::filter($ip));
-
-    // Validate IP address.
-    if (!filter_var($ip, FILTER_VALIDATE_IP)) {
-      $this->messenger()->addError($this->t('Invalid IP address: @ip', ['@ip' => $ip]));
-      return new RedirectResponse(Url::fromRoute('oit.abusetable')->toString());
-    }
-
-    $action_message = [
-      1 => 'kept banned',
-      2 => 'removed from the ban list',
-      3 => 'whitelisted',
-    ];
-
-    // abuseIpKeep.
-    if ($action > 0) {
-      $this->abuseIpRemove($ip);
-    }
-
-    // abuseIpNoKeep.
-    if ($action > 1) {
-      $this->banIpRemove($ip);
-    }
-
-    // Whitelist.
-    if ($action > 2) {
-      $this->ipWhitelist($ip);
-    }
-
-    // Log the action and give user message.
-    $this->loggerFactory->get('oit')->info('IP address @ip has been @action.',
-      ['@ip' => $ip, '@action' => $action_message[$action]]);
-    $this->messenger()->addMessage($this->t('IP address @ip has been @action.',
-      ['@ip' => $ip, '@action' => $action_message[$action]]));
   }
 
 }

@@ -59,21 +59,24 @@ oit.abusetable:
 oit.abusekeep:
   path: '/admin/config/people/autoban/abusetable/keep/{ip}'
   defaults:
-    _controller: '\Drupal\oit\Controller\AbuseController::abuseIpKeep'
-    _title: ''
+    _form: '\Drupal\oit\Form\AbuseConfirmForm'
+    _title: 'Keep IP banned'
+    action: 1
   requirements:
     _permission: 'administer autoban'
 oit.abusenokeep:
   path: '/admin/config/people/autoban/abusetable/nokeep/{ip}'
   defaults:
-    _controller: '\Drupal\oit\Controller\AbuseController::abuseIpNoKeep'
-    _title: ''
+    _form: '\Drupal\oit\Form\AbuseConfirmForm'
+    _title: 'Remove IP ban'
+    action: 2
   requirements:
     _permission: 'administer autoban'
 oit.abusewhitelist:
   path: '/admin/config/people/autoban/abusetable/whitelist/{ip}'
   defaults:
-    _controller: '\Drupal\oit\Controller\AbuseController::abuseIpWhitelist'
-    _title: ''
+    _form: '\Drupal\oit\Form\AbuseConfirmForm'
+    _title: 'Whitelist IP'
+    action: 3
   requirements:
     _permission: 'administer autoban'
