@@ -6,12 +6,12 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\oit\Plugin\TeamsAlert;
 
 /**
- * Set Serv Maint Completed when past end date.
+ * Removes user accounts that have not logged in for over a year.
  *
- * @smc(
- *   id = "service_maintenance_completion",
- *   title = @Translation("Service Maintenance Completion"),
- *   description = @Translation("Set service maint complete when past now")
+ * @UserClean(
+ *   id = "user_clean",
+ *   title = @Translation("User Clean"),
+ *   description = @Translation("Remove inactive user accounts")
  * )
  */
 class UserClean {
@@ -31,7 +31,12 @@ class UserClean {
   protected $teamsAlert;
 
   /**
-   * Function to set to Service maintenance completed once past end date.
+   * Constructs a new UserClean object.
+   *
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   The entity type manager.
+   * @param \Drupal\oit\Plugin\TeamsAlert $teams_alert
+   *   The Teams alert service.
    */
   public function __construct(
     EntityTypeManagerInterface $entity_type_manager,
@@ -43,6 +48,9 @@ class UserClean {
 
   /**
    * Remove users that have not logged in for over a year.
+   *
+   * @param int $limit
+   *   Maximum number of users to delete (0 = no limit).
    */
   public function removeUsers($limit = 0) {
     $user_storage = $this->entityTypeManager->getStorage('user');

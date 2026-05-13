@@ -44,7 +44,14 @@ class ServiceHealth {
   protected $entityTypeManager;
 
   /**
-   * Constructs request stuff.
+   * Constructs a new ServiceHealth object.
+   *
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
+   *   The config factory.
+   * @param \Drupal\Core\Datetime\DateFormatterInterface $dateFormatter
+   *   The date formatter service.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   The entity type manager.
    */
   public function __construct(
     ConfigFactoryInterface $config_factory,
@@ -256,7 +263,13 @@ class ServiceHealth {
   }
 
   /**
-   * Make translate work maybe.
+   * Wraps the global t() function for use inside this class.
+   *
+   * @param string $text
+   *   The string to translate.
+   *
+   * @return \Drupal\Core\StringTranslation\TranslatableMarkup
+   *   The translated string.
    */
   private function t($text) {
     // @codingStandardsIgnoreStart

@@ -6,7 +6,7 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\image\Entity\ImageStyle;
 
 /**
- * Environment icon to be used on header title.
+ * Plugin to generate a styled image URL from a file entity ID.
  *
  * @OitImageStyled(
  *   id = "imagestyle",
@@ -23,7 +23,16 @@ class OitImageStyled {
   private $imageUrl;
 
   /**
-   * Take image id and style wanted and return url.
+   * Constructs a new OitImageStyled object and generates the styled image URL.
+   *
+   * @param int $image_id
+   *   The file entity ID of the image.
+   * @param string $style
+   *   The image style machine name.
+   * @param string $filefield_replace
+   *   Optional path replacement for filefield_paths URIs.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface|null $entityTypeManager
+   *   The entity type manager.
    */
   public function __construct($image_id, $style = "max_325x325", $filefield_replace = '', ?EntityTypeManagerInterface $entityTypeManager = NULL) {
     $style = ImageStyle::load($style);
@@ -42,7 +51,10 @@ class OitImageStyled {
   }
 
   /**
-   * Return icon.
+   * Return the styled image URL.
+   *
+   * @return string
+   *   The absolute URL of the styled image.
    */
   public function getImageUrl() {
     return $this->imageUrl;

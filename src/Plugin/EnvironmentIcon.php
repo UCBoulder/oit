@@ -30,7 +30,10 @@ class EnvironmentIcon {
   private $env;
 
   /**
-   * Check environment and give icon accordingly.
+   * Constructs a new EnvironmentIcon object.
+   *
+   * @param \Drupal\Core\Session\AccountProxyInterface $account
+   *   The current user account proxy.
    */
   public function __construct(AccountProxyInterface $account) {
     $this->account = $account;
@@ -54,7 +57,10 @@ class EnvironmentIcon {
   }
 
   /**
-   * Return icon.
+   * Return the environment icon string.
+   *
+   * @return string
+   *   The environment icon emoji string.
    */
   public function getEnv() {
     return $this->env;

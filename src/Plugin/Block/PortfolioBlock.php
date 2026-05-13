@@ -28,7 +28,10 @@ class PortfolioBlock extends BlockBase {
   }
 
   /**
-   * Fetch portfolio from firebase.
+   * Fetch portfolio data from Google Sheets and build a render array.
+   *
+   * @return array
+   *   Render array for the portfolio table.
    */
   public function fetchPortfolio() {
     $fetchData = new GoogleSheetsFetch('1k4-Csp29uLZbh_g2nhuhpq3dVBgZ6zWFK20BXP1rL_s', 0, 0);

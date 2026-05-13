@@ -7,5 +7,6 @@ services:
       - '@database'
       - '@oit.userclean'
       - '@oit.toppages'
+      - '@oit.deletenews'
     tags:
       - { name: drush.command }

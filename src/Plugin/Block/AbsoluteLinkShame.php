@@ -161,7 +161,7 @@ class AbsoluteLinkShame extends BlockBase implements
   }
 
   /**
-   * Return no cache.
+   * {@inheritdoc}
    */
   public function getCacheMaxAge() {
     return 0;

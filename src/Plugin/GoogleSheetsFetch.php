@@ -36,7 +36,16 @@ class GoogleSheetsFetch {
   private $cvsSheet;
 
   /**
-   * Fetch google sheet.
+   * Constructs a new GoogleSheetsFetch object and fetches the sheet data.
+   *
+   * @param string $key
+   *   The Google Sheets document key or full URL when $shentity is TRUE.
+   * @param int $gid
+   *   The sheet GID (tab index).
+   * @param int $shift
+   *   Number of leading rows to remove from the data.
+   * @param bool $shentity
+   *   When TRUE, treat $key as a full Google Sheets URL.
    */
   public function __construct($key, $gid, $shift = 0, $shentity = FALSE) {
     if ($shentity) {
@@ -70,6 +79,9 @@ class GoogleSheetsFetch {
 
   /**
    * Get sheet that was fetched.
+   *
+   * @return array
+   *   The fetched sheet data as a two-dimensional array.
    */
   public function getFetchedSheet() {
     return $this->fetchData;
@@ -77,6 +89,9 @@ class GoogleSheetsFetch {
 
   /**
    * Get the result count.
+   *
+   * @return int
+   *   The number of rows in the fetched sheet.
    */
   public function getCount() {
     return $this->sheetCount;

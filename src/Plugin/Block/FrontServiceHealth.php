@@ -57,8 +57,8 @@ class FrontServiceHealth extends BlockBase implements
    *   Plugin id string.
    * @param mixed $plugin_definition
    *   Plugin Definition mixed.
-   * @param \Drupal\Core\Entity\ServiceHealth $service_health
-   *   Invokes renderer.
+   * @param \Drupal\oit\Plugin\ServiceHealth $service_health
+   *   The service health plugin.
    */
   public function __construct(array $configuration, $plugin_id, $plugin_definition, ServiceHealth $service_health) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);

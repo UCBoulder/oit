@@ -57,7 +57,7 @@ class MenuAnchor extends BlockBase implements
    *   Plugin id string.
    * @param mixed $plugin_definition
    *   Plugin Definition mixed.
-   * @param \\Drupal\Core\Extension\ThemeHandler $theme_handler
+   * @param \Drupal\Core\Extension\ThemeHandler $theme_handler
    *   The theme manager.
    */
   public function __construct(array $configuration, $plugin_id, $plugin_definition, ThemeHandler $theme_handler) {

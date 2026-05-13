@@ -28,28 +28,28 @@ class ServiceAlertTweet extends BlockBase implements
   /**
    * Current path injected.
    *
-   * @var current_path\Drupal\Core\Path\CurrentPathStack
+   * @var \Drupal\Core\Path\CurrentPathStack
    */
   protected $currentPathStack;
 
   /**
    * Request injected.
    *
-   * @var request\Symfony\Component\HttpFoundation\RequestStack
+   * @var \Symfony\Component\HttpFoundation\RequestStack
    */
   protected $request;
 
   /**
    * Route Match injected.
    *
-   * @var routeMatchInterface\Drupal\Core\Routing\RouteMatchInterface
+   * @var \Drupal\Core\Routing\RouteMatchInterface
    */
   protected $routeMatchInterface;
 
   /**
    * Entity Manager injected.
    *
-   * @var entityTypeManager\Drupal\Core\Entity\EntityTypeManager
+   * @var \Drupal\Core\Entity\EntityTypeManager
    */
   protected $entityTypeManager;
 
@@ -142,10 +142,10 @@ class ServiceAlertTweet extends BlockBase implements
   }
 
   /**
-   * Set cache tag by node id.
+   * {@inheritdoc}
    */
   public function getCacheTags() {
-    // With this when your node change your block will rebuild.
+    // With this, when your node changes, your block will rebuild.
     if ($node = $this->routeMatchInterface->getParameter('node')) {
       // If there is node add its cachetag.
       return Cache::mergeTags(parent::getCacheTags(), ['node:' . $node->id()]);
@@ -157,7 +157,7 @@ class ServiceAlertTweet extends BlockBase implements
   }
 
   /**
-   * Return cache contexts.
+   * {@inheritdoc}
    */
   public function getCacheContexts() {
     // If you depend on \Drupal::routeMatch()

@@ -35,6 +35,14 @@ services:
   oit.userclean:
     class: Drupal\oit\Plugin\Util\UserClean
     arguments: ["@entity_type.manager", "@oit.teamsalert"]
+  oit.deletenews:
+    class: Drupal\oit\Plugin\Util\DeleteNews
+    arguments:
+      - "@database"
+      - "@entity_type.manager"
+      - "@entity_field.manager"
+      - "@path_alias.manager"
+      - "@logger.factory"
   oit.servicehealth:
     class: Drupal\oit\Plugin\ServiceHealth
     arguments: ["@config.factory", "@date.formatter", "@entity_type.manager"]

@@ -1,0 +1,29 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - oit
+title: 'Delete Old News'
+id: delete_news
+weight: -10
+module: oit
+callback: '\Drupal\oit\Services\CronManager::deleteNews'
+scheduler:
+  id: crontab
+  configuration:
+    rules:
+      - '0 0 1 */6 *'
+    catch_up: 14400
+launcher:
+  id: serial
+  configuration:
+    timeouts:
+      lock_timeout: 3600
+    launcher:
+      thread: 0
+logger:
+  id: database
+  configuration:
+    method: '3'
+    expire: 1209600
+    retain: 1000

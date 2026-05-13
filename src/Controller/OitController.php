@@ -351,7 +351,10 @@ class OitController extends ControllerBase {
   }
 
   /**
-   * Build content to display on page.
+   * Build content to display on the access-denied page.
+   *
+   * @return string
+   *   HTML string for the denied page body.
    */
   private function deniedContent() {
     if ($_SERVER["REQUEST_URI"]) {
@@ -471,6 +474,18 @@ class OitController extends ControllerBase {
 
   /**
    * Pull request portal block with contextual filter.
+   *
+   * @param string $view
+   *   The view machine name.
+   * @param string $display
+   *   The view display ID.
+   * @param array $arg
+   *   Contextual filter arguments.
+   * @param string $title
+   *   The block title.
+   *
+   * @return array
+   *   Render array for the item list.
    */
   private function requestPortalView($view, $display, $arg, $title) {
     // Firstly, get the view in question.

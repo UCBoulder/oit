@@ -74,4 +74,45 @@ class CronManager {
     }
   }
 
+  /**
+   * Delete old news nodes that are not linked anywhere on the site.
+   *
+   * Live environment only. Sends Teams report and writes watchdog log.
+   */
+  public static function deleteNews() {
+    $env = getenv('PANTHEON_ENVIRONMENT');
+    if ($env !== 'live') {
+      \Drupal::logger('oit')->notice('News deletion skipped. This is the @env environment.', ['@env' => $env]);
+      return;
+    }
+
+    $result = \Drupal::service('oit.deletenews')->deleteNews(5);
+
+    $deleted_count = count($result['deleted']);
+    $skipped_count = count($result['skipped']);
+
+    $message  = "**News Deletion Report**\n\n";
+    $message .= "Deleted **{$deleted_count}** news node(s) older than 5 years.\n\n";
+
+    if ($deleted_count > 0) {
+      $message .= "**Deleted nodes:**\n";
+      foreach ($result['deleted'] as $nid => $title) {
+        $message .= "- [{$nid}] {$title}\n";
+      }
+      $message .= "\n";
+    }
+
+    if ($skipped_count > 0) {
+      $message .= "**Skipped {$skipped_count} node(s) due to existing links:**\n";
+      foreach ($result['skipped'] as $nid => $info) {
+        $message .= "- [{$nid}] {$info['title']} — {$info['reason']}\n";
+      }
+    }
+    else {
+      $message .= "No nodes were skipped.";
+    }
+
+    \Drupal::service('oit.teamsalert')->sendMessage($message, ['live']);
+  }
+
 }

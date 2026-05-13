@@ -6,7 +6,7 @@ use Drupal\Core\Database\Connection;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 
 /**
- * Environment icon to be used on header title.
+ * Plugin to query redirects and append UTM analytics parameters.
  *
  * @RedirectAddAnalytics(
  *   id = "redirect_add_analytics",
@@ -32,7 +32,12 @@ class RedirectAddAnalytics {
   protected $logger;
 
   /**
-   * Look for redirects missing utm code and add it.
+   * Constructs a new RedirectAddAnalytics object and processes redirects.
+   *
+   * @param \Drupal\Core\Database\Connection $connection
+   *   The database connection.
+   * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $channelFactory
+   *   The logger channel factory.
    */
   public function __construct(
     Connection $connection,

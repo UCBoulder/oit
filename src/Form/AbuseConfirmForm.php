@@ -174,6 +174,9 @@ class AbuseConfirmForm extends ConfirmFormBase {
 
   /**
    * Remove IP from the questionable-ban state list.
+   *
+   * @param string $ip
+   *   The IP address to remove.
    */
   private function abuseIpRemove($ip) {
     $abuse = json_decode($this->state->get('ban_ip_questionable'), TRUE) ?: [];
@@ -185,6 +188,9 @@ class AbuseConfirmForm extends ConfirmFormBase {
 
   /**
    * Remove IP from the ban_ip table.
+   *
+   * @param string $ip
+   *   The IP address to remove.
    */
   private function banIpRemove($ip) {
     $this->database->delete('ban_ip')
@@ -194,6 +200,9 @@ class AbuseConfirmForm extends ConfirmFormBase {
 
   /**
    * Append IP to the autoban whitelist config.
+   *
+   * @param string $ip
+   *   The IP address to whitelist.
    */
   private function ipWhitelist($ip) {
     $autoban_settings = $this->configFactory->getEditable('autoban.settings');
@@ -204,6 +213,9 @@ class AbuseConfirmForm extends ConfirmFormBase {
 
   /**
    * Human-readable verb for the pending action.
+   *
+   * @return \Drupal\Core\StringTranslation\TranslatableMarkup
+   *   The translated verb for the action.
    */
   private function actionVerb() {
     return match ($this->action) {
