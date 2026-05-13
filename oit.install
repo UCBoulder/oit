@@ -327,7 +327,7 @@ function oit_update_10007() {
     $lang = $row->langcode;
     $bundle = $row->bundle;
     $target_id = $row->field_domain_access_target_id;
-    $insert = \Drupal::database()->insert('node__field_domain_source')
+    \Drupal::database()->insert('node__field_domain_source')
       ->fields([
         'bundle',
         'deleted',

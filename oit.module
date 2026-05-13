@@ -212,11 +212,6 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
     // Get query string.
     $query = \Drupal::request()->query->all();
     $search_key = isset($query['keys']) ? Xss::filter(strtolower($query['keys'])) : 0;
-    $space = [
-      'space monkey',
-      'space+monkey',
-      'spacemonkey',
-    ];
     if ($search_key == 'space monkey' || $search_key == 'space+monkey' || $search_key == 'spacemonkey') {
       $form['#attached']['library'][] = 'oit/spacemonkey';
     }
