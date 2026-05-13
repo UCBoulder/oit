@@ -334,7 +334,7 @@ class DeleteNews {
       foreach ($query->execute() as $row) {
         $nid = $uri_to_nid[$row->link__uri] ?? NULL;
         if ($nid !== NULL && !isset($referenced[$nid])) {
-          $referenced[$nid] = "Linked from menu '{$row->menu_name}'";
+          $referenced[$nid] = "Linked from menu '{$row->menu_name}' (menu_link_content/{$row->id})";
         }
       }
     }
@@ -362,7 +362,7 @@ class DeleteNews {
       foreach ($query->execute() as $row) {
         $nid = $uri_to_nid[$row->redirect_redirect__uri] ?? NULL;
         if ($nid !== NULL && !isset($referenced[$nid])) {
-          $referenced[$nid] = "Redirect /{$row->redirect_source__path} points to this node";
+          $referenced[$nid] = "Redirect /{$row->redirect_source__path} points to this node (redirect/{$row->rid})";
         }
       }
     }
