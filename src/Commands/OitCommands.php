@@ -58,7 +58,20 @@ class OitCommands extends DrushCommands {
   protected $deleteNews;
 
   /**
-   * Construct object.
+   * Constructs a new OitCommands object.
+   *
+   * @param \Drupal\Core\Messenger\MessengerInterface $messenger
+   *   The messenger service.
+   * @param \Drupal\oit\Plugin\TeamsAlert $teams_alert
+   *   The Teams alert service.
+   * @param \Drupal\Core\Database\Connection $database
+   *   The database connection.
+   * @param \Drupal\oit\Plugin\Util\UserClean $user_clean
+   *   The user clean service.
+   * @param \Drupal\oit\Plugin\TopPages $top_pages
+   *   The top pages service.
+   * @param \Drupal\oit\Plugin\Util\DeleteNews $delete_news
+   *   The delete news service.
    */
   public function __construct(
     MessengerInterface $messenger,
@@ -80,6 +93,9 @@ class OitCommands extends DrushCommands {
   /**
    * Send Teams Alert.
    *
+   * @param string $userMessage
+   *   The message to send.
+   *
    * @command oit:send-teams-alert
    * @aliases oit:sta
    */
@@ -91,6 +107,9 @@ class OitCommands extends DrushCommands {
 
   /**
    * Clean banned ip's.
+   *
+   * @param int $keep
+   *   Number of banned IPs to keep (default: 300).
    *
    * @command oit:ban-ip-clean
    * @aliases oit:bic
@@ -129,6 +148,9 @@ class OitCommands extends DrushCommands {
 
   /**
    * Clean users that haven't accessed the site in over a year.
+   *
+   * @param int $limit
+   *   Maximum number of users to remove (0 = no limit).
    *
    * @command oit:clean-users
    * @aliases oit:cu

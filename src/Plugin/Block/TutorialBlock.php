@@ -139,10 +139,10 @@ class TutorialBlock extends BlockBase implements
   }
 
   /**
-   * Set cache tag by node id.
+   * {@inheritdoc}
    */
   public function getCacheTags() {
-    // With this when your node change your block will rebuild.
+    // With this, when your node changes, your block will rebuild.
     if ($node = $this->routMatchInterface->getParameter('node')) {
       // If there is node add its cachetag.
       return Cache::mergeTags(parent::getCacheTags(), ['node:' . $node->id()]);
@@ -154,10 +154,10 @@ class TutorialBlock extends BlockBase implements
   }
 
   /**
-   * Return cache contexts.
+   * {@inheritdoc}
    */
   public function getCacheContexts() {
-    // If you depends on \Drupal::routeMatch()
+    // If you depend on \Drupal::routeMatch()
     // you must set context of this block with 'route' context tag.
     // Every new route this block will rebuild.
     return Cache::mergeContexts(parent::getCacheContexts(), ['route']);

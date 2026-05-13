@@ -117,7 +117,7 @@ class PageOverview extends BlockBase implements
           $os = check_markup($set_comp_type, 'rich_text');
           $summary .= "<div class='flex-one-third'>$os</div>";
 
-          // Download link if set
+          // Download link if set.
           // Return full external url or /node/# for internal links.
           if ($node->field_software_download_link->get(0) !== NULL) {
             if ($node->field_software_download_link->get(0)->isExternal()) {
@@ -160,10 +160,10 @@ class PageOverview extends BlockBase implements
   }
 
   /**
-   * Set cache tag by node id.
+   * {@inheritdoc}
    */
   public function getCacheTags() {
-    // With this when your node change your block will rebuild.
+    // With this, when your node changes, your block will rebuild.
     if ($node = $this->routMatchInterface->getParameter('node')) {
       // If there is node add its cachetag.
       return Cache::mergeTags(parent::getCacheTags(), ['node:' . $node->id()]);
@@ -175,10 +175,10 @@ class PageOverview extends BlockBase implements
   }
 
   /**
-   * Return cache contexts.
+   * {@inheritdoc}
    */
   public function getCacheContexts() {
-    // If you depends on \Drupal::routeMatch()
+    // If you depend on \Drupal::routeMatch()
     // you must set context of this block with 'route' context tag.
     // Every new route this block will rebuild.
     return Cache::mergeContexts(parent::getCacheContexts(), ['route']);

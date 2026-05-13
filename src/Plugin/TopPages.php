@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use GuzzleHttp\ClientInterface;
 
 /**
- * Environment icon to be used on header title.
+ * Plugin to retrieve top pages data from a GitHub-hosted JSON file.
  *
  * @TopPages (
  *   id = "top_pages",
@@ -83,7 +83,20 @@ class TopPages {
   protected $entityTypeManager;
 
   /**
-   * Sets up to send message to Teams.
+   * Constructs a new TopPages object.
+   *
+   * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $channelFactory
+   *   The logger channel factory.
+   * @param \Drupal\Core\Config\ConfigFactory $config_factory
+   *   The config factory.
+   * @param \Symfony\Component\HttpFoundation\RequestStack $request_stack
+   *   The request stack.
+   * @param \GuzzleHttp\ClientInterface $http_client
+   *   The HTTP client.
+   * @param \Drupal\oit\Plugin\TeamsAlert $teams_alert
+   *   The Teams alert service.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   The entity type manager.
    */
   public function __construct(
     LoggerChannelFactoryInterface $channelFactory,
@@ -106,7 +119,7 @@ class TopPages {
   }
 
   /**
-   * Get data.
+   * Fetch top pages JSON data from the remote source.
    */
   private function fetchData() {
     // Get yesterdays date in the format YYYYMMDD.
@@ -252,7 +265,20 @@ class TopPages {
   }
 
   /**
-   * Build and save block.
+   * Build an HTML list and save it to a block content entity.
+   *
+   * @param int $count
+   *   The expected number of items in the list.
+   * @param array $top_pages
+   *   Array of page data with 'title' and 'url' keys.
+   * @param int $block_id
+   *   The block content entity ID to update.
+   * @param string $block_title
+   *   The heading text for the block.
+   * @param string $block_url
+   *   The URL the block heading should link to.
+   * @param string $block_class
+   *   CSS class to apply to the list element.
    */
   private function buildSaveBlock($count, $top_pages, $block_id, $block_title, $block_url, $block_class) {
     if ($top_pages === NULL) {
@@ -286,7 +312,13 @@ class TopPages {
   }
 
   /**
-   * Need to parse html to grab titles.
+   * Fetch a page and parse its HTML title element.
+   *
+   * @param string $url
+   *   The relative URL of the page to fetch.
+   *
+   * @return string
+   *   The page title, or 'Log in' if the page is inaccessible.
    */
   private function titleLookup($url) {
     $response = $this->httpClient->request('GET', $this->host . $url);

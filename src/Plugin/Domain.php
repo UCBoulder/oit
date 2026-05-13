@@ -23,14 +23,20 @@ class Domain {
   protected $token;
 
   /**
-   * Construct object.
+   * Constructs a new Domain object.
+   *
+   * @param \Drupal\Core\Utility\Token $token
+   *   The token service.
    */
   public function __construct(Token $token) {
     $this->token = $token;
   }
 
   /**
-   * Get current domain.
+   * Get current domain machine name.
+   *
+   * @return string
+   *   The domain identifier: 'oit', 'oda', or 'na'.
    */
   public function getDomain() {
     $domainName = $this->token->replace('[domain:name]');

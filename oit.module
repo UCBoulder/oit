@@ -12,10 +12,8 @@ use Drupal\Core\Cache\Cache;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Link;
 use Drupal\Core\Render\BubbleableMetadata;
 use Drupal\Core\Session\AccountInterface;
-use Drupal\Core\Url;
 use Drupal\node\NodeInterface;
 use Drupal\oit\Plugin\OitImageStyled;
 use Drupal\user\Entity\User;
@@ -30,7 +28,7 @@ function oit_preprocess_html(&$variables) {
     $title[0] = $variables['head_title']['name'] ?? '';
     $title[1] = '';
     if (isset($variables['head_title']['title'])) {
-      $title[1] = is_string($variables['head_title']['title'])?$variables['head_title']['title']:$variables['head_title']['title']->__toString();
+      $title[1] = is_string($variables['head_title']['title']) ? $variables['head_title']['title'] : $variables['head_title']['title']->__toString();
     }
     $getEnv = \Drupal::service('oit.environment.icon');
     $variables['head_title'] = $getEnv->getEnv() . ' ' . $title[1] . ' | ' . $title[0];
@@ -55,7 +53,7 @@ function oit_webform_access_rules_alter(array &$access_rules) {
 }
 
 /**
- * Implements oit_webform_access_rules_alter().
+ * Implements hook_entity_create().
  */
 function oit_entity_create(EntityInterface $entity) {
   if ($entity->getEntityType()->getBundleEntityType() == 'node_type' && $entity->getType() == 'webform') {
@@ -65,7 +63,7 @@ function oit_entity_create(EntityInterface $entity) {
 }
 
 /**
- * hook_preprocess().
+ * Implements hook_preprocess().
  */
 function oit_preprocess(&$variables, $hook) {
   $theme = \Drupal::service('theme.manager')->getActiveTheme()->getName();
@@ -190,7 +188,22 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
         \Drupal::messenger()->addMessage($message, 'warning');
         $form['#access'] = FALSE;
       }
-      _oit_form_set_domain('content', 'oit_colorado_edu');
+      // Get query string.
+      $query = \Drupal::request()->query->all();
+      $domain_set = FALSE;
+      foreach ($query as $key => $value) {
+        if ($key == 'field_domain_access_target_id') {
+          $domain_set = TRUE;
+        }
+      }
+      if (!$domain_set) {
+        // Redirect to query string
+        // "field_domain_access_target_id=oit_colorado_edu".
+        $query['field_domain_access_target_id'] = 'oit_colorado_edu';
+        $query = http_build_query($query);
+        $response = new RedirectResponse('/admin/content?' . $query);
+        $response->send();
+      }
     }
   }
 
@@ -385,7 +398,7 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
       $form['#attached']['library'][] = 'oit/oit_node_news_form';
       $form['#validate'][] = 'oit_news_types_categories';
       // Add submit handler.
-      $form['actions']['submit']['#submit'][] = 'news_node_form_submit';
+      $form['actions']['submit']['#submit'][] = 'oit_news_node_form_submit';
       break;
 
     case "user_login_form":
@@ -398,8 +411,8 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
       if (!$show_login_form) {
         // Cache is breaking the redirect, so kill it.
         \Drupal::service('page_cache_kill_switch')->trigger();
-        $dest_get = \Drupal::request()->get('dest') != null ? Xss::filter(\Drupal::request()->get('dest')) : '';
-        $destination_get = \Drupal::request()->get('destination') != null ? Xss::filter(\Drupal::request()->get('destination')) : '';
+        $dest_get = \Drupal::request()->get('dest') != NULL ? Xss::filter(\Drupal::request()->get('dest')) : '';
+        $destination_get = \Drupal::request()->get('destination') != NULL ? Xss::filter(\Drupal::request()->get('destination')) : '';
         $destination = "";
         if (!empty($dest_get)) {
           $destination = '?destination=' . preg_replace('/https:\/\/[^\/]+/', '', $dest_get);
@@ -456,7 +469,7 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
 }
 
 /**
- * Set domain on content to match site domain
+ * Set domain on content to match site domain.
  */
 function _oit_set_oit_domain(&$form, FormStateInterface $form_state) {
   _oit_set_domain_submit($form, $form_state, 'oit', 'oit_colorado_edu');
@@ -511,7 +524,8 @@ function oit_set_domain_defaults(array &$form, $domain_name, $domain_id) {
 
       // Force access and source if not set.
       array_unshift($form['actions']['submit']['#submit'], '_' . $domain_name . '_set_' . $domain_name . '_domain');
-    } else {
+    }
+    else {
       // Disable source locally.
       $form['field_domain_source']['widget']['#default_value'] = [];
       $form['field_domain_source']['widget']['#default_value'][] = '_none';
@@ -540,10 +554,11 @@ function _oit_set_domain_submit(array &$form, FormStateInterface $form_state, $d
 }
 
 /**
- * News node form submit handler to un-promote other news nodes when a news
- * node is promoted.
+ * News node form submit handler.
+ *
+ * Un-promotes other news nodes when a news node is promoted.
  */
-function news_node_form_submit(&$form, FormStateInterface $form_state) {
+function oit_news_node_form_submit(&$form, FormStateInterface $form_state) {
   if ($form_state->getValues()['promote']['value']) {
     $node = $form_state->getFormObject()->getEntity();
     $node_id = $node->id();
@@ -578,7 +593,7 @@ function oit_servicealert_dashboard_category_add($form, FormStateInterface $form
     $dashboard_state = json_decode($dashboard_state, TRUE);
   }
 
-  $dashboard_state[]= $name;
+  $dashboard_state[] = $name;
 
   // Add term_name to a drupal state for future GH action processing.
   \Drupal::state()->set('oit_dashboard_add', json_encode($dashboard_state));
@@ -597,7 +612,7 @@ function oit_servicealert_dashboard_category_delete($form, FormStateInterface $f
     $dashboard_state = json_decode($dashboard_state, TRUE);
   }
 
-  $dashboard_state[]= $term_name;
+  $dashboard_state[] = $term_name;
 
   // Add term_name to a drupal state for future GH action processing.
   \Drupal::state()->set('oit_dashboard_delete', json_encode($dashboard_state));
@@ -1075,8 +1090,10 @@ function _oit_security_window_warning(array &$form, string $form_id): void {
 
   // Check if it's Wednesday between 1600 and 2200 UTC.
   $now = new \DateTime('now', new \DateTimeZone('UTC'));
-  $day_of_week = (int) $now->format('N'); // ISO: 3 = Wednesday.
-  $hour = (int) $now->format('G');        // 0–23.
+  // ISO: 3 = Wednesday.
+  $day_of_week = (int) $now->format('N');
+  // 0–23.
+  $hour = (int) $now->format('G');
   if ($day_of_week !== 3 || $hour < 16 || $hour >= 22) {
     return;
   }

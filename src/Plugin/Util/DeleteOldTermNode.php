@@ -52,7 +52,12 @@ class DeleteOldTermNode {
   }
 
   /**
-   * Function to delete old node by term id.
+   * Delete nodes associated with a term created before the given date.
+   *
+   * @param int $term_id
+   *   The taxonomy term ID used to find candidate nodes.
+   * @param int $date
+   *   Unix timestamp; nodes created before this date will be deleted.
    */
   public function update($term_id, $date) {
     $query = $this->connection->select('taxonomy_index', 'ti');
@@ -64,7 +69,6 @@ class DeleteOldTermNode {
     $updated_nid = '';
     foreach ($fetch as $nid) {
       $node = $this->entityTypeManager->getStorage('node')->load($nid);
-      // $updated_date = $node->getChangedTime();
       $updated_date = $node->getCreatedTime();
       if ($date > $updated_date) {
         $node->delete();

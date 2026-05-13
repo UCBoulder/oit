@@ -18,7 +18,7 @@ use Drupal\filter\Plugin\FilterBase;
 class FilterNoopener extends FilterBase {
 
   /**
-   * Find and replace target=_blank links.
+   * {@inheritdoc}
    */
   public function process($text, $langcode) {
     $patterns = [];

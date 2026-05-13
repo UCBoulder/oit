@@ -18,7 +18,7 @@ use Drupal\filter\Plugin\FilterBase;
 class FilterEmail extends FilterBase {
 
   /**
-   * Search and replace all dashes in Email.
+   * {@inheritdoc}
    */
   public function process($text, $langcode) {
     $patterns = [];

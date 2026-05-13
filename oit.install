@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Install, update and uninstall functions for the sympa_initialize module.
+ * Install, update and uninstall functions for the OIT module.
  */
 
 use Drupal\Component\Utility\Random;
@@ -13,6 +13,13 @@ use Drupal\user\Entity\User;
 
 /**
  * Helper function to update node body text.
+ *
+ * @param int $nid
+ *   The node ID.
+ * @param string $body
+ *   The body text value.
+ * @param string $format
+ *   The text format machine name.
  */
 function update_node_body($nid, $body, $format) {
   $query = \Drupal::entityQuery('node')
@@ -134,7 +141,7 @@ function oit_update_9005() {
 }
 
 /**
- * Implements hook_update().
+ * Enable show_login_form setting.
  */
 function oit_update_9006() {
   $config = \Drupal::configFactory()->getEditable('oit.settings');
@@ -299,7 +306,8 @@ function oit_update_10006() {
 function oit_update_10007() {
   \Drupal::database()->truncate('node__field_domain_source')->execute();
 
-  // Sql query to 'node__field_domain_access' table where delta = 0 pulling in all columns.
+  // Sql query to 'node__field_domain_access' table where delta = 0 pulling
+  // in all columns.
   $query = \Drupal::database()->select('node__field_domain_access', 'nfa');
   $query->fields('nfa', [
     'bundle',
@@ -687,7 +695,7 @@ function oit_update_10018() {
 }
 
 /**
- * Clear field_news_front_image values from news nodes and delete associated files.
+ * Remove field_news_front_image values and associated files from news nodes.
  */
 function oit_update_10019() {
   $database = \Drupal::database();
@@ -696,4 +704,3 @@ function oit_update_10019() {
   $database->truncate('node__field_news_front_image')->execute();
   $database->truncate('node_revision__field_news_front_image')->execute();
 }
-

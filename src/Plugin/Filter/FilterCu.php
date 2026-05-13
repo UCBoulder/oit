@@ -18,7 +18,7 @@ use Drupal\filter\Plugin\FilterBase;
 class FilterCu extends FilterBase {
 
   /**
-   * Process filter to replace dashes.
+   * {@inheritdoc}
    */
   public function process($text, $langcode) {
     $patterns = [];

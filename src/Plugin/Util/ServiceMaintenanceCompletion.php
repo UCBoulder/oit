@@ -39,7 +39,14 @@ class ServiceMaintenanceCompletion {
   protected $teamsAlert;
 
   /**
-   * Function to set to Service maintenance completed once past end date.
+   * Constructs a new ServiceMaintenanceCompletion object.
+   *
+   * @param \Drupal\Core\Database\Connection $connection
+   *   The database connection.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   The entity type manager.
+   * @param \Drupal\oit\Plugin\TeamsAlert $teams_alert
+   *   The Teams alert service.
    */
   public function __construct(
     Connection $connection,
@@ -60,7 +67,12 @@ class ServiceMaintenanceCompletion {
   }
 
   /**
-   * Change status if past end date.
+   * Update service alert nodes from one status to another when past end date.
+   *
+   * @param string $from_status
+   *   The current status value to look for.
+   * @param string $to_status
+   *   The status value to set when the end date has passed.
    */
   public function statusChange($from_status, $to_status) {
     $query = $this->connection->select('node__field_service_alert_status', 'sa');

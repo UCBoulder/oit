@@ -8,7 +8,7 @@ use Drupal\encrypt\Entity\EncryptionProfile;
 use Drupal\key\KeyRepositoryInterface;
 
 /**
- * Environment icon to be used on header title.
+ * Plugin to send alert messages into a Microsoft Teams channel via webhook.
  *
  * @TeamsAlert (
  *   id = "teams_alert",
@@ -60,7 +60,14 @@ class TeamsAlert {
   protected $logger;
 
   /**
-   * Sets up to send message to Teams.
+   * Constructs a new TeamsAlert object.
+   *
+   * @param \Drupal\key\KeyRepositoryInterface $key_repository
+   *   The key repository service.
+   * @param \Drupal\encrypt\EncryptServiceInterface $encrypt_service
+   *   The encrypt service.
+   * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $channelFactory
+   *   The logger channel factory.
    */
   public function __construct(
     KeyRepositoryInterface $key_repository,
@@ -77,7 +84,12 @@ class TeamsAlert {
   }
 
   /**
-   * Send message.
+   * Send a message to the configured Microsoft Teams channel.
+   *
+   * @param string $message
+   *   The message text to send.
+   * @param array $environment
+   *   List of environments in which to send the alert.
    */
   public function sendMessage(
     $message,
@@ -111,7 +123,10 @@ class TeamsAlert {
   }
 
   /**
-   * Setup MS Teams card.
+   * Build the MS Teams adaptive card payload array.
+   *
+   * @return array
+   *   The adaptive card message array for the Teams webhook.
    */
   public function getMessage() {
     $message = $this->message;

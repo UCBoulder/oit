@@ -20,7 +20,12 @@ class CvsToArray {
   private $arrayCvs;
 
   /**
-   * Function to convert CSV into associative array.
+   * Constructs a new CvsToArray object and parses the CSV file.
+   *
+   * @param string $file
+   *   The path or URL of the CSV file to open.
+   * @param string $delimiter
+   *   The field delimiter character used in the CSV file.
    */
   public function __construct($file, $delimiter) {
     if (($handle = fopen($file, 'r')) !== FALSE) {
@@ -37,7 +42,10 @@ class CvsToArray {
   }
 
   /**
-   * Return array.
+   * Return the parsed CSV data as an array.
+   *
+   * @return array
+   *   The parsed CSV data.
    */
   public function getBuiltArray() {
     return $this->arrayCvs;

@@ -70,7 +70,18 @@ class LatestAutoBan {
   public $lastBanId;
 
   /**
-   * Construct object.
+   * Constructs a new LatestAutoBan object.
+   *
+   * @param \Drupal\encrypt\EncryptServiceInterface $encrypt_service
+   *   The encrypt service.
+   * @param \Drupal\key\KeyRepositoryInterface $key_repository
+   *   The key repository service.
+   * @param \Drupal\Core\Database\Connection $connection
+   *   The database connection.
+   * @param \Drupal\oit\Plugin\TeamsAlert $teams_alert
+   *   The Teams alert service.
+   * @param \Drupal\Core\State\State $state
+   *   The state service.
    */
   public function __construct(
     EncryptServiceInterface $encrypt_service,
@@ -96,7 +107,7 @@ class LatestAutoBan {
   }
 
   /**
-   * Send message to teams listing new banned ip's.
+   * Send a Teams message listing newly banned IPs since the last check.
    */
   public function messageLatestIps() {
     $query = $this->connection->select('ban_ip', 'bi');
@@ -131,7 +142,16 @@ class LatestAutoBan {
   }
 
   /**
-   * Curl abuseipdb api.
+   * Query the AbuseIPDB API for information about an IP address.
+   *
+   * @param string $ip
+   *   The IP address to look up.
+   *
+   * @return string
+   *   The raw JSON response from the AbuseIPDB API.
+   *
+   * @throws \Exception
+   *   Thrown if the cURL request fails.
    */
   public function abuseApi($ip) {
     $key = trim($this->keyRepository->getKey('abuseipdb_crypt')->getKeyValue());
@@ -152,7 +172,7 @@ class LatestAutoBan {
 
     curl_setopt($ch, CURLOPT_URL, $url);
 
-    // Set request to GET method (default)
+    // Set request to GET method (default).
     curl_setopt($ch, CURLOPT_HTTPGET, TRUE);
 
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
@@ -179,7 +199,7 @@ class LatestAutoBan {
   }
 
   /**
-   * Set last id after teams message.
+   * Persist the latest ban ID to state after sending the Teams message.
    */
   public function setLastBanId() {
     $this->state->set('ban_ip_last_id', $this->latestBanId);

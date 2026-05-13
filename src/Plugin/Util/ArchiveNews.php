@@ -39,7 +39,14 @@ class ArchiveNews {
   protected $teamsAlert;
 
   /**
-   * Construct object.
+   * Constructs a new ArchiveNews object.
+   *
+   * @param \Drupal\Core\Database\Connection $connection
+   *   The database connection.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   The entity type manager.
+   * @param \Drupal\oit\Plugin\TeamsAlert $teams_alert
+   *   The Teams alert service.
    */
   public function __construct(
     Connection $connection,
@@ -52,7 +59,10 @@ class ArchiveNews {
   }
 
   /**
-   * Function to archive news after cut off date. $cut_off is a unix timestamp.
+   * Archive news nodes whose changed date is before the cutoff timestamp.
+   *
+   * @param int $cut_off
+   *   Unix timestamp; news changed before this date will be archived.
    */
   public function archive($cut_off) {
     $query = $this->connection->select('node__field_news_archive', 'na');

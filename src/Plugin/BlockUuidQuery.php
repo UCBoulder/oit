@@ -38,7 +38,12 @@ class BlockUuidQuery {
   protected $entityTypeManager;
 
   /**
-   * Construct object.
+   * Constructs a new BlockUuidQuery object.
+   *
+   * @param \Drupal\Core\Database\Connection $connection
+   *   The database connection.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   The entity type manager.
    */
   public function __construct(Connection $connection, EntityTypeManagerInterface $entity_type_manager) {
     $this->connection = $connection;
@@ -47,6 +52,9 @@ class BlockUuidQuery {
 
   /**
    * Query block and pull bid via uuid.
+   *
+   * @param string $uuid
+   *   The UUID of the block content entity.
    */
   public function getBidByUuid($uuid) {
     $query = $this->connection->select('block_content', 'bc');
@@ -58,7 +66,10 @@ class BlockUuidQuery {
   }
 
   /**
-   * Return block.
+   * Load and return a rendered block entity.
+   *
+   * @return array
+   *   Render array for the block content entity.
    */
   public function loadBlock() {
     $block = $this->entityTypeManager->getStorage('block_content')->load($this->bid);
