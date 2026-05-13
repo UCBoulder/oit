@@ -175,6 +175,12 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
     oit_set_domain_defaults($form, 'oit', 'oit_colorado_edu');
   }
 
+  if ($form['#id'] == 'views-exposed-form-moderated-content-moderated-content') {
+    if ($domain == 'oit') {
+      _oit_form_set_domain('content/moderated', 'oit_colorado_edu');
+    }
+  }
+
   if ($form_id == "views_form_content_page_1") {
     if ($domain == 'oit') {
       // Get user roles.
@@ -184,21 +190,7 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
         \Drupal::messenger()->addMessage($message, 'warning');
         $form['#access'] = FALSE;
       }
-      // Get query string.
-      $query = \Drupal::request()->query->all();
-      $domain_set = FALSE;
-      foreach ($query as $key => $value) {
-        if ($key == 'field_domain_access_target_id') {
-          $domain_set = TRUE;
-        }
-      }
-      if (!$domain_set) {
-        // Redirect to query string "field_domain_access_target_id=oit_colorado_edu".
-        $query['field_domain_access_target_id'] = 'oit_colorado_edu';
-        $query = http_build_query($query);
-        $response = new RedirectResponse('/admin/content?' . $query);
-        $response->send();
-      }
+      _oit_form_set_domain('content', 'oit_colorado_edu');
     }
   }
 
@@ -468,6 +460,27 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
  */
 function _oit_set_oit_domain(&$form, FormStateInterface $form_state) {
   _oit_set_domain_submit($form, $form_state, 'oit', 'oit_colorado_edu');
+}
+
+/**
+ * Set domain on view filter on content pages.
+ */
+function _oit_form_set_domain($page, $field_domain) {
+  // Get query string.
+  $query = \Drupal::request()->query->all();
+  $domain_set = FALSE;
+  foreach ($query as $key => $value) {
+    if ($key == 'field_domain_access_target_id') {
+      $domain_set = TRUE;
+    }
+  }
+  if (!$domain_set) {
+    // Redirect to query string "field_domain_access_target_id=oit_colorado_edu".
+    $query['field_domain_access_target_id'] = $field_domain;
+    $query = http_build_query($query);
+    $response = new RedirectResponse('/admin/' . $page .'?' . $query);
+    $response->send();
+  }
 }
 
 /**
