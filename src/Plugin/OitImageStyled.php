@@ -36,6 +36,7 @@ class OitImageStyled {
    */
   public function __construct($image_id, $style = "max_325x325", $filefield_replace = '', ?EntityTypeManagerInterface $entityTypeManager = NULL) {
     $style = ImageStyle::load($style);
+    $image_url = '';
     if (!empty($image_id)) {
       $photo_file = $entityTypeManager->getStorage('file')->loadUnchanged($image_id);
       $photo_uri = $photo_file->getFileUri();

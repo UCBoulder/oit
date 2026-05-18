@@ -175,6 +175,7 @@ class ServiceHealth {
    * Reduce duplicates.
    */
   public function removeDuplicates($category) {
+    $service_track = [];
     foreach ($category as $sh_key => $cat) {
       $status = $cat['status'];
       $service = $cat['service'];

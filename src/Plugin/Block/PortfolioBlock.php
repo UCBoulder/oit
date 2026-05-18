@@ -44,6 +44,7 @@ class PortfolioBlock extends BlockBase {
       'Manager',
       'Project Overview',
     ];
+    $rows = [];
     if (isset($data['rows'])) {
       $n = 0;
       foreach ($data['rows'] as $row) {
@@ -69,6 +70,7 @@ class PortfolioBlock extends BlockBase {
             $statusname
           );
           $open = $n == 0 ? 'open' : '';
+          $project = '';
           if (!empty($description)) {
             $project = sprintf(
               '<details %s class="no-deets-controls"><summary>%s</summary><p>%s</p></details>',

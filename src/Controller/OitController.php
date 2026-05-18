@@ -499,6 +499,7 @@ class OitController extends ControllerBase {
     $view_result = $view->result;
     // Access field data from the view results.
     $n = 0;
+    $r = [];
     foreach ($view_result as $row) {
       foreach ($view->field as $field) {
         $r[$n]['#markup'] = '<span class="truncate">' . $field->advancedRender($row)->__toString() . '</span>';
@@ -524,6 +525,7 @@ class OitController extends ControllerBase {
     $category = $service_dashboard->serviceHealthLookup();
     $status_key = $service_dashboard->serviceHealthStatusByKey();
     $clean_category = $service_dashboard->removeDuplicates($category);
+    $rows = [];
     foreach ($clean_category as $st) {
       $cat_key = $st['key'];
       $cat_status = $category[$cat_key]['status'];

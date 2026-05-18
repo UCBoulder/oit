@@ -87,7 +87,7 @@ class AbsoluteLinkShame extends BlockBase implements
       $nid = $thisNode->id();
       $node = $this->entityInterface->getStorage('node')->load($nid);
       $body = $node->get('body')->getString();
-      if (isset($body)) {
+      if ($body !== '') {
         preg_match('/\=[\"\']http[s]*\:\/\/oit.colorado.edu/', $body, $matches1, PREG_OFFSET_CAPTURE, 3);
         preg_match('/\=[\"\']http[s]*\:\/\/w*.?colorado.edu\/oit/', $body, $matches2, PREG_OFFSET_CAPTURE, 3);
         $match = !empty($matches1) || !empty($matches2) ? TRUE : FALSE;
