@@ -10,4 +10,4 @@ permissions:
   contents: write
 jobs:
   release:
-    uses: UCBoulder/oitid_reusable_actions/.github/workflows/releases.yml@main
+    uses: UCBoulder/oitid_reusable_actions/.github/workflows/releases.yml@6.0
