@@ -28,7 +28,9 @@ class CvsToArray {
    *   The field delimiter character used in the CSV file.
    */
   public function __construct($file, $delimiter) {
-    if (($handle = fopen($file, 'r')) !== FALSE) {
+    $this->arrayCvs = [];
+    $handle = @fopen($file, 'r');
+    if ($handle !== FALSE) {
       $i = 0;
       $arr = [];
       while (($lineArray = fgetcsv($handle, 4000, $delimiter, '"')) !== FALSE) {
@@ -39,6 +41,12 @@ class CvsToArray {
       }
       fclose($handle);
       $this->arrayCvs = $arr;
+    }
+    else {
+      \Drupal::logger('oit')->warning('CvsToArray failed to open: @file', ['@file' => $file]);
+      \Drupal::messenger()->addError('Could not retrieve Google Sheet data. The sheet may be unavailable or the URL may be invalid.');
+      $teams = \Drupal::service('oit.teamsalert');
+      $teams->sendMessage('Google Sheet fetch failed (HTTP error). URL: ' . $file);
     }
   }
 
