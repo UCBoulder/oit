@@ -45,7 +45,7 @@ services:
       - "@logger.factory"
   oit.servicehealth:
     class: Drupal\oit\Plugin\ServiceHealth
-    arguments: ["@config.factory", "@date.formatter", "@entity_type.manager"]
+    arguments: ["@config.factory", "@date.formatter", "@entity_type.manager", "@cache.default"]
   oit.redirect.add.analytics:
     class: Drupal\oit\Plugin\RedirectAddAnalytics
     arguments: ["@database", "@logger.factory"]

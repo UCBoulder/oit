@@ -118,8 +118,6 @@ class TeamsAlert {
         $this->logger->error("Issue sending Teams Message. " . $result);
       }
     }
-    // Close cURL handler.
-    curl_close($ch);
   }
 
   /**

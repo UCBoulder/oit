@@ -2,6 +2,8 @@
 
 namespace Drupal\oit\Plugin;
 
+use Drupal\Core\Cache\Cache;
+use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Datetime\DateFormatterInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
@@ -44,6 +46,13 @@ class ServiceHealth {
   protected $entityTypeManager;
 
   /**
+   * The cache backend.
+   *
+   * @var \Drupal\Core\Cache\CacheBackendInterface
+   */
+  protected CacheBackendInterface $cache;
+
+  /**
    * Constructs a new ServiceHealth object.
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
@@ -52,21 +61,42 @@ class ServiceHealth {
    *   The date formatter service.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity type manager.
+   * @param \Drupal\Core\Cache\CacheBackendInterface $cache
+   *   The cache backend.
    */
   public function __construct(
     ConfigFactoryInterface $config_factory,
     DateFormatterInterface $dateFormatter,
     EntityTypeManagerInterface $entity_type_manager,
+    CacheBackendInterface $cache,
   ) {
     $this->configFactory = $config_factory;
     $this->dateFormatter = $dateFormatter;
     $this->entityTypeManager = $entity_type_manager;
+    $this->cache = $cache;
   }
 
   /**
-   * Service Alert health.
+   * Service Alert health — thin cache wrapper.
    */
-  public function serviceHealthLookup() {
+  public function serviceHealthLookup(): array {
+    $cid = 'oit:service_health_lookup';
+    $cached = $this->cache->get($cid);
+    if ($cached) {
+      return $cached->data;
+    }
+    $category = $this->buildServiceHealthData();
+    $this->cache->set($cid, $category, Cache::PERMANENT, [
+      'node_list:service_alert',
+      'taxonomy_term_list:service_dashboard_category',
+    ]);
+    return $category;
+  }
+
+  /**
+   * Build service alert health data (uncached).
+   */
+  protected function buildServiceHealthData(): array {
     $category = [];
     $entityType = 'node';
     $bundle = 'service_alert';
@@ -74,27 +104,47 @@ class ServiceHealth {
     $fieldName = 'field_service_alert_dash_cat';
 
     $entity_storage = $this->entityTypeManager->getStorage('taxonomy_term');
-    $dashboard_categories = $entity_storage->loadTree($taxonomyName);
+    // Pass TRUE to get full term entities (avoids N+1 load() calls).
+    $dashboard_categories = $entity_storage->loadTree($taxonomyName, 0, NULL, TRUE);
 
-    foreach ($dashboard_categories as $dashboard_category) {
-      $dashboard_category_key = $dashboard_category->tid;
-      $dashboard_category_name = $dashboard_category->name;
-      // Setup array with proper key with category.
-      $sa_dashboard_key_category[$dashboard_category_key] = $dashboard_category_name;
-      // Load full term to get weight field.
-      $term_storage = $this->entityTypeManager->getStorage('taxonomy_term');
-      $term = $term_storage->load($dashboard_category_key);
+    // First pass: collect all node IDs per category.
+    $category_queries = [];
+    $node_storage = $this->entityTypeManager->getStorage($entityType);
+    foreach ($dashboard_categories as $term) {
+      $dashboard_category_key = $term->id();
+      $dashboard_category_name = $term->label();
       $dashboard_category_weight = $term->hasField('field_weight') && !$term->get('field_weight')->isEmpty()
         ? (int) $term->get('field_weight')->value
         : 10;
-      $entity_storage = $this->entityTypeManager->getStorage('node');
-      $query = $entity_storage->getQuery()
+
+      $nids = $node_storage->getQuery()
         ->accessCheck(FALSE)
         ->condition('type', $bundle)
         ->condition($fieldName, $dashboard_category_key)
         ->condition('status', 1)
-        ->sort('created', 'ASC');
-      $results = $query->execute();
+        ->sort('created', 'ASC')
+        ->execute();
+
+      $category_queries[$dashboard_category_key] = [
+        'name' => $dashboard_category_name,
+        'weight' => $dashboard_category_weight,
+        'nids' => $nids,
+      ];
+    }
+
+    // Bulk-load all nodes at once.
+    $all_nids = array_merge(...array_map(
+      fn($q) => array_values($q['nids']),
+      array_values($category_queries)
+    ));
+    $nodes = !empty($all_nids) ? $node_storage->loadMultiple($all_nids) : [];
+
+    // Second pass: build category data using the pre-loaded node map.
+    foreach ($category_queries as $dashboard_category_key => $query_data) {
+      $dashboard_category_name = $query_data['name'];
+      $dashboard_category_weight = $query_data['weight'];
+      $results = $query_data['nids'];
+
       if (empty($results)) {
         $category["0-$dashboard_category_name"] = [
           'service' => $dashboard_category_name,
@@ -107,9 +157,9 @@ class ServiceHealth {
         ];
       }
       else {
+        // Last node wins per category — intentional product behavior.
         foreach ($results as $result) {
-          $node_storage = $this->entityTypeManager->getStorage($entityType);
-          $sa = $node_storage->load($result);
+          $sa = $nodes[$result];
           $sa_button = $this->nidLink($result, $this->t('View'), ['button']);
           $sa_link = $this->nidLink($result, $dashboard_category_name . ' - ' . $this->t('View Service Alert'), ['text-color--blue']);
           $created = $sa->get('created')->value;
@@ -153,7 +203,6 @@ class ServiceHealth {
           }
         }
       }
-
     }
 
     return $category;
@@ -221,21 +270,16 @@ class ServiceHealth {
 
   /**
    * Link to a node.
+   *
+   * Builds the anchor tag manually to avoid Link::toString() bubbling cache
+   * metadata (domain context from domain_source) into the render pipeline.
    */
-  private function nidLink($nid, $text, $class = []) {
-    $id = strtolower(str_replace(' ', '', $text));
-    // Create Link to node.
-    $link_options = [
-      'attributes' => [
-        'class' => $class,
-        'id' => $id,
-        'title' => $text,
-      ],
-    ];
-    $url = Url::fromRoute('entity.node.canonical', ['node' => $nid]);
-    $url->setOptions($link_options);
-    $link = Link::fromTextAndUrl($text, $url);
-    return $link->toString();
+  private function nidLink(int $nid, string $text, array $class = []): string {
+    $id = strtolower(str_replace(' ', '', strip_tags((string) $text)));
+    $path = Url::fromRoute('entity.node.canonical', ['node' => $nid])->toString();
+    $class_attr = $class ? ' class="' . implode(' ', $class) . '"' : '';
+    $title_attr = ' title="' . htmlspecialchars((string) $text, ENT_QUOTES) . '"';
+    return '<a href="' . $path . '" id="' . $id . '"' . $class_attr . $title_attr . '>' . $text . '</a>';
   }
 
   /**

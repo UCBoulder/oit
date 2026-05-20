@@ -3,6 +3,7 @@
 namespace Drupal\oit\Plugin\Block;
 
 use Drupal\Core\Block\BlockBase;
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\oit\Plugin\ServiceHealth;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -63,6 +64,16 @@ class FrontServiceHealth extends BlockBase implements
   public function __construct(array $configuration, $plugin_id, $plugin_definition, ServiceHealth $service_health) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->serviceHealth = $service_health;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getCacheTags(): array {
+    return Cache::mergeTags(parent::getCacheTags(), [
+      'node_list:service_alert',
+      'taxonomy_term_list:service_dashboard_category',
+    ]);
   }
 
   /**
@@ -137,11 +148,6 @@ class FrontServiceHealth extends BlockBase implements
       '#context' => [
         'content' => $services,
         'servicesLink' => '/service-health',
-      ],
-      '#cache' => [
-        'tags' => [
-          'node_type:service_alert',
-        ],
       ],
     ];
   }

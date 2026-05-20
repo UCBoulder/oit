@@ -483,10 +483,10 @@ function _oit_form_set_domain($page, $field_domain) {
     }
   }
   if (!$domain_set) {
-    // Redirect to query string "field_domain_access_target_id=oit_colorado_edu".
+    // Redirect to query string with field_domain_access_target_id.
     $query['field_domain_access_target_id'] = $field_domain;
     $query = http_build_query($query);
-    $response = new RedirectResponse('/admin/' . $page .'?' . $query);
+    $response = new RedirectResponse('/admin/' . $page . '?' . $query);
     $response->send();
   }
 }

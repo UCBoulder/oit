@@ -188,12 +188,8 @@ class LatestAutoBan {
     // Check for errors.
     if ($response === FALSE) {
       $error = curl_error($ch);
-      curl_close($ch);
       throw new \Exception("cURL error: $error");
     }
-
-    // Close the cURL handle.
-    curl_close($ch);
 
     return $response;
   }
