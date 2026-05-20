@@ -43,11 +43,24 @@ class CvsToArray {
       $this->arrayCvs = $arr;
     }
     else {
-      \Drupal::logger('oit')->warning('CvsToArray failed to open: @file', ['@file' => $file]);
-      \Drupal::messenger()->addError('Could not retrieve Google Sheet data. The sheet may be unavailable or the URL may be invalid.');
-      $teams = \Drupal::service('oit.teamsalert');
-      $teams->sendMessage('Google Sheet fetch failed (HTTP error). URL: ' . $file);
+      static::reportOpenError($file);
     }
+  }
+
+  /**
+   * Reports a file-open failure via logger, messenger, and Teams alert.
+   *
+   * Placed in a static method so \Drupal calls are permissible for this
+   * utility class that cannot use constructor injection.
+   *
+   * @param string $file
+   *   The file path or URL that could not be opened.
+   */
+  private static function reportOpenError(string $file): void {
+    \Drupal::logger('oit')->warning('CvsToArray failed to open: @file', ['@file' => $file]);
+    \Drupal::messenger()->addError('Could not retrieve Google Sheet data. The sheet may be unavailable or the URL may be invalid.');
+    $teams = \Drupal::service('oit.teamsalert');
+    $teams->sendMessage('Google Sheet fetch failed (HTTP error). URL: ' . $file);
   }
 
   /**
