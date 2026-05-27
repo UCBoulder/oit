@@ -2,6 +2,7 @@
 
 namespace Drupal\oit\Plugin;
 
+use Drupal\Core\Render\Markup;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
@@ -274,12 +275,12 @@ class ServiceHealth {
    * Builds the anchor tag manually to avoid Link::toString() bubbling cache
    * metadata (domain context from domain_source) into the render pipeline.
    */
-  private function nidLink(int $nid, string $text, array $class = []): string {
+  private function nidLink(int $nid, string $text, array $class = []): Markup {
     $id = strtolower(str_replace(' ', '', strip_tags((string) $text)));
     $path = Url::fromRoute('entity.node.canonical', ['node' => $nid])->toString();
     $class_attr = $class ? ' class="' . implode(' ', $class) . '"' : '';
     $title_attr = ' title="' . htmlspecialchars((string) $text, ENT_QUOTES) . '"';
-    return '<a href="' . $path . '" id="' . $id . '"' . $class_attr . $title_attr . '>' . $text . '</a>';
+    return Markup::create('<a href="' . $path . '" id="' . $id . '"' . $class_attr . $title_attr . '>' . $text . '</a>');
   }
 
   /**
