@@ -83,7 +83,7 @@ class ServiceMaintenanceCompletion {
     foreach ($fetch as $nid) {
       $node = $this->entityTypeManager->getStorage('node')->load($nid);
       $end_date = $node->get('field_service_alert_iss_resolve1')->getValue();
-      $end_timestamp = strtotime($end_date[0]['value']);
+      $end_timestamp = strtotime($end_date[0]['value'] . ' UTC');
       $now = time();
       // If the end date is past now, set to service maintenance completed.
       if ($now > $end_timestamp) {
