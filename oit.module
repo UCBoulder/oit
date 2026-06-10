@@ -6,6 +6,8 @@
  */
 
 use Drupal\block\Entity\Block;
+use Drupal\Component\Utility\Html;
+use Drupal\Component\Utility\UrlHelper;
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Cache\Cache;
@@ -133,7 +135,7 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
   if ($form_id == 'captcha_point_add_form') {
     // Get 'webform_id' from query string.
     $request = \Drupal::request();
-    $webform_id = $request->get('webform_id');
+    $webform_id = $request->query->get('webform_id');
     $webform_id = is_numeric($webform_id) ? intval($webform_id) : 0;
 
     if ($webform_id == 0) {
@@ -202,7 +204,12 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
         $query['field_domain_access_target_id'] = 'oit_colorado_edu';
         $query = http_build_query($query);
         $response = new RedirectResponse('/admin/content?' . $query);
+        // @todo (C1): Calling send() inside hook_form_alter() bypasses the Symfony
+        // kernel response pipeline. The proper fix is to convert this to a
+        // #submit handler or KernelEvents::RESPONSE subscriber. Until then,
+        // return immediately after send() so no further form-build code runs.
         $response->send();
+        return;
       }
     }
   }
@@ -299,7 +306,7 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
       $form['field_tut_comp_type_d7']['#group'] = 'type_service';
       $form['field_software_download_link']['#group'] = 'type_service';
       $request = \Drupal::request();
-      $request_type = $request->get("type");
+      $request_type = $request->query->get("type");
       if (isset($request_type)) {
         // Show/hide fields that apply/don't apply to the service type.
         if ($request_type == "service") {
@@ -406,18 +413,18 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
       if (!$show_login_form) {
         // Cache is breaking the redirect, so kill it.
         \Drupal::service('page_cache_kill_switch')->trigger();
-        $dest_get = \Drupal::request()->get('dest') != NULL ? Xss::filter(\Drupal::request()->get('dest')) : '';
-        $destination_get = \Drupal::request()->get('destination') != NULL ? Xss::filter(\Drupal::request()->get('destination')) : '';
-        $destination = "";
-        if (!empty($dest_get)) {
-          $destination = '?destination=' . preg_replace('/https:\/\/[^\/]+/', '', $dest_get);
+        $dest_get = \Drupal::request()->query->get('dest') ?? '';
+        $destination_get = \Drupal::request()->query->get('destination') ?? '';
+        $destination = '';
+        if (!empty($dest_get) && !UrlHelper::isExternal($dest_get)) {
+          $destination = '?destination=' . urlencode(Xss::filter($dest_get));
         }
-        if (!empty($destination_get)) {
-          $destination = '?destination=' . preg_replace('/https:\/\/[^\/]+/', '', $destination_get);
+        if (!empty($destination_get) && !UrlHelper::isExternal($destination_get)) {
+          $destination = '?destination=' . urlencode(Xss::filter($destination_get));
         }
         // Drupal 10 add log message with $destination.
         \Drupal::logger('oit')->notice('User login form redirecting to saml_login with destination: @destination', ['@destination' => $destination]);
-        $response = new RedirectResponse('/saml_login' . $destination, 301);
+        $response = new RedirectResponse('/saml_login' . $destination, 302);
         $response->send();
         unset($form['name']);
         unset($form['pass']);
@@ -487,7 +494,12 @@ function _oit_form_set_domain($page, $field_domain) {
     $query['field_domain_access_target_id'] = $field_domain;
     $query = http_build_query($query);
     $response = new RedirectResponse('/admin/' . $page . '?' . $query);
+    // @todo (C1): Calling send() inside hook_form_alter() bypasses the Symfony
+    // kernel response pipeline. The proper fix is to convert this to a
+    // #submit handler or KernelEvents::RESPONSE subscriber. Until then,
+    // return immediately after send() so no further form-build code runs.
     $response->send();
+    return;
   }
 }
 
@@ -716,7 +728,7 @@ function oit_tokens($type, $tokens, array $data, array $options, BubbleableMetad
               }
             }
           }
-          $replacements[$original] = $user_name;
+          $replacements[$original] = Html::escape($user_name);
           break;
 
         case 'tweet_pic':
@@ -878,7 +890,7 @@ function oit_responsive_menu_off_canvas_tree_alter(array &$rendered_tree) {
  * Create social link.
  */
 function oit_social_links($title, $url) {
-  return "<a class='social-icon $title' title='$title' href='$url'><img alt='' src='/themes/custom/dingo/images/icons/$title.svg'></a>";
+  return "<a class='social-icon " . Html::escape($title) . "' title='" . Html::escape($title) . "' href='" . Html::escape($url) . "'><img alt='' src='/themes/custom/dingo/images/icons/" . Html::escape($title) . ".svg'></a>";
 }
 
 /**

@@ -106,7 +106,7 @@ class TeamsAlert {
     curl_setopt($ch, CURLOPT_POSTFIELDS, $teams_card);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
     curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
-    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 30);
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
       'Content-Type: application/json',
       'Content-Length: ' . strlen($teams_card),

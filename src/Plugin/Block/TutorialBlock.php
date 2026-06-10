@@ -118,6 +118,8 @@ class TutorialBlock extends BlockBase implements
       }
       return [
         '#type' => 'inline_template',
+        // The 'raw' filter is safe here: all variables are processed through
+        // check_markup() (Drupal's text filter pipeline) before rendering.
         '#template' => '<div class="flex">
         <div class="flex-one-half">{{ icon | raw }}</div>
         <div class="flex-one-half tutorial-layout">
