@@ -417,10 +417,10 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
         $destination_get = \Drupal::request()->get('destination') ?? '';
         $destination = '';
         if (!empty($dest_get) && !UrlHelper::isExternal($dest_get)) {
-          $destination = '?destination=' . Xss::filter($dest_get);
+          $destination = '?destination=' . urlencode(Xss::filter($dest_get));
         }
         if (!empty($destination_get) && !UrlHelper::isExternal($destination_get)) {
-          $destination = '?destination=' . Xss::filter($destination_get);
+          $destination = '?destination=' . urlencode(Xss::filter($destination_get));
         }
         // Drupal 10 add log message with $destination.
         \Drupal::logger('oit')->notice('User login form redirecting to saml_login with destination: @destination', ['@destination' => $destination]);
