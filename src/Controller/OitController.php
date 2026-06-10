@@ -360,7 +360,7 @@ class OitController extends ControllerBase {
   private function deniedContent() {
     $uri = $this->requestStack->getRequestUri();
     if ($uri) {
-      $requested_path = '?destination=' . Html::escape($uri);
+      $requested_path = '?destination=' . rawurlencode($uri);
     }
     else {
       $requested_path = '';
