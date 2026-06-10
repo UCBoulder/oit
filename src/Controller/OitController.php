@@ -2,7 +2,6 @@
 
 namespace Drupal\oit\Controller;
 
-use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Config\ConfigFactory;
 use Drupal\Core\Controller\ControllerBase;

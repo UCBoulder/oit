@@ -135,7 +135,7 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
   if ($form_id == 'captcha_point_add_form') {
     // Get 'webform_id' from query string.
     $request = \Drupal::request();
-    $webform_id = $request->get('webform_id');
+    $webform_id = $request->query->get('webform_id');
     $webform_id = is_numeric($webform_id) ? intval($webform_id) : 0;
 
     if ($webform_id == 0) {
@@ -306,7 +306,7 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
       $form['field_tut_comp_type_d7']['#group'] = 'type_service';
       $form['field_software_download_link']['#group'] = 'type_service';
       $request = \Drupal::request();
-      $request_type = $request->get("type");
+      $request_type = $request->query->get("type");
       if (isset($request_type)) {
         // Show/hide fields that apply/don't apply to the service type.
         if ($request_type == "service") {
@@ -413,8 +413,8 @@ function oit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
       if (!$show_login_form) {
         // Cache is breaking the redirect, so kill it.
         \Drupal::service('page_cache_kill_switch')->trigger();
-        $dest_get = \Drupal::request()->get('dest') ?? '';
-        $destination_get = \Drupal::request()->get('destination') ?? '';
+        $dest_get = \Drupal::request()->query->get('dest') ?? '';
+        $destination_get = \Drupal::request()->query->get('destination') ?? '';
         $destination = '';
         if (!empty($dest_get) && !UrlHelper::isExternal($dest_get)) {
           $destination = '?destination=' . urlencode(Xss::filter($dest_get));
