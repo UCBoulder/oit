@@ -11,7 +11,6 @@ use Drupal\Core\Extension\ModuleExtensionList;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\PageCache\ResponsePolicy\KillSwitch;
 use Drupal\Core\Render\RendererInterface;
-use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\State\StateInterface;
 use Drupal\Core\Url;
 use Drupal\oit\Plugin\BlockUuidQuery;
@@ -27,13 +26,6 @@ use Symfony\Component\HttpFoundation\RequestStack;
  * Controller routines for zap routes.
  */
 class OitController extends ControllerBase {
-
-  /**
-   * Object used to get request data, such as the hash.
-   *
-   * @var \Drupal\Core\Session\AccountInterface
-   */
-  protected $account;
 
   /**
    * Object used to get request data, such as the hash.
@@ -115,8 +107,6 @@ class OitController extends ControllerBase {
   /**
    * Constructs request stuff.
    *
-   * @param \Drupal\Core\Session\AccountInterface $account
-   *   Interact with Private temporary storage.
    * @param \Drupal\oit\Plugin\BlockUuidQuery $block_uuid_query
    *   Get block uuid.
    * @param \Symfony\Component\HttpFoundation\RequestStack $request_stack
@@ -141,7 +131,6 @@ class OitController extends ControllerBase {
    *   The state service.
    */
   public function __construct(
-    AccountInterface $account,
     BlockUuidQuery $block_uuid_query,
     RequestStack $request_stack,
     LoggerChannelFactoryInterface $logger_factory,
@@ -154,7 +143,6 @@ class OitController extends ControllerBase {
     ShortcodeIcon $shortcode_svg_icon,
     StateInterface $state,
   ) {
-    $this->account = $account;
     $this->requestStack = $request_stack->getCurrentRequest();
     $this->blockUuidQuery = $block_uuid_query;
     $this->loggerFactory = $logger_factory->get('oit');
@@ -173,7 +161,6 @@ class OitController extends ControllerBase {
    */
   public static function create(ContainerInterface $container): self {
     return new self(
-      $container->get('current_user'),
       $container->get('oit.block.uuid.query'),
       $container->get('request_stack'),
       $container->get('logger.factory'),
@@ -382,16 +369,6 @@ class OitController extends ControllerBase {
       $this->t('The CU Buffalo meets Gandalf and must provide his Identikey in order to continue along his path.')
     );
     return $content;
-  }
-
-  /**
-   * Create page to forward user to their profile.
-   */
-  public function oitUserEdit() {
-    $nid = $this->account->id();
-    $path = Url::fromRoute('entity.user.edit_form', ['user' => $nid])->toString();
-
-    return new RedirectResponse($path);
   }
 
   /**
