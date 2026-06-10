@@ -106,47 +106,6 @@ class OitCommands extends DrushCommands {
   }
 
   /**
-   * Clean banned ip's.
-   *
-   * @param int $keep
-   *   Number of banned IPs to keep (default: 300).
-   *
-   * @command oit:ban-ip-clean
-   * @aliases oit:bic
-   */
-  public function bannedIpClean($keep = 300) {
-    $query = $this->database->select('ban_ip', 'b');
-    $query->fields('b', ['iid']);
-    $query->orderBy('iid', 'ASC');
-    $result = $query->execute()->fetchAll();
-
-    $count = count($result);
-
-    if ($count <= $keep) {
-      $this->messenger->addMessage('Banned IP\'s are less than the keep value.');
-      return;
-    }
-
-    $how_many_to_remove = $count - $keep;
-
-    $result_remove = [];
-    $i = 0;
-    foreach ($result as $row) {
-      if ($i <= $how_many_to_remove) {
-        $result_remove[] = $row->iid;
-      }
-      $i++;
-    }
-
-    foreach ($result_remove as $row) {
-      $this->database->delete('ban_ip')
-        ->condition('iid', $row)
-        ->execute();
-    }
-    $this->messenger->addMessage('Banned IP\'s cleaned.');
-  }
-
-  /**
    * Clean users that haven't accessed the site in over a year.
    *
    * @param int $limit
