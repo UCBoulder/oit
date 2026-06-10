@@ -206,9 +206,12 @@ class AbuseConfirmForm extends ConfirmFormBase {
    */
   private function ipWhitelist($ip) {
     $autoban_settings = $this->configFactory->getEditable('autoban.settings');
-    $whitelist = $autoban_settings->get('autoban_whitelist');
-    $whitelist .= "\n" . $ip;
-    $autoban_settings->set('autoban_whitelist', $whitelist)->save();
+    $whitelist_raw = $autoban_settings->get('autoban_whitelist') ?? '';
+    $entries = array_filter(array_map('trim', explode("\n", $whitelist_raw)));
+    if (!in_array($ip, $entries, TRUE)) {
+      $entries[] = $ip;
+      $autoban_settings->set('autoban_whitelist', implode("\n", $entries))->save();
+    }
   }
 
   /**

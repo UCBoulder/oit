@@ -2,6 +2,7 @@
 
 namespace Drupal\oit\Plugin;
 
+use Drupal\Component\Utility\Html;
 use Drupal\Core\Config\ConfigFactory;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
@@ -159,11 +160,12 @@ class TopPages {
     // Get current user ip.
     $ip = $this->requestStack->getCurrentRequest()->getClientIp();
     $autoban_settings = $this->configFactory->getEditable('autoban.settings');
-    $whitelist = $autoban_settings->get('autoban_whitelist');
-    // Add ip to whitelist if it doesn't already exist.
-    if (!str_contains($whitelist, $ip)) {
-      $whitelist .= "\n" . $ip;
-      $autoban_settings->set('autoban_whitelist', $whitelist)->save();
+    $whitelist_raw = $autoban_settings->get('autoban_whitelist') ?? '';
+    $entries = array_filter(array_map('trim', explode("\n", $whitelist_raw)));
+    // Add ip to whitelist if it doesn't already exist (exact match).
+    if (!in_array($ip, $entries, TRUE)) {
+      $entries[] = $ip;
+      $autoban_settings->set('autoban_whitelist', implode("\n", $entries))->save();
       $this->logger->debug('Added ip to whitelist: ' . $ip);
     }
   }
@@ -292,7 +294,7 @@ class TopPages {
       $top_list_html = "<h2><a href='$block_url'>$block_title</a></h2><ul class='$block_class gray-links force-list-style'>\n";
 
       foreach ($top_pages as $page) {
-        $top_list_html .= '<li class="truncate"><a href="' . $page['url'] . '">' . $page['title'] . "</a></li>\n";
+        $top_list_html .= '<li class="truncate"><a href="' . Html::escape($page['url']) . '">' . Html::escape($page['title']) . "</a></li>\n";
       }
 
       $top_list_html .= '</ul>';
@@ -327,8 +329,12 @@ class TopPages {
     if ($response_code == 200) {
       $page = $response->getBody()->getContents();
 
-      preg_match("/<title>(.*)<\/title>/i", $page, $matches);
-      $title = $matches[1];
+      if (preg_match("/<title>(.*?)<\/title>/is", $page, $matches)) {
+        $title = $matches[1];
+      }
+      else {
+        $title = '';
+      }
       $title = explode(' | ', $title)[0];
 
       // Make sure no redirect to SSO login.

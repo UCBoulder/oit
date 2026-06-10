@@ -181,6 +181,8 @@ class LatestAutoBan {
     ]);
 
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 30);
 
     // Make the call.
     $response = curl_exec($ch);

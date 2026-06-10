@@ -2,6 +2,7 @@
 
 namespace Drupal\oit\Controller;
 
+use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Config\ConfigFactory;
 use Drupal\Core\Controller\ControllerBase;
@@ -357,9 +358,9 @@ class OitController extends ControllerBase {
    *   HTML string for the denied page body.
    */
   private function deniedContent() {
-    if ($_SERVER["REQUEST_URI"]) {
-      $clean_uri = Xss::filter($_SERVER["REQUEST_URI"]);
-      $requested_path = '?destination=' . $clean_uri;
+    $uri = $this->requestStack->getRequestUri();
+    if ($uri) {
+      $requested_path = '?destination=' . Html::escape($uri);
     }
     else {
       $requested_path = '';
@@ -390,9 +391,7 @@ class OitController extends ControllerBase {
     $nid = $this->account->id();
     $path = Url::fromRoute('entity.user.edit_form', ['user' => $nid])->toString();
 
-    $response = new RedirectResponse($path);
-    $response->send();
-    exit;
+    return new RedirectResponse($path);
   }
 
   /**

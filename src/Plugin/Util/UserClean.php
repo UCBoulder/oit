@@ -70,8 +70,9 @@ class UserClean {
       foreach ($results as $uid) {
         $user = $user_storage->load($uid);
         if ($user) {
-          // Do not remove test users.
-          if (strpos($user->getAccountName(), 'thereal') !== 0) {
+          // Do not remove test users or administrators.
+          $user_roles = $user->getRoles();
+          if (strpos($user->getAccountName(), 'thereal') !== 0 && !in_array('administrator', $user_roles, TRUE)) {
             $user->delete();
           }
         }

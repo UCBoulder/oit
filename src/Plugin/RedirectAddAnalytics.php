@@ -59,11 +59,9 @@ class RedirectAddAnalytics {
       $path = $redirect->redirect_source__path;
       $query = $this->connection->update('redirect');
       $query->condition('rid', $redirect->rid);
+      $separator = str_contains($uri, '?') ? '&' : '?';
       $query->fields([
-        'redirect_redirect__uri' => $uri .
-        '?utm_source=' .
-        $path .
-        '&utm_campaign=redirect',
+        'redirect_redirect__uri' => $uri . $separator . 'utm_source=' . rawurlencode($path) . '&utm_campaign=redirect',
       ]);
       $query->execute();
     }

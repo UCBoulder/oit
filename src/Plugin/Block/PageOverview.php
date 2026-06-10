@@ -150,6 +150,8 @@ class PageOverview extends BlockBase implements
       }
       return [
         '#type' => 'inline_template',
+        // The 'raw' filter is safe here: $summary is assembled from
+        // check_markup()-processed content (Drupal's text filter pipeline).
         '#template' => '{{ summary | raw }} ',
         '#context' => [
           'summary' => $summary,

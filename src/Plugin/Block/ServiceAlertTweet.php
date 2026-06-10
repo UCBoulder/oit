@@ -124,6 +124,9 @@ class ServiceAlertTweet extends BlockBase implements
 
     $route_match = $this->routeMatchInterface->getRawParameters()->getIterator();
 
+    // Role machine name 'service_alert_er_' is correct — trailing underscore
+    // is intentional. See config/default/user.role.service_alert_er_.yml
+    // (label: 'Service Alert(er)').
     if ($route_match->key() != 'node' || (!in_array('administrator', $roles) && !in_array('oit_administration', $roles) && !in_array('service_alert_er_', $roles))) {
       return [];
     }

@@ -2,6 +2,7 @@
 
 namespace Drupal\oit\Plugin\Block;
 
+use Drupal\Component\Utility\Html;
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
@@ -97,7 +98,7 @@ class FrontServiceHealth extends BlockBase implements
           $link = !empty($category[$service_key]['link']) ? $category[$service_key]['link'] : '';
           $services .= "<li class='truncate'>$svg ";
           if (empty($link)) {
-            $services .= "<a href='/service-health#$service_name_id'>$service_name</a>";
+            $services .= "<a href='/service-health#" . Html::escape($service_name_id) . "'>" . Html::escape($service_name) . "</a>";
           }
           else {
             $services .= "$link";
@@ -133,7 +134,7 @@ class FrontServiceHealth extends BlockBase implements
         $link = !empty($category[$service_key]['link']) ? $category[$service_key]['link'] : '';
         $services .= "<li class='truncate'>$svg ";
         if (empty($link)) {
-          $services .= "<a href='/service-health#$service_name_id'>$service_name</a>";
+          $services .= "<a href='/service-health#" . Html::escape($service_name_id) . "'>" . Html::escape($service_name) . "</a>";
         }
         else {
           $services .= "$link";

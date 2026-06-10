@@ -6,7 +6,7 @@ use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\oit\Plugin\BlockUuidQuery;
-use Drupal\shortcode_svg\Plugin\ShortcodeIcon;
+use Drupal\shortcode_svg\ShortcodeIcon;
 use Drupal\views\Views;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -38,7 +38,7 @@ class FrontActionLinks extends BlockBase implements
   /**
    * Call shortcode svg icon.
    *
-   * @var \Drupal\shortcode_svg\Plugin\ShortcodeIcon
+   * @var \Drupal\shortcode_svg\ShortcodeIcon
    */
   protected $shortcodeSvgIcon;
 
@@ -80,7 +80,7 @@ class FrontActionLinks extends BlockBase implements
    *   Invokes renderer.
    * @param \Drupal\oit\Plugin\BlockUuidQuery $block_uuid_query
    *   Loads block.
-   * @param \Drupal\shortcode_svg\Plugin\ShortcodeIcon $shortcode_svg_icon
+   * @param \Drupal\shortcode_svg\ShortcodeIcon $shortcode_svg_icon
    *   Call shortcode svg icon.
    */
   public function __construct(
