@@ -72,7 +72,7 @@ class UserClean {
         if ($user) {
           // Do not remove test users or administrators.
           $user_roles = $user->getRoles();
-          if (strpos($user->getAccountName(), 'thereal') !== 0 && !in_array('administrator', $user_roles, TRUE)) {
+          if ($user->id() !== 1 && strpos($user->getAccountName(), 'thereal') !== 0 && !in_array('administrator', $user_roles, TRUE)) {
             $user->delete();
           }
         }
