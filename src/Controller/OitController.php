@@ -16,7 +16,7 @@ use Drupal\Core\State\StateInterface;
 use Drupal\Core\Url;
 use Drupal\oit\Plugin\BlockUuidQuery;
 use Drupal\oit\Plugin\ServiceHealth;
-use Drupal\shortcode_svg\Plugin\ShortcodeIcon;
+use Drupal\shortcode_svg\ShortcodeIcon;
 use Drupal\views\Views;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -101,7 +101,7 @@ class OitController extends ControllerBase {
   /**
    * Call shortcode svg icon.
    *
-   * @var \Drupal\shortcode_svg\Plugin\ShortcodeIcon
+   * @var \Drupal\shortcode_svg\ShortcodeIcon
    */
   protected $shortcodeSvgIcon;
 
@@ -135,7 +135,7 @@ class OitController extends ControllerBase {
    *   Load service health.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   Load entity.
-   * @param \Drupal\shortcode_svg\Plugin\ShortcodeIcon $shortcode_svg_icon
+   * @param \Drupal\shortcode_svg\ShortcodeIcon $shortcode_svg_icon
    *   Call shortcode svg icon.
    * @param \Drupal\Core\State\StateInterface $state
    *   The state service.

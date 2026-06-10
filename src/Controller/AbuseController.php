@@ -15,7 +15,7 @@ use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\State\State;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Url;
-use Drupal\shortcode_svg\Plugin\ShortcodeIcon;
+use Drupal\shortcode_svg\ShortcodeIcon;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -112,7 +112,7 @@ class AbuseController extends ControllerBase {
   /**
    * Call shortcode svg icon.
    *
-   * @var \Drupal\shortcode_svg\Plugin\ShortcodeIcon
+   * @var \Drupal\shortcode_svg\ShortcodeIcon
    */
   protected $shortcodeSvgIcon;
 
@@ -133,7 +133,7 @@ class AbuseController extends ControllerBase {
    *   The renderer service.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity type manager.
-   * @param \Drupal\shortcode_svg\Plugin\ShortcodeIcon $shortcode_svg_icon
+   * @param \Drupal\shortcode_svg\ShortcodeIcon $shortcode_svg_icon
    *   The shortcode SVG icon service.
    * @param \Drupal\Core\State\State $state
    *   The state service.
