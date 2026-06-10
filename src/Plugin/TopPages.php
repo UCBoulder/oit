@@ -159,6 +159,9 @@ class TopPages {
   public function whitelistIp() {
     // Get current user ip.
     $ip = $this->requestStack->getCurrentRequest()->getClientIp();
+    if (empty($ip)) {
+      return;
+    }
     $autoban_settings = $this->configFactory->getEditable('autoban.settings');
     $whitelist_raw = $autoban_settings->get('autoban_whitelist') ?? '';
     $entries = array_filter(array_map('trim', explode("\n", $whitelist_raw)));
