@@ -10,11 +10,14 @@ use Drupal\Core\Entity\EntityViewBuilderInterface;
 use Drupal\block_content\BlockContentInterface;
 use Drupal\oit\Plugin\BlockUuidQuery;
 use Drupal\Tests\UnitTestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
 
 /**
- * @coversDefaultClass \Drupal\oit\Plugin\BlockUuidQuery
- * @group oit
+ * Tests the BlockUuidQuery plugin.
  */
+#[Group('oit')]
+#[CoversClass(BlockUuidQuery::class)]
 class BlockUuidQueryTest extends UnitTestCase {
 
   /**
