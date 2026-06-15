@@ -22,30 +22,6 @@ use Drupal\user\Entity\User;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
 /**
- * Implements hook_preprocess_HOOK().
- */
-function oit_preprocess_html(&$variables) {
-  $theme = \Drupal::service('theme.manager')->getActiveTheme()->getName();
-  if ($theme == 'gin') {
-    $title[0] = $variables['head_title']['name'] ?? '';
-    $title[1] = '';
-    if (isset($variables['head_title']['title'])) {
-      $title[1] = is_string($variables['head_title']['title']) ? $variables['head_title']['title'] : $variables['head_title']['title']->__toString();
-    }
-    $getEnv = \Drupal::service('oit.environment.icon');
-    $variables['head_title'] = $getEnv->getEnv() . ' ' . $title[1] . ' | ' . $title[0];
-  }
-
-  $user = \Drupal::currentUser();
-  $roles = $user->getRoles();
-  if (in_array('administrator', $roles)) {
-    $env = getenv('PANTHEON_ENVIRONMENT');
-    $variables['attributes']['class'][] = "env-$env";
-    $variables['#attached']['library'][] = 'oit/oit_env';
-  }
-}
-
-/**
  * Implements hook_webform_access_rules_alter().
  */
 function oit_webform_access_rules_alter(array &$access_rules) {

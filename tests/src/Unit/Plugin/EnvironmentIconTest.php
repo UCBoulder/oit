@@ -5,13 +5,17 @@ namespace Drupal\Tests\oit\Unit\Plugin;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\oit\Plugin\EnvironmentIcon;
 use Drupal\Tests\UnitTestCase as DrupalUnitTestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversMethod;
+use PHPUnit\Framework\Attributes\Group;
 
 /**
  * Unit tests for EnvironmentIcon plugin.
- *
- * @group oit
- * @coversDefaultClass \Drupal\oit\Plugin\EnvironmentIcon
  */
+#[Group('oit')]
+#[CoversClass(EnvironmentIcon::class)]
+#[CoversMethod(EnvironmentIcon::class, '__construct')]
+#[CoversMethod(EnvironmentIcon::class, 'getEnv')]
 class EnvironmentIconTest extends DrupalUnitTestCase {
 
   /**
@@ -31,9 +35,6 @@ class EnvironmentIconTest extends DrupalUnitTestCase {
 
   /**
    * Tests local environment icon.
-   *
-   * @covers ::__construct
-   * @covers ::getEnv
    */
   public function testLocalEnvironmentIcon(): void {
     // Set up environment variable.
@@ -55,9 +56,6 @@ class EnvironmentIconTest extends DrupalUnitTestCase {
 
   /**
    * Tests dev environment icon.
-   *
-   * @covers ::__construct
-   * @covers ::getEnv
    */
   public function testDevEnvironmentIcon(): void {
     putenv('PANTHEON_ENVIRONMENT=dev');
@@ -73,9 +71,6 @@ class EnvironmentIconTest extends DrupalUnitTestCase {
 
   /**
    * Tests test environment icon.
-   *
-   * @covers ::__construct
-   * @covers ::getEnv
    */
   public function testTestEnvironmentIcon(): void {
     putenv('PANTHEON_ENVIRONMENT=test');
@@ -91,9 +86,6 @@ class EnvironmentIconTest extends DrupalUnitTestCase {
 
   /**
    * Tests live environment icon with administrator.
-   *
-   * @covers ::__construct
-   * @covers ::getEnv
    */
   public function testLiveEnvironmentWithAdminIcon(): void {
     putenv('PANTHEON_ENVIRONMENT=live');
@@ -109,9 +101,6 @@ class EnvironmentIconTest extends DrupalUnitTestCase {
 
   /**
    * Tests live environment icon without administrator.
-   *
-   * @covers ::__construct
-   * @covers ::getEnv
    */
   public function testLiveEnvironmentWithoutAdminIcon(): void {
     putenv('PANTHEON_ENVIRONMENT=live');
