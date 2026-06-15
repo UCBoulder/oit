@@ -89,7 +89,7 @@ class HtmlHooksTest extends DrupalUnitTestCase {
     $hooks = new HtmlHooks($this->themeManager, $this->currentUser, $this->environmentIcon);
     $hooks->preprocessHtml($variables);
 
-    $this->assertEquals('🟢🐕  My Page | OIT', $variables['head_title']);
+    $this->assertEquals('🟢🐕 My Page | OIT', $variables['head_title']);
   }
 
   /**
