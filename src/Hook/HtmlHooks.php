@@ -42,7 +42,8 @@ class HtmlHooks {
       if (isset($variables['head_title']['title'])) {
         $title[1] = is_string($variables['head_title']['title']) ? $variables['head_title']['title'] : $variables['head_title']['title']->__toString();
       }
-      $variables['head_title'] = $this->environmentIcon->getEnv() . ' ' . $title[1] . ' | ' . $title[0];
+      $icon = trim($this->environmentIcon->getEnv());
+      $variables['head_title'] = ($icon !== '' ? ($icon . ' ') : '') . $title[1] . ' | ' . $title[0];
     }
 
     $roles = $this->currentUser->getRoles();
