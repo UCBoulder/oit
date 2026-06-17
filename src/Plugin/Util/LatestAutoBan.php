@@ -96,7 +96,7 @@ class LatestAutoBan {
     $this->teamsAlert = $teams_alert;
     $this->state = $state;
 
-    $query = $this->connection->select('ban_ip', 'bi');
+    $query = $this->connection->select('advban_ip', 'bi');
     $query->fields('bi', ['iid']);
     $query->orderBy('iid', 'DESC');
     $query->range(0, 1);
@@ -110,7 +110,7 @@ class LatestAutoBan {
    * Send a Teams message listing newly banned IPs since the last check.
    */
   public function messageLatestIps() {
-    $query = $this->connection->select('ban_ip', 'bi');
+    $query = $this->connection->select('advban_ip', 'bi');
     $query->fields('bi', ['ip']);
     $query->condition('iid', $this->lastBanId, '>');
     $result = $query->execute()->fetchAll();

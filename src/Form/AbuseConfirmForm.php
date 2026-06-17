@@ -187,13 +187,13 @@ class AbuseConfirmForm extends ConfirmFormBase {
   }
 
   /**
-   * Remove IP from the ban_ip table.
+   * Remove IP from the advban_ip table.
    *
    * @param string $ip
    *   The IP address to remove.
    */
   private function banIpRemove($ip) {
-    $this->database->delete('ban_ip')
+    $this->database->delete('advban_ip')
       ->condition('ip', $ip)
       ->execute();
   }
