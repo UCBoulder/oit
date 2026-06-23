@@ -129,17 +129,17 @@ class PortfolioDataTest extends UnitTestCase {
    */
   public function testRefreshNonEmpty(): void {
     $data = [['a'], ['b']];
+    $now = time();
     $this->cacheBackend->expects($this->once())
       ->method('set')
       ->with(
         PortfolioData::CID,
         $data,
-        $this->greaterThan(time())
+        $this->callback(fn ($expire) => is_int($expire) && $expire >= $now + PortfolioData::TTL && $expire <= $now + PortfolioData::TTL + 2)
       );
     $this->cacheTagsInvalidator->expects($this->once())
       ->method('invalidateTags')
       ->with([PortfolioData::TAG]);
-
     $service = $this->getService($data);
     $service->refresh();
   }
