@@ -75,6 +75,21 @@ class CronManager {
   }
 
   /**
+   * Warm the Portfolio block cache by re-fetching the Google Sheet.
+   *
+   * Live environment only. In non-live environments the block's cold-cache
+   * fallback fetch handles dev/test.
+   */
+  public static function refreshPortfolio() {
+    $env = getenv('PANTHEON_ENVIRONMENT');
+    if ($env !== 'live') {
+      \Drupal::logger('oit')->notice('Portfolio refresh skipped. This is the @env environment.', ['@env' => $env]);
+      return;
+    }
+    \Drupal::service('oit.portfolio')->refresh();
+  }
+
+  /**
    * Delete old news nodes that are not linked anywhere on the site.
    *
    * Live environment only. Sends Teams report and writes watchdog log.

@@ -1,0 +1,29 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - oit
+title: 'Portfolio Refresh'
+id: portfolio_refresh
+weight: 12
+module: oit
+callback: '\Drupal\oit\Services\CronManager::refreshPortfolio'
+scheduler:
+  id: crontab
+  configuration:
+    rules:
+      - '0 */8 * * *'
+    catch_up: 28800
+launcher:
+  id: serial
+  configuration:
+    timeouts:
+      lock_timeout: 3600
+    launcher:
+      thread: 0
+logger:
+  id: database
+  configuration:
+    method: '3'
+    expire: 1209600
+    retain: 1000

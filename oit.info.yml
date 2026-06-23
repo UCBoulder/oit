@@ -3,5 +3,6 @@ type: module
 description: 'Replacement for OIT General module in D7. General functionality will be placed in here.'
 dependencies:
   - drupal:block
+  - ultimate_cron:ultimate_cron
 
 core_version_requirement: ^11
