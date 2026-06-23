@@ -61,7 +61,7 @@ class PortfolioDataTest extends UnitTestCase {
        */
       private $fetched;
 
-      public function __construct($cache_backend, $cache_tags_invalidator, array $fetched) {
+      public function __construct(CacheBackendInterface $cache_backend, CacheTagsInvalidatorInterface $cache_tags_invalidator, array $fetched) {
         parent::__construct($cache_backend, $cache_tags_invalidator);
         $this->fetched = $fetched;
       }
