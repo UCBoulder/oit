@@ -97,13 +97,14 @@ class PortfolioDataTest extends UnitTestCase {
    */
   public function testGetSheetDataColdMissNonEmpty(): void {
     $data = [['a'], ['b']];
+    $now = time();
     $this->cacheBackend->method('get')->willReturn(FALSE);
     $this->cacheBackend->expects($this->once())
       ->method('set')
       ->with(
         PortfolioData::CID,
         $data,
-        $this->greaterThan(time())
+        $this->callback(fn ($expire) => is_int($expire) && $expire >= $now + PortfolioData::TTL && $expire <= $now + PortfolioData::TTL + 2)
       );
     $this->cacheTagsInvalidator->expects($this->never())->method('invalidateTags');
 
