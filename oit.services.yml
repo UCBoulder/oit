@@ -58,6 +58,9 @@ services:
   oit.domain:
     class: Drupal\oit\Plugin\Domain
     arguments: ["@token"]
+  oit.portfolio:
+    class: Drupal\oit\Services\PortfolioData
+    arguments: ['@cache.default', '@cache_tags.invalidator']
   oit.route_subscriber:
     class: Drupal\oit\Services\RouteSubscriber
     tags:

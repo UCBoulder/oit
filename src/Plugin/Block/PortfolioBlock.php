@@ -4,8 +4,10 @@ namespace Drupal\oit\Plugin\Block;
 
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Block\BlockBase;
-use Drupal\oit\Plugin\GoogleSheetsFetch;
+use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\oit\Plugin\GoogleSheetsProcess;
+use Drupal\oit\Services\PortfolioData;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * OIT Projects Portfolio block.
@@ -16,7 +18,43 @@ use Drupal\oit\Plugin\GoogleSheetsProcess;
  *   Report")
  * )
  */
-class PortfolioBlock extends BlockBase {
+class PortfolioBlock extends BlockBase implements ContainerFactoryPluginInterface {
+
+  /**
+   * The portfolio data service.
+   *
+   * @var \Drupal\oit\Services\PortfolioData
+   */
+  protected $portfolioData;
+
+  /**
+   * Constructs a new PortfolioBlock.
+   *
+   * @param array $configuration
+   *   The plugin configuration.
+   * @param string $plugin_id
+   *   The plugin ID.
+   * @param mixed $plugin_definition
+   *   The plugin definition.
+   * @param \Drupal\oit\Services\PortfolioData $portfolio_data
+   *   The portfolio data service.
+   */
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, PortfolioData $portfolio_data) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition);
+    $this->portfolioData = $portfolio_data;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition): self {
+    return new self(
+      $configuration,
+      $plugin_id,
+      $plugin_definition,
+      $container->get('oit.portfolio')
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -34,8 +72,10 @@ class PortfolioBlock extends BlockBase {
    *   Render array for the portfolio table.
    */
   public function fetchPortfolio() {
-    $fetchData = new GoogleSheetsFetch('1k4-Csp29uLZbh_g2nhuhpq3dVBgZ6zWFK20BXP1rL_s', 0, 0);
-    $gsheet_returned_data = $fetchData->getFetchedSheet();
+    // The raw sheet data is fetched and cached by the oit.portfolio service so
+    // the slow remote request happens off the request-render path (warmed by
+    // cron) rather than on every render-cache miss.
+    $gsheet_returned_data = $this->portfolioData->getSheetData();
     $processData = new GoogleSheetsProcess($gsheet_returned_data, 'a,b,c,d,e,f,g,h,i,j', 'custom');
     $data = $processData->getProcessedData();
     $header = [
@@ -121,6 +161,14 @@ class PortfolioBlock extends BlockBase {
       '#attached' => [
         'library' => ['oit/table_search', 'oit/oit_projects'],
       ],
+    ];
+    // Set a single top-level cache entry so the tag bubbles to the node page
+    // render cache, the anonymous Internal Page Cache and the Pantheon Global
+    // CDN. The max-age is a freshness backstop only — the remote fetch is gated
+    // behind the oit.portfolio data cache, not this value.
+    $html['#cache'] = [
+      'tags' => [PortfolioData::TAG],
+      'max-age' => PortfolioData::TTL,
     ];
     return $html;
   }
