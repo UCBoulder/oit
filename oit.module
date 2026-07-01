@@ -21,16 +21,6 @@ use Drupal\user\Entity\User;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
 /**
- * Implements hook_entity_create().
- */
-function oit_entity_create(EntityInterface $entity) {
-  if ($entity->getEntityType()->getBundleEntityType() == 'node_type' && $entity->getType() == 'webform') {
-    // Set access control set to Authenticated.
-    $entity->set('field_access_control_2', '475');
-  }
-}
-
-/**
  * Implements hook_preprocess().
  */
 function oit_preprocess(&$variables, $hook) {
