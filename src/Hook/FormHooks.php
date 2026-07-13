@@ -379,15 +379,15 @@ class FormHooks {
           $destination = $this->buildLoginDestination($dest_get, $destination_get);
           // Drupal 10 add log message with $destination.
           $this->loggerFactory->get('oit')->notice('User login form redirecting to saml_login with destination: @destination', ['@destination' => $destination]);
-          $response = new RedirectResponse('/saml_login' . $destination, 302);
+          $response = new RedirectResponse('/saml/login' . $destination, 302);
           $response->send();
           unset($form['name']);
           unset($form['pass']);
           unset($form['actions']);
           $login_text = $this->t('Click below to login');
           $form['login_words']['#markup'] = "<div class='login_text'><p>$login_text</p></div>";
-          $form['simplesamlphp_auth_login_link']['#attributes']['class'][] = 'button';
-          $form['simplesamlphp_auth_login_link']['#attributes']['class'][] = 'ext';
+          $form['samlauth_auth_login_link']['#attributes']['class'][] = 'button';
+          $form['samlauth_auth_login_link']['#attributes']['class'][] = 'ext';
           $form['#attached']['library'][] = 'oit/gsap';
           return;
         }
