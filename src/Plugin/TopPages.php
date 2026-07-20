@@ -115,8 +115,6 @@ class TopPages {
     $this->entityTypeManager = $entity_type_manager;
 
     $this->host = $this->requestStack->getCurrentRequest()->getSchemeAndHttpHost();
-    // Log the host for debugging.
-    $this->logger->debug('Host set to: ' . $this->host);
   }
 
   /**
