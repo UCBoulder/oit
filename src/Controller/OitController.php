@@ -11,14 +11,12 @@ use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\PageCache\ResponsePolicy\KillSwitch;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\Core\State\StateInterface;
-use Drupal\Core\Url;
 use Drupal\oit\Plugin\BlockUuidQuery;
 use Drupal\oit\Plugin\ServiceHealth;
 use Drupal\shortcode_svg\ShortcodeIcon;
 use Drupal\views\Views;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
@@ -263,35 +261,6 @@ class OitController extends ControllerBase {
   }
 
   /**
-   * Routes for zap.
-   */
-  public function oitSamlLogin() {
-    // Getting the referer.
-    $request = $this->requestStack;
-    $referer = $request->headers->get('referer');
-
-    // Getting the base url.
-    $base_url = $request->getSchemeAndHttpHost();
-
-    $alias = "";
-
-    if ($referer != NULL) {
-      // Getting the alias or the relative path.
-      $alias = Xss::filter(substr($referer, strlen($base_url)));
-    }
-
-    // Set destination.
-    $destination = $alias == "" ? "/" : $alias;
-
-    // Forward user to /saml_login?destination=$destination.
-    $path = Url::fromRoute('simplesamlphp_auth.saml_login', [], ['query' => ['destination' => $destination]])->toString();
-    $redirect = new RedirectResponse($path);
-    $redirect->send();
-
-    return [];
-  }
-
-  /**
    * Routes for cron json.
    */
   public function oitCronJson() {
@@ -354,7 +323,7 @@ class OitController extends ControllerBase {
     global $base_url;
     $module_path = $this->moduleExtensionList->getPath('oit');
     $content = sprintf(
-      '<p>%s <a href="%s/saml_login%s">%s</a> %s.</p><a style="border: none;" href="%s/saml_login%s"><img src="%s/%s/images/you_shall_not_pass.png" alt="%s" title="%s" style="display:none;" id="myprecious" /></a>',
+      '<p>%s <a href="%s/saml/login%s">%s</a> %s.</p><a style="border: none;" href="%s/saml/login%s"><img src="%s/%s/images/you_shall_not_pass.png" alt="%s" title="%s" style="display:none;" id="myprecious" /></a>',
       $this->t('You may need to'),
       $base_url,
       $requested_path,
