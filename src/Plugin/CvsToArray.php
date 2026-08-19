@@ -33,7 +33,7 @@ class CvsToArray {
     if ($handle !== FALSE) {
       $i = 0;
       $arr = [];
-      while (($lineArray = fgetcsv($handle, 4000, $delimiter, '"')) !== FALSE) {
+      while (($lineArray = fgetcsv($handle, 4000, $delimiter, '"', '')) !== FALSE) {
         for ($j = 0; $j < count($lineArray); $j++) {
           $arr[$i][$j] = $lineArray[$j];
         }
