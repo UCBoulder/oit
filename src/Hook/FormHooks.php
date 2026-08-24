@@ -361,7 +361,7 @@ class FormHooks {
         $form['#attached']['library'][] = 'oit/oit_node_news_form';
         $form['#validate'][] = 'oit_news_types_categories';
         // Add submit handler.
-        $form['actions']['submit']['#submit'][] = 'oit_news_node_form_submit';
+        $form['actions']['submit']['#submit'][] = [self::class, 'newsNodeFormSubmit'];
         break;
 
       case "user_login_form":
@@ -549,6 +549,42 @@ class FormHooks {
     $message = $this->t("@emoji This is the deployment window. The sites config will be backed up around 11am and any changes will be subject to loss if there's a deployment today. @emoji", ['@emoji' => $emoji]);
 
     $this->messenger->addMessage($message, 'warning');
+  }
+
+  /**
+   * Submit handler for the news node form.
+   *
+   * Un-promotes other news nodes when a news node is promoted.
+   *
+   * Static so the callback stored in the cached form array does not
+   * serialize this hook class and its injected services.
+   *
+   * @param array $form
+   *   The form array.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   */
+  public static function newsNodeFormSubmit(array &$form, FormStateInterface $form_state) {
+    if (!$form_state->getValue(['promote', 'value'])) {
+      return;
+    }
+
+    $node_id = $form_state->getFormObject()->getEntity()->id();
+    $node_storage = \Drupal::entityTypeManager()->getStorage('node');
+
+    $nids = $node_storage->getQuery()
+      ->condition('type', 'news')
+      ->condition('promote', 1)
+      ->condition('nid', $node_id, '!=')
+      ->accessCheck(TRUE)
+      ->sort('created', 'DESC')
+      ->execute();
+
+    foreach ($node_storage->loadMultiple($nids) as $node) {
+      $node->set('promote', 0);
+      $node->set('field_sympa_send', 0);
+      $node->save();
+    }
   }
 
 }

@@ -112,35 +112,6 @@ function _oit_set_domain_submit(array &$form, FormStateInterface $form_state, $d
 }
 
 /**
- * News node form submit handler.
- *
- * Un-promotes other news nodes when a news node is promoted.
- */
-function oit_news_node_form_submit(&$form, FormStateInterface $form_state) {
-  if ($form_state->getValues()['promote']['value']) {
-    $node = $form_state->getFormObject()->getEntity();
-    $node_id = $node->id();
-
-    $node_storage = \Drupal::entityTypeManager()->getStorage('node');
-    $query = $node_storage->getQuery();
-    $query->condition('type', 'news');
-    $query->condition('promote', 1);
-    $query->condition('nid', $node_id, '!=');
-    $query->accessCheck(TRUE);
-    $query->sort('created', 'DESC');
-    $nids = $query->execute();
-
-    foreach ($nids as $nid) {
-      $node = $node_storage->load($nid);
-      $node->set('promote', 0);
-      $node->set('field_sympa_send', 0);
-      $node->save();
-    }
-
-  }
-}
-
-/**
  * Service alert dashboard category add handler.
  */
 function oit_servicealert_dashboard_category_add($form, FormStateInterface $form_state) {
