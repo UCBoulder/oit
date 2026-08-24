@@ -445,33 +445,6 @@ function oit_entity_view(array &$build, EntityInterface $entity, EntityViewDispl
 }
 
 /**
- * Alter the off-canvas menu tree.
- *
- * @param array $rendered_tree
- *   The built menu tree to be altered. This is provided as a render array.
- */
-function oit_responsive_menu_off_canvas_tree_alter(array &$rendered_tree) {
-  $feedback = "<a href='mailto:oithelp@colorado.edu' title='email feedback' class='button'>Feedback</a>";
-  $close = "<a href='#mm-0' class='button'>close menu</a>";
-  $twitter = oit_social_links(t('twitter'), 'http://www.x.com/CUBoulderOIT');
-  $facebook = oit_social_links(t('facebook'), 'https://www.facebook.com/CUBoulderOIT');
-  $youtube = oit_social_links(t('youtube'), 'https://www.youtube.com/CUBoulderOIT');
-  $instagram = oit_social_links(t('instagram'), 'https://www.instagram.com/cuboulderoit');
-
-  $domain = \Drupal::service('oit.domain')->getDomain();
-  if ($domain == 'oit') {
-    $rendered_tree['#suffix'] = "<div class='feedback-social'><ul class='feedback-social-inner'><li>$facebook</li><li>$twitter</li><li>$youtube</li><li>$instagram</li><li>$feedback</li><li>$close</li></ul></div>";
-  }
-}
-
-/**
- * Create social link.
- */
-function oit_social_links($title, $url) {
-  return "<a class='social-icon " . Html::escape($title) . "' title='" . Html::escape($title) . "' href='" . Html::escape($url) . "'><img alt='' src='/themes/custom/dingo/images/icons/" . Html::escape($title) . ".svg'></a>";
-}
-
-/**
  * Implements hook_entity_presave().
  */
 function oit_entity_presave(EntityInterface $entity) {

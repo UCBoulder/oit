@@ -2,9 +2,12 @@
 
 namespace Drupal\oit\Hook;
 
+use Drupal\Component\Utility\Html;
 use Drupal\Core\Hook\Attribute\Hook;
 use Drupal\Core\Routing\RedirectDestinationInterface;
 use Drupal\Core\Url;
+use Drupal\oit\Plugin\Domain;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
  * Hook implementations for menu performance tuning and link alterations.
@@ -38,14 +41,67 @@ class MenuHooks {
   protected const SAML_LOGIN_PATH = '/saml/login';
 
   /**
+   * The social links shown in the off-canvas menu, keyed by icon name.
+   */
+  protected const SOCIAL_LINKS = [
+    'facebook' => 'https://www.facebook.com/CUBoulderOIT',
+    'twitter' => 'http://www.x.com/CUBoulderOIT',
+    'youtube' => 'https://www.youtube.com/CUBoulderOIT',
+    'instagram' => 'https://www.instagram.com/cuboulderoit',
+  ];
+
+  /**
    * Constructs a new MenuHooks object.
    *
    * @param \Drupal\Core\Routing\RedirectDestinationInterface $redirectDestination
    *   The redirect destination helper.
+   * @param \Drupal\oit\Plugin\Domain $domain
+   *   The OIT domain service.
    */
   public function __construct(
     protected RedirectDestinationInterface $redirectDestination,
+    #[Autowire(service: 'oit.domain')]
+    protected Domain $domain,
   ) {}
+
+  /**
+   * Implements hook_responsive_menu_off_canvas_tree_alter().
+   *
+   * Appends the social, feedback and close links to the off-canvas menu on the
+   * oit domain.
+   *
+   * @param array $rendered_tree
+   *   The built menu tree render array, passed by reference.
+   */
+  #[Hook('responsive_menu_off_canvas_tree_alter')]
+  public function offCanvasTreeAlter(array &$rendered_tree): void {
+    if ($this->domain->getDomain() !== 'oit') {
+      return;
+    }
+    $items = [];
+    foreach (self::SOCIAL_LINKS as $name => $url) {
+      // The name doubles as the icon file name, so it is not translated.
+      $items[] = '<li>' . $this->socialLink($name, $url) . '</li>';
+    }
+    $items[] = "<li><a href='mailto:oithelp@colorado.edu' title='email feedback' class='button'>Feedback</a></li>";
+    $items[] = "<li><a href='#mm-0' class='button'>close menu</a></li>";
+    $rendered_tree['#suffix'] = "<div class='feedback-social'><ul class='feedback-social-inner'>" . implode('', $items) . '</ul></div>';
+  }
+
+  /**
+   * Builds a social icon link.
+   *
+   * @param string $title
+   *   The social network name, also used as the icon file name.
+   * @param string $url
+   *   The link URL.
+   *
+   * @return string
+   *   The rendered anchor markup.
+   */
+  protected function socialLink(string $title, string $url): string {
+    return "<a class='social-icon " . Html::escape($title) . "' title='" . Html::escape($title) . "' href='" . Html::escape($url) . "'><img alt='' src='/themes/custom/dingo/images/icons/" . Html::escape($title) . ".svg'></a>";
+  }
 
   /**
    * Prepends the node-access manipulator if it is not already present.
