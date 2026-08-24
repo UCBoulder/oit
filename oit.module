@@ -547,18 +547,6 @@ function oit_servicealert_update($entity) {
 }
 
 /**
- * Implements hook_menu().
- */
-function oit_menu() {
-  $items['front'] = [
-    'title' => 'Office of Information Technology',
-    'access arguments' => ['access content'],
-  ];
-
-  return $items;
-}
-
-/**
  * Implements hook_menu_local_tasks_alter().
  */
 function oit_menu_local_tasks_alter(&$data, $route_name) {
