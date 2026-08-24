@@ -704,3 +704,40 @@ function oit_update_10019() {
   $database->truncate('node__field_news_front_image')->execute();
   $database->truncate('node_revision__field_news_front_image')->execute();
 }
+
+/**
+ * Implements hook_update_dependencies().
+ */
+function oit_update_dependencies() {
+  // The node_search plugin moved to the new search_node module in core 11.4.
+  // system_update_11400 rebuilds plugin caches while installing search_help,
+  // which fails if the search.page.node_search config entity references a
+  // plugin that no longer exists. Install search_node first.
+  $dependencies['system'][11400] = [
+    'oit' => 10020,
+  ];
+  return $dependencies;
+}
+
+/**
+ * Install search_node so system_update_11400 can rebuild search plugins.
+ */
+function oit_update_10020() {
+  // Defensively remove a stray search.page.help_search config entity that
+  // can be left behind by an interrupted core 11.4 upgrade attempt (it
+  // references the "help_search" plugin without the search_help module
+  // being installed). If left in place, the cache/route rebuild triggered
+  // by installing search_node below throws a fatal PluginNotFoundException
+  // before search_help ever gets a chance to install and provide the
+  // plugin. A clean pre-11.4 site never has this config entity, so this is
+  // a no-op there.
+  $module_handler = \Drupal::moduleHandler();
+  if (!$module_handler->moduleExists('search_help')) {
+    $help_search = \Drupal::configFactory()->getEditable('search.page.help_search');
+    if (!$help_search->isNew()) {
+      $help_search->delete();
+    }
+  }
+
+  \Drupal::service('module_installer')->install(['search_node']);
+}
