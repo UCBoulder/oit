@@ -3,14 +3,17 @@
 namespace Drupal\oit\Hook;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Extension\ExtensionPathResolver;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Hook\Attribute\Hook;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\Core\PageCache\ResponsePolicy\KillSwitch;
+use Drupal\Core\Render\Markup;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\Component\Utility\Xss;
 use Drupal\oit\Plugin\Domain;
@@ -44,6 +47,8 @@ class FormHooks {
    *   The logger factory.
    * @param \Drupal\oit\Plugin\Domain $domain
    *   The OIT domain service.
+   * @param \Drupal\Core\Extension\ExtensionPathResolver $extensionPathResolver
+   *   The extension path resolver.
    */
   public function __construct(
     protected RouteMatchInterface $routeMatch,
@@ -55,6 +60,8 @@ class FormHooks {
     protected LoggerChannelFactoryInterface $loggerFactory,
     #[Autowire(service: 'oit.domain')]
     protected Domain $domain,
+    #[Autowire(service: 'extension.path.resolver')]
+    protected ExtensionPathResolver $extensionPathResolver,
   ) {}
 
   /**
@@ -369,8 +376,7 @@ class FormHooks {
         $this->messenger->deleteAll();
         $config = $this->configFactory->get('oit.settings');
         $show_login_form = $config->get('show_login_form');
-        $form['login_words']['#markup'] = '<div class="login_text"></div>';
-        $form['login_words']['#weight'] = -10;
+        $form['login_words'] = $this->loginWords();
         if (!$show_login_form) {
           // Cache is breaking the redirect, so kill it.
           $this->pageCacheKillSwitch->trigger();
@@ -384,11 +390,11 @@ class FormHooks {
           unset($form['name']);
           unset($form['pass']);
           unset($form['actions']);
-          $login_text = $this->t('Click below to login');
-          $form['login_words']['#markup'] = "<div class='login_text'><p>$login_text</p></div>";
+          // The samlauth module renders its own login link on this branch, so
+          // the extra SAML link is suppressed here.
+          $form['login_words'] = $this->loginWords($this->t('Click below to login'), FALSE);
           $form['samlauth_auth_login_link']['#attributes']['class'][] = 'button';
           $form['samlauth_auth_login_link']['#attributes']['class'][] = 'ext';
-          $form['#attached']['library'][] = 'oit/gsap';
           return;
         }
         break;
@@ -423,6 +429,70 @@ class FormHooks {
         $form['upload']['#group'] = 'oit_page_extras';
         break;
     }
+  }
+
+  /**
+   * Builds the login page intro render array.
+   *
+   * The multipass SVG is rendered server side so it is present on first paint.
+   * It cannot go through '#markup', which strips SVG elements through
+   * Xss::filterAdmin().
+   *
+   * @param \Drupal\Core\StringTranslation\TranslatableMarkup|null $text
+   *   Optional text to show below the SVG.
+   * @param bool $saml_link
+   *   Whether to render a SAML login link below the SVG. Pass FALSE where
+   *   samlauth already supplies its own login link.
+   *
+   * @return array
+   *   A render array for the 'login_words' form element.
+   */
+  protected function loginWords(?TranslatableMarkup $text = NULL, bool $saml_link = TRUE): array {
+    $svg = '';
+    $file = $this->extensionPathResolver->getPath('module', 'oit') . '/images/multipass.svg';
+    if (is_readable($file)) {
+      $svg = Markup::create(file_get_contents($file));
+    }
+
+    return [
+      '#type' => 'inline_template',
+      '#template' => '<div class="login_text">{{ svg }}{% if text %}<p>{{ text }}</p>{% endif %}{% if saml_url %}<p class="saml-login"><a href="{{ saml_url }}" class="button ext">{{ saml_label }}</a></p>{% endif %}</div>',
+      '#context' => [
+        'svg' => $svg,
+        'text' => $text,
+        'saml_url' => $saml_link ? $this->samlLoginUrl() : '',
+        'saml_label' => $this->t('Saml Login'),
+      ],
+      '#attached' => [
+        'library' => ['oit/login_multipass'],
+      ],
+      // The destination varies with the query string that brought the user
+      // here, so the rendered link must vary with it too.
+      '#cache' => [
+        'contexts' => ['url.query_args'],
+      ],
+      '#weight' => -10,
+    ];
+  }
+
+  /**
+   * Builds the SAML login URL carrying the page that sent the user to login.
+   *
+   * Core appends a 'destination' query parameter when it bounces an anonymous
+   * user to the login form, and some older links use 'dest'. Both are honoured
+   * here, the same way the account menu login link does it.
+   *
+   * @return string
+   *   The SAML login path, with a 'destination' query when one is available.
+   *
+   * @see \Drupal\oit\Hook\MenuHooks::preprocessMenu()
+   */
+  protected function samlLoginUrl(): string {
+    $request = $this->requestStack->getCurrentRequest();
+    $dest = (string) ($request?->query->get('dest') ?? '');
+    $destination = (string) ($request?->query->get('destination') ?? '');
+
+    return '/saml/login' . $this->buildLoginDestination($dest, $destination);
   }
 
   /**

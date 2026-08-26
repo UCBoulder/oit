@@ -5,6 +5,7 @@ namespace Drupal\Tests\oit\Unit\Hook;
 use Drupal\oit\Hook\FormHooks;
 use Drupal\oit\Plugin\Domain;
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Extension\ExtensionPathResolver;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\Core\PageCache\ResponsePolicy\KillSwitch;
@@ -15,6 +16,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\CoversMethod;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
@@ -27,6 +29,8 @@ use Symfony\Component\HttpFoundation\RequestStack;
 #[CoversMethod(FormHooks::class, 'buildLoginDestination')]
 #[CoversMethod(FormHooks::class, 'moderatedContentRedirectQuery')]
 #[CoversMethod(FormHooks::class, 'securityWindowWarning')]
+#[CoversMethod(FormHooks::class, 'loginWords')]
+#[CoversMethod(FormHooks::class, 'samlLoginUrl')]
 class FormHooksTest extends DrupalUnitTestCase {
 
   /**
@@ -60,11 +64,13 @@ class FormHooksTest extends DrupalUnitTestCase {
    *   The roles the mocked current user should report.
    * @param \Drupal\Core\Messenger\MessengerInterface|null $messenger
    *   An optional messenger mock; one is created when omitted.
+   * @param \Symfony\Component\HttpFoundation\RequestStack|null $request_stack
+   *   An optional request stack; a mock with no request is used when omitted.
    *
    * @return \Drupal\oit\Hook\FormHooks
    *   The configured hooks object.
    */
-  protected function buildHooks(array $roles = [], ?MessengerInterface $messenger = NULL): FormHooks {
+  protected function buildHooks(array $roles = [], ?MessengerInterface $messenger = NULL, ?RequestStack $request_stack = NULL): FormHooks {
     $current_user = $this->createMock(AccountProxyInterface::class);
     $current_user->method('getRoles')->willReturn($roles);
 
@@ -72,15 +78,29 @@ class FormHooksTest extends DrupalUnitTestCase {
       $this->createMock(RouteMatchInterface::class),
       $current_user,
       $this->createMock(ConfigFactoryInterface::class),
-      $this->createMock(RequestStack::class),
+      $request_stack ?? $this->createMock(RequestStack::class),
       $messenger ?? $this->createMock(MessengerInterface::class),
       $this->createMock(KillSwitch::class),
       $this->createMock(LoggerChannelFactoryInterface::class),
       $this->createMock(Domain::class),
+      $this->mockExtensionPathResolver(),
     );
     $hooks->setStringTranslation($this->getStringTranslationStub());
 
     return $hooks;
+  }
+
+  /**
+   * Builds an extension path resolver that points at the real module directory.
+   *
+   * @return \Drupal\Core\Extension\ExtensionPathResolver
+   *   The mocked resolver.
+   */
+  protected function mockExtensionPathResolver(): ExtensionPathResolver {
+    $resolver = $this->createMock(ExtensionPathResolver::class);
+    $resolver->method('getPath')->willReturn(dirname(__DIR__, 4));
+
+    return $resolver;
   }
 
   /**
@@ -322,6 +342,71 @@ class FormHooksTest extends DrupalUnitTestCase {
       'wednesday at window end' => ['2025-06-18 22:00:00'],
       'thursday in hours' => ['2025-06-19 17:00:00'],
     ];
+  }
+
+  /**
+   * Tests loginWords embeds the multipass SVG and attaches its library.
+   */
+  public function testLoginWordsEmbedsSvg(): void {
+    $build = $this->invoke('loginWords', [NULL]);
+
+    $this->assertSame('inline_template', $build['#type']);
+    $this->assertSame(['oit/login_multipass'], $build['#attached']['library']);
+    $this->assertSame(-10, $build['#weight']);
+    $this->assertNull($build['#context']['text']);
+    $this->assertStringContainsString('<svg id="multipass"', (string) $build['#context']['svg']);
+    $this->assertStringContainsString('class="multipass"', (string) $build['#context']['svg']);
+  }
+
+  /**
+   * Tests loginWords passes optional text through to the template context.
+   */
+  public function testLoginWordsWithText(): void {
+    $text = $this->getStringTranslationStub()->translate('Click below to login');
+    $build = $this->invoke('loginWords', [$text]);
+
+    $this->assertSame($text, $build['#context']['text']);
+  }
+
+  /**
+   * Tests loginWords renders a SAML link carrying the login destination.
+   */
+  #[DataProvider('samlLinkProvider')]
+  public function testLoginWordsSamlLink(array $query, string $expected): void {
+    $stack = new RequestStack();
+    $stack->push(new Request($query));
+    $hooks = $this->buildHooks([], NULL, $stack);
+    $ref = new \ReflectionMethod($hooks, 'loginWords');
+    $ref->setAccessible(TRUE);
+    $build = $ref->invokeArgs($hooks, [NULL, TRUE]);
+
+    $this->assertSame($expected, $build['#context']['saml_url']);
+    $this->assertSame(['url.query_args'], $build['#cache']['contexts']);
+  }
+
+  /**
+   * Data provider for SAML login link destinations.
+   *
+   * @return array
+   *   Test cases.
+   */
+  public static function samlLinkProvider(): array {
+    return [
+      'no destination' => [[], '/saml/login'],
+      'destination param' => [['destination' => '/node/5'], '/saml/login?destination=%2Fnode%2F5'],
+      'legacy dest param' => [['dest' => '/node/5'], '/saml/login?destination=%2Fnode%2F5'],
+      'destination wins' => [['dest' => '/a', 'destination' => '/b'], '/saml/login?destination=%2Fb'],
+      'external rejected' => [['destination' => 'https://evil.example.com'], '/saml/login'],
+    ];
+  }
+
+  /**
+   * Tests loginWords omits the SAML link when it is suppressed.
+   */
+  public function testLoginWordsWithoutSamlLink(): void {
+    $build = $this->invoke('loginWords', [NULL, FALSE]);
+
+    $this->assertSame('', $build['#context']['saml_url']);
   }
 
 }
