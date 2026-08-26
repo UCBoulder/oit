@@ -4,6 +4,8 @@ oit_404:
   css:
     theme:
       css/404.css: {}
+  dependencies:
+    - core/jquery
   license:
     name: 'GPL-2.0-or-later'
     url: 'https://www.drupal.org/licensing/faq'
