@@ -2,7 +2,7 @@
 
 namespace Drupal\oit\Controller;
 
-use Drupal\Component\Utility\Xss;
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\Config\ConfigFactory;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
@@ -178,18 +178,12 @@ class OitController extends ControllerBase {
   public function oit404() {
     // Get path to oit module.
     $module_path = $this->moduleExtensionList->getPath('oit');
-    $location = Xss::filter($_SERVER['REQUEST_URI']);
-    $host_alt = $this->t('Bob Barker as your 404 host');
-    $carey = 0;
-    if (date('m-d') == '04-23' || date('m-d') == '11-02' || $location == '/ohio') {
-      $carey = 1;
-      $host_alt = $this->t('Drew Carrey as your 404 host');
-    }
-    $location = substr($location, 1);
-    $location = str_replace('/', ' ', $location);
-    // Get users ip address.
-    $ip = $ip = $this->requestStack->getClientIp();
-    $host = $carey ? "404_carey.png" : "404_barker.png";
+    // This page is intentionally rendered statically so it can be cached
+    // permanently. The two request-dependent pieces of behaviour - seeding
+    // the search link with the requested path and switching the host image
+    // on specific dates (or the "/ohio" path) - are handled client-side in
+    // js/404.js. Keeping them out of PHP avoids serving a stale search link
+    // or the wrong host image from the page cache.
     $custom['string'] = [
       '#type' => 'inline_template',
       '#attached' => [
@@ -205,7 +199,7 @@ class OitController extends ControllerBase {
           </div>
           <div class="flex">
             <div class="flex-one-third">
-              <a class="icon button" href="/search/cse?keys={{ location }}"><span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 34 34" class="svg-icon search" width="20">
+              <a id="search-404" class="icon button" href="/search/cse"><span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 34 34" class="svg-icon search" width="20">
                 <use fill="#fff" xlink:href="/sites/default/files/svg/sprite_5.svg#search"></use>
                 </svg></span>&nbsp;&nbsp; {{ button_search }}</a>
             </div>
@@ -233,7 +227,7 @@ class OitController extends ControllerBase {
             </div>
             <div class="flex-one-half">
               <div id="show-host">
-                <img src="{{ module_path }}/{{ host }}" alt="{{ host_alt }}" />
+                <img id="host-404" src="{{ module_path }}/{{ host_default }}" alt="{{ host_alt_barker }}" data-module-path="{{ module_path }}" data-host-barker="{{ host_default }}" data-host-carey="{{ host_carey }}" data-alt-barker="{{ host_alt_barker }}" data-alt-carey="{{ host_alt_carey }}" />
               </div>
             </div>
             <div id="prize">{{ spint_text }}!</div>
@@ -243,16 +237,23 @@ class OitController extends ControllerBase {
       '#context' => [
         'title' => $this->t('Hmm...looks like something went wrong.'),
         'module_path' => "/$module_path/images/404",
-        'host' => $host,
-        'location' => $location,
+        'host_default' => '404_barker.png',
+        'host_carey' => '404_carey.png',
         'buffimg_alt' => $this->t('Buffalo holding broken plug - text 404'),
         'wheel_img' => $this->t('Wheel'),
-        'host_alt' => $host_alt,
+        'host_alt_barker' => $this->t('Bob Barker as your 404 host'),
+        'host_alt_carey' => $this->t('Drew Carrey as your 404 host'),
         'button_search' => $this->t('Search OIT Site'),
         'button_report' => $this->t('Report an Issue'),
         'button_spin' => $this->t('Spin the Wheel'),
         'spin' => $this->t('Spin'),
         'spint_text' => $this->t('Spin the wheel to go to a random page in the service area the spinner lands on'),
+      ],
+      // The page no longer varies by request URI or date, so it can be
+      // cached permanently with no cache contexts.
+      '#cache' => [
+        'contexts' => [],
+        'max-age' => Cache::PERMANENT,
       ],
     ];
     // Return the render array directly rather than flattening it into

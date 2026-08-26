@@ -1,6 +1,45 @@
 (function ($) {
   $(document).ready(function () {
 
+    // Seed the search link with the requested path and swap the host image
+    // on specific dates (or the "/ohio" path). This runs client-side so the
+    // 404 page itself can be cached permanently. See OitController::oit404().
+    (function () {
+      var path = window.location.pathname || '';
+
+      // Seed the "Search OIT Site" link with the requested path as keywords.
+      var searchLink = document.getElementById('search-404');
+      if (searchLink) {
+        var keys = path.replace(/^\//, '').replace(/\//g, ' ').trim();
+        searchLink.setAttribute(
+          'href',
+          '/search/cse' + (keys ? '?keys=' + encodeURIComponent(keys) : '')
+        );
+      }
+
+      // Switch the host image on Bob Barker's / Drew Carey's birthdays, or
+      // when the requested path is "/ohio".
+      var hostImg = document.getElementById('host-404');
+      if (hostImg) {
+        var now = new Date();
+        var mm = ('0' + (now.getMonth() + 1)).slice(-2);
+        var dd = ('0' + now.getDate()).slice(-2);
+        var monthDay = mm + '-' + dd;
+        var isCarey = monthDay === '04-23' || monthDay === '11-02' || path === '/ohio';
+        if (isCarey) {
+          var modulePath = hostImg.getAttribute('data-module-path') || '';
+          var careyFile = hostImg.getAttribute('data-host-carey');
+          var careyAlt = hostImg.getAttribute('data-alt-carey');
+          if (careyFile) {
+            hostImg.setAttribute('src', modulePath + '/' + careyFile);
+          }
+          if (careyAlt) {
+            hostImg.setAttribute('alt', careyAlt);
+          }
+        }
+      }
+    })();
+
     $('.spin').on( 'click touch', function () {
       var x = 0; //min value
       var y = 5400; // max value
