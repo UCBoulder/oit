@@ -1,7 +1,20 @@
+/**
+ * @file
+ * Styling for the custom 404 page.
+ *
+ * Loaded only on /404 via the oit/oit_404 library, attached by
+ * \Drupal\oit\Controller\OitController::oit404().
+ *
+ * Everything is scoped under #containAll404 so the generic .button / .flex
+ * helpers do not leak onto other pages if the library is ever attached
+ * elsewhere. The .breadcrumb hide below is the deliberate exception - it sits
+ * outside the container and only applies because this file is page-specific.
+ */
+
 #containAll404 {
   min-height: 550px;
 }
-#mainbox-container {
+#containAll404 #mainbox-container {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -11,15 +24,15 @@
   padding: 0;
   margin: 0;
   outline: none;
-  font-family: Roboto Condensed;
+  font-family: "Roboto Condensed";
 }
-.mainbox {
+#containAll404 .mainbox {
   box-sizing: border-box;
   position: relative;
   width: 350px;
   height: 350px;
 }
-.mainbox:after {
+#containAll404 .mainbox:after {
   position: absolute;
   content: '';
   width: 35px;
@@ -31,7 +44,7 @@
   transform: translateY(-50%);
   z-index: 3;
 }
-.box {
+#containAll404 .box {
   width: 100%;
   height: 100%;
   position: relative;
@@ -44,7 +57,7 @@
   background: url('../images/404/inner_wheel.png') no-repeat;
   background-size: contain;
 }
-.wheel-check {
+#containAll404 .wheel-check {
   position: absolute;
   background-color: #000;
   top: 50%;
@@ -52,7 +65,7 @@
   height: 5px;
   width: 5px;
 }
-.spin {
+#containAll404 .spin {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -68,57 +81,85 @@
   font-size: 18px;
   cursor: pointer;
   z-index: 0;
-  font-family: Roboto Condensed;
+  font-family: "Roboto Condensed";
 }
-.spin:active {
+#containAll404 .spin:active {
   width: 50px;
   height: 50px;
   font-size: 16px;
 }
-.spin-outer {
+#containAll404 .spin-outer {
   width: 350px;
   position: absolute;
   top: 0;
   z-index: -1;
 }
-#prize {
+#containAll404 #prize {
   display: inline-block;
   width: 100%;
   text-align: center;
 }
-#prize,
-#buff404 h3 {
+#containAll404 #prize,
+#containAll404 #buff404 h3 {
   margin: 20px auto;
   font: 700 1.5em "Roboto Condensed";
-}
-#show-host {
   text-align: center;
 }
-#show-host img {
+#containAll404 #show-host {
+  text-align: center;
+}
+#containAll404 #show-host img {
   max-width: 100%;
   top: 30px;
   max-height: 350px;
   position: relative;
   display: inline-block;
 }
-.flex-one-third {
-  text-align: center;
-  z-index: 1;
-  position: relative;
-}
 
 /* 404 BUFF */
-#buff404 {
+#containAll404 #buff404 {
   max-width: 775px;
   margin: 0 auto;
   position: relative;
   z-index: 0;
 }
-#buff404 img {
+#containAll404 #buff404 img {
   max-width: 100%;
 }
-.spin-contain {
-  margin-top: 25px!important;
+#containAll404 .spin-contain {
+  margin-top: 25px !important;
+}
+
+/* FLEX HELPERS */
+#containAll404 .flex {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-content: flex-start;
+  margin: 0 auto;
+  max-width: 775px;
+  z-index: 1;
+  position: relative;
+}
+#containAll404 .flex-one-half {
+  width: 50%;
+  flex-basis: 350px;
+  flex-grow: 1;
+  flex-shrink: 0;
+  padding: 0 8px;
+  margin: 0 0 16px 0;
+}
+#containAll404 .flex-one-third {
+  width: 33%;
+  flex-basis: 240px;
+  flex-grow: 1;
+  flex-shrink: 0;
+  padding: 0 8px;
+  margin: 0 0 16px 0;
+  text-align: center;
+  position: relative;
+  z-index: 1;
 }
 
 /* PAGE HIDES */

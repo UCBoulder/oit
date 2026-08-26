@@ -255,9 +255,10 @@ class OitController extends ControllerBase {
         'spint_text' => $this->t('Spin the wheel to go to a random page in the service area the spinner lands on'),
       ],
     ];
-    return [
-      '#markup' => $this->renderer->render($custom),
-    ];
+    // Return the render array directly rather than flattening it into
+    // '#markup': that keeps the attached library and the cacheability
+    // metadata on the element that owns them.
+    return $custom;
   }
 
   /**
