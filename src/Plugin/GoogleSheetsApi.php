@@ -26,6 +26,13 @@ class GoogleSheetsApi {
   private $cvsSheet;
 
   /**
+   * Whether the remote sheet was retrieved successfully.
+   *
+   * @var bool
+   */
+  private $fetchSucceeded = FALSE;
+
+  /**
    * Fetch and process a Google Sheet by key and column letters.
    *
    * @param string $key
@@ -44,12 +51,23 @@ class GoogleSheetsApi {
    */
   public function sheetDefined($key, $sheet_letters, $gid = 0, $shift = 0, $shentity = FALSE) {
     $fetchData = new GoogleSheetsFetch($key, $gid, $shift, $shentity);
+    $this->fetchSucceeded = $fetchData->isSuccessful();
     $newArray = $fetchData->getFetchedSheet();
     $processData = new GoogleSheetsProcess($newArray, $sheet_letters);
     $gSheetData = $processData->getProcessedData();
 
     $this->sheetData = $gSheetData;
     return $this->sheetData;
+  }
+
+  /**
+   * Whether the remote sheet was retrieved successfully.
+   *
+   * @return bool
+   *   TRUE when the fetch succeeded, FALSE when every attempt failed.
+   */
+  public function isSuccessful(): bool {
+    return $this->fetchSucceeded;
   }
 
   /**
