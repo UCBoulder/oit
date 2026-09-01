@@ -78,6 +78,16 @@ class GoogleSheetsFetch {
   }
 
   /**
+   * Whether the remote sheet was retrieved successfully.
+   *
+   * @return bool
+   *   TRUE when the fetch succeeded, FALSE when every attempt failed.
+   */
+  public function isSuccessful(): bool {
+    return $this->cvsSheet instanceof CvsToArray && $this->cvsSheet->isSuccessful();
+  }
+
+  /**
    * Get sheet that was fetched.
    *
    * @return array
