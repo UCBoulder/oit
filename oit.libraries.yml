@@ -42,6 +42,13 @@ loading:
   license:
     name: 'GPL-2.0-or-later'
     url: 'https://www.drupal.org/licensing/faq'
+oit_portfolio:
+  css:
+    theme:
+      css/oit-portfolio.css: {}
+  license:
+    name: 'GPL-2.0-or-later'
+    url: 'https://www.drupal.org/licensing/faq'
 oit_projects:
   css:
     theme:
