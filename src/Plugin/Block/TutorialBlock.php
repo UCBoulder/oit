@@ -96,7 +96,7 @@ class TutorialBlock extends BlockBase implements
       $node = $this->entityInterface->getStorage('node')->load($nid);
       $comp_type = $node->get('field_tut_comp_type_d7')
         ->getValue();
-      $os_support = "";
+      $os_icons = [];
       $os_list = [
         'MAC' => 'apple',
         'WINDOWS' => 'windows',
@@ -105,39 +105,55 @@ class TutorialBlock extends BlockBase implements
         'IOS' => 'ios',
       ];
       if (!empty($comp_type)) {
-        $os_support = "<strong>OS:</strong> ";
         $allowed_values = $node->get('field_tut_comp_type_d7')
           ->getSettings();
         foreach ($comp_type as $key) {
           $k = $key['value'][0];
           $comp_key = $allowed_values['allowed_values'][$k];
           $comp = $os_list[$comp_key];
-          $icon = check_markup("[svg name=$comp width=25 color=000][/svg]", 'rich_text');
-          $os_support .= "$icon ";
+          $os_icons[] = $this->processedText("[svg name=$comp width=25 color=000][/svg]");
         }
       }
       return [
         '#type' => 'inline_template',
-        // The 'raw' filter is safe here: all variables are processed through
-        // check_markup() (Drupal's text filter pipeline) before rendering.
         '#template' => '<div class="flex">
-        <div class="flex-one-half">{{ icon | raw }}</div>
+        <div class="flex-one-half">{% if os_icons %}<strong>{{ os_label }}:</strong> {% for icon in os_icons %}{{ icon }} {% endfor %}{% endif %}</div>
         <div class="flex-one-half tutorial-layout">
         <dl class="tutorial-layout">
         <dt class="tutorial-layout--column"><strong>{{ layout }}:</strong></dt>
-        <dd class="tutorial-layout--one">{{ onecol | raw }}</dd>
-        <dd class="tutorial-layout--two">{{ twocol | raw }}</dd>
+        <dd class="tutorial-layout--one">{{ onecol }}</dd>
+        <dd class="tutorial-layout--two">{{ twocol }}</dd>
         </div>
         </div>',
         '#context' => [
-          'icon' => $os_support,
+          'os_icons' => $os_icons,
+          'os_label' => $this->t('OS'),
           'layout' => $this->t('Layout'),
-          'onecol' => check_markup("[svg name=onecol alt='one column' width=25 color=000][/svg]", 'rich_text'),
-          'twocol' => check_markup("[svg name=twocol alt='two columns' width=25 color=000][/svg]", 'rich_text'),
+          'onecol' => $this->processedText("[svg name=onecol alt='one column' width=25 color=000][/svg]"),
+          'twocol' => $this->processedText("[svg name=twocol alt='two columns' width=25 color=000][/svg]"),
         ],
       ];
     }
     return [];
+  }
+
+  /**
+   * Builds a renderable array for filtered text.
+   *
+   * @param string $text
+   *   The raw text to run through the text format pipeline.
+   * @param string $format
+   *   The machine name of the text format to apply.
+   *
+   * @return array
+   *   A processed_text render array.
+   */
+  protected function processedText($text, $format = 'rich_text') {
+    return [
+      '#type' => 'processed_text',
+      '#text' => $text,
+      '#format' => $format,
+    ];
   }
 
   /**
