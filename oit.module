@@ -152,17 +152,17 @@ function oit_servicealert_dashboard_category_delete($form, FormStateInterface $f
  */
 function oit_news_gp_check(&$form, FormStateInterface $form_state) {
   $body = $form_state->getValue('body');
-  $body_value = $body[0]['value'];
+  $body_value = $body[0]['value'] ?? '';
 
   $node = $form_state->getFormObject()->getEntity();
   if ($node->isNew()) {
     return;
   }
   else {
-    $old_body = $node->get('body')->value;
+    $old_body = $node->get('body')->value ?? '';
   }
 
-  if (trim($body_value) == '' && !empty(trim($old_body))) {
+  if (trim($body_value) == '' && trim($old_body) !== '') {
     $form_state->setErrorByName('body', t('You went from having body content to none. As a hall monitor, I will not allow such tomfoolery.'));
   }
 }

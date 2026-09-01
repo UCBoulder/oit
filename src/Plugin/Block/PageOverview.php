@@ -88,7 +88,15 @@ class PageOverview extends BlockBase implements
       $nid = $thisNode->id();
       $node = $this->entityInterface->getStorage('node')->load($nid);
       $content = $node->get('body')->getValue();
-      $summary = isset($content[0]['summary']) ? check_markup($content[0]['summary'], 'rich_text') : '';
+      $context = [
+        'summary' => isset($content[0]['summary']) ? $this->processedText($content[0]['summary']) : '',
+        'os' => '',
+        'download_url' => '',
+        'download_icon' => '',
+        'download_text' => $this->t('Access Software'),
+        'download_class' => 'ml-auto',
+        'affiliation' => '',
+      ];
       // Add this to phish category.
       if ($node->getType() == 'page') {
         if (!empty($comp_type = $node->get('field_tut_comp_type_d7')->getValue())) {
@@ -103,8 +111,6 @@ class PageOverview extends BlockBase implements
             3 => 'android',
             4 => 'ios',
           ];
-          // Start this flex section.
-          $summary .= "<div class='flex software-extra'>";
           $set_comp_type = 'OS: ';
           foreach ($comp_type as $os) {
             $set_os = $icon_key[$os['value']];
@@ -114,51 +120,64 @@ class PageOverview extends BlockBase implements
             );
             $set_comp_type .= isset($icon_key[$os['value']]) ? "[svg name=" . $icon_key[$os['value']] . " alt ='$alt' width=25 color=000][/svg] " : '';
           }
-          $os = check_markup($set_comp_type, 'rich_text');
-          $summary .= "<div class='flex-one-third'>$os</div>";
+          $context['os'] = $this->processedText($set_comp_type);
 
           // Download link if set.
           // Return full external url or /node/# for internal links.
           if ($node->field_software_download_link->get(0) !== NULL) {
             if ($node->field_software_download_link->get(0)->isExternal()) {
-              $download = $node->field_software_download_link->get(0)->getString();
+              $context['download_url'] = $node->field_software_download_link->get(0)->getString();
             }
             else {
-              $download = $node->field_software_download_link->get(0)->getUrl()->toString();
+              $context['download_url'] = $node->field_software_download_link->get(0)->getUrl()->toString();
             }
-            $download_icon = check_markup("[svg name=download width=25 color=0073E6][/svg]", 'rich_text');
-            $download_text = $this->t('Access Software');
-            $class = $node->get('taxonomy_vocabulary_11')->getValue() ? 'm-auto' : 'ml-auto';
-            $summary .= "<div class='flex-one-third'><div class='$class'><a href='$download' class='text-uppercase'>$download_text&nbsp; $download_icon</a></div></div>";
+            $context['download_icon'] = $this->processedText("[svg name=download width=25 color=0073E6][/svg]");
+            $context['download_class'] = $node->get('taxonomy_vocabulary_11')->getValue() ? 'm-auto' : 'ml-auto';
           }
 
           // Setup affiliations.
           if ($affiliation = $node->get('taxonomy_vocabulary_11')->getValue()) {
             $set_affiliation = 'Affiliation: ';
             foreach ($affiliation as $aff) {
-              // $term_name = Term::load($aff['target_id'])->get('name')->value;
               $term_name = $this->entityInterface->getStorage('taxonomy_term')->load($aff['target_id'])->get('name')->value;
               $set_affiliation .= isset($icon_key[$aff['target_id']]) ? "[svg name=" . $icon_key[$aff['target_id']] . " alt='$term_name' width=25 color=000][/svg] " : '';
             }
-            $whom = check_markup("$set_affiliation", 'rich_text');
-            $summary .= "<div class='flex-one-third'><div class='ml-auto'>$whom</div></div>";
+            $context['affiliation'] = $this->processedText($set_affiliation);
           }
-
-          // End this flex section.
-          $summary .= "</div>";
         }
       }
       return [
         '#type' => 'inline_template',
-        // The 'raw' filter is safe here: $summary is assembled from
-        // check_markup()-processed content (Drupal's text filter pipeline).
-        '#template' => '{{ summary | raw }} ',
-        '#context' => [
-          'summary' => $summary,
-        ],
+        '#template' => '{{ summary }}{% if os %}<div class="flex software-extra">' .
+        '<div class="flex-one-third">{{ os }}</div>' .
+        '{% if download_url %}<div class="flex-one-third"><div class="{{ download_class }}">' .
+        '<a href="{{ download_url }}" class="text-uppercase">{{ download_text }}&nbsp; {{ download_icon }}</a>' .
+        '</div></div>{% endif %}' .
+        '{% if affiliation %}<div class="flex-one-third"><div class="ml-auto">{{ affiliation }}</div></div>{% endif %}' .
+        '</div>{% endif %} ',
+        '#context' => $context,
       ];
     }
     return [];
+  }
+
+  /**
+   * Builds a renderable array for filtered text.
+   *
+   * @param string $text
+   *   The raw text to run through the text format pipeline.
+   * @param string $format
+   *   The machine name of the text format to apply.
+   *
+   * @return array
+   *   A processed_text render array.
+   */
+  protected function processedText($text, $format = 'rich_text') {
+    return [
+      '#type' => 'processed_text',
+      '#text' => $text,
+      '#format' => $format,
+    ];
   }
 
   /**

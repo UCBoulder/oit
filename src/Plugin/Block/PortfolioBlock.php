@@ -2,9 +2,9 @@
 
 namespace Drupal\oit\Plugin\Block;
 
-use Drupal\Component\Utility\Xss;
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\oit\Plugin\GoogleSheetsProcess;
 use Drupal\oit\Services\PortfolioData;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -90,63 +90,46 @@ class PortfolioBlock extends BlockBase implements ContainerFactoryPluginInterfac
       foreach ($data['rows'] as $row) {
         $n++;
         if ($n != 1) {
-          $oitpriority = Xss::filter($row['data'][0]);
-          $name = Xss::filter($row['data'][1]);
-          $manager = Xss::filter($row['data'][2]);
-          $description = !empty($row['data'][3]) ? Xss::filter($row['data'][3]) : '';
-          $customerbenefit = !empty($row['data'][4]) ? Xss::filter($row['data'][4]) : '';
-          $start = Xss::filter($row['data'][5]);
-          $percentcomplete = Xss::filter($row['data'][6]);
-          $statusname = Xss::filter($row['data'][9]);
-          $stats = sprintf(
-            '<strong>%s</strong><br /> %s<br/><strong>%s</strong><br /> %s<br/><strong>%s</strong><br /> %s<br/><strong>%s</strong><br /> %s<br/>',
-            $this->t('Priority'),
-            $oitpriority,
-            $this->t('Start'),
-            $start,
-            $this->t('Percent Complete'),
-            $percentcomplete,
-            $this->t('Status Name'),
-            $statusname
-          );
+          $cells = $row['data'];
+          $description = $cells[3] ?? '';
+          $customerbenefit = $cells[4] ?? '';
+          $stats = [
+            '#type' => 'inline_template',
+            '#template' => '<strong>{{ priority_label }}</strong> {{ priority }}' .
+            '<strong>{{ start_label }}</strong> {{ start }}' .
+            '<strong>{{ percent_label }}</strong> {{ percent }}' .
+            '<strong>{{ status_label }}</strong> {{ status }}',
+            '#context' => [
+              'priority_label' => $this->t('Priority'),
+              'priority' => $cells[0],
+              'start_label' => $this->t('Start'),
+              'start' => $cells[5],
+              'percent_label' => $this->t('Percent Complete'),
+              'percent' => $cells[6],
+              'status_label' => $this->t('Status Name'),
+              'status' => $cells[9],
+            ],
+          ];
           $open = $n == 0 ? 'open' : '';
-          $project = '';
+          $project = [];
           if (!empty($description)) {
-            $project = sprintf(
-              '<details %s class="no-deets-controls"><summary>%s</summary><p>%s</p></details>',
-              $open,
-              $this->t('Description'),
-              $description
-            );
+            $project[] = $this->detailsSection($open, $this->t('Description'), $description);
           }
           if (!empty($customerbenefit)) {
-            $project .= sprintf(
-              '<details %s class="no-deets-controls"><summary>%s</summary><p>%s</p></details>',
-              $open,
-              $this->t('Customer Benefit'),
-              $customerbenefit
-            );
+            $project[] = $this->detailsSection($open, $this->t('Customer Benefit'), $customerbenefit);
           }
           $rows[] = [
             'name' => [
-              'data' => [
-                '#markup' => $name,
-              ],
+              'data' => $cells[1],
             ],
             'stats' => [
-              'data' => [
-                '#markup' => $stats,
-              ],
+              'data' => $stats,
             ],
             'manager' => [
-              'data' => [
-                '#markup' => $manager,
-              ],
+              'data' => $cells[2],
             ],
             'project' => [
-              'data' => [
-                '#markup' => $project,
-              ],
+              'data' => $project,
             ],
           ];
         }
@@ -159,7 +142,7 @@ class PortfolioBlock extends BlockBase implements ContainerFactoryPluginInterfac
       '#rows' => $rows,
       '#attributes' => ['id' => 'gdoc-table', 'class' => ['table-search']],
       '#attached' => [
-        'library' => ['oit/table_search', 'oit/oit_projects'],
+        'library' => ['oit/table_search', 'oit/oit_projects', 'oit/oit_portfolio'],
       ],
     ];
     // Set a single top-level cache entry so the tag bubbles to the node page
@@ -171,6 +154,31 @@ class PortfolioBlock extends BlockBase implements ContainerFactoryPluginInterfac
       'max-age' => PortfolioData::TTL,
     ];
     return $html;
+  }
+
+  /**
+   * Builds a collapsible details section for a portfolio table cell.
+   *
+   * @param string $open
+   *   The 'open' attribute value, or an empty string for collapsed.
+   * @param \Drupal\Core\StringTranslation\TranslatableMarkup $label
+   *   The summary label.
+   * @param array|string $body
+   *   The renderable body of the details section.
+   *
+   * @return array
+   *   An inline_template render array.
+   */
+  protected function detailsSection($open, TranslatableMarkup $label, $body) {
+    return [
+      '#type' => 'inline_template',
+      '#template' => '<details {{ open }} class="no-deets-controls"><summary>{{ label }}</summary><p>{{ body }}</p></details>',
+      '#context' => [
+        'open' => $open,
+        'label' => $label,
+        'body' => $body,
+      ],
+    ];
   }
 
 }

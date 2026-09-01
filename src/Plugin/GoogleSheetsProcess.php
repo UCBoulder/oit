@@ -108,7 +108,11 @@ class GoogleSheetsProcess {
         foreach ($headers as $key => $header) {
           // Sanitize data from external spreadsheet.
           $raw_value = $value[$header] ?? '';
-          $item[$key] = check_markup(Xss::filter($raw_value), $format);
+          $item[$key] = $raw_value === '' ? '' : [
+            '#type' => 'processed_text',
+            '#text' => Xss::filter($raw_value),
+            '#format' => $format,
+          ];
         }
         $rows[] = [
           'data' => $item,
@@ -139,7 +143,11 @@ class GoogleSheetsProcess {
             foreach ($sheet_items as $key => $header) {
               // Sanitize data from external spreadsheet.
               $raw_value = $value[$header] ?? '';
-              $item[$key]['data']['#markup'] = check_markup(Xss::filter($raw_value), $format);
+              $item[$key]['data'] = $raw_value === '' ? '' : [
+                '#type' => 'processed_text',
+                '#text' => Xss::filter($raw_value),
+                '#format' => $format,
+              ];
             }
             $rows[] = $item;
           }
