@@ -741,3 +741,13 @@ function oit_update_10020() {
 
   \Drupal::service('module_installer')->install(['search_node']);
 }
+
+/**
+ * Disable the smtp module.
+ */
+function oit_update_10021() {
+  $module = ['smtp'];
+  if (\Drupal::moduleHandler()->moduleExists('smtp')) {
+    \Drupal::service('module_installer')->uninstall($module, TRUE);
+  }
+}
