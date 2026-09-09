@@ -83,8 +83,8 @@ class FormHooks {
           $webform_id = $form['#webform_id'];
           $config = $this->configFactory->get('webform.webform.' . $webform_id);
           $webform_roles = $config->get('access.create.roles');
-          if (!is_array($roles)) {
-            $roles = [];
+          if (!is_array($webform_roles)) {
+            $webform_roles = [];
           }
 
           $anonymous_set = FALSE;
@@ -158,7 +158,7 @@ class FormHooks {
       oit_set_domain_defaults($form, 'oit', 'oit_colorado_edu');
     }
 
-    if ($form['#id'] == 'views-exposed-form-moderated-content-moderated-content') {
+    if (($form['#id'] ?? NULL) == 'views-exposed-form-moderated-content-moderated-content') {
       if ($domain == 'oit') {
         _oit_form_set_domain('content/moderated', 'oit_colorado_edu');
       }
@@ -184,12 +184,11 @@ class FormHooks {
         if (!$domain_set) {
           // Redirect to query string
           // "field_domain_access_target_id=oit_colorado_edu".
-          $response = new RedirectResponse('/admin/content?' . $this->moderatedContentRedirectQuery($query));
           // @todo (C1): Calling send() inside hook_form_alter() bypasses the Symfony
           // kernel response pipeline. The proper fix is to convert this to a
           // #submit handler or KernelEvents::RESPONSE subscriber. Until then,
           // return immediately after send() so no further form-build code runs.
-          $response->send();
+          $this->sendRedirect('/admin/content?' . $this->moderatedContentRedirectQuery($query));
           return;
         }
       }
@@ -226,7 +225,7 @@ class FormHooks {
         // Death to comments.
         $form['comment_node_service_alert']['#access'] = FALSE;
         // Fill in empty body with template.
-        if ($form['body']['widget'][0]['#default_value'] == NULL) {
+        if (($form['body']['widget'][0]['#default_value'] ?? NULL) == NULL) {
           $form['body']['widget'][0]['#default_value'] = '<h2>Impact</h2><p></p>
             <h2>Scope</h2><p></p>
             <h2>Affected Services</h2><p></p>
@@ -385,8 +384,7 @@ class FormHooks {
           $destination = $this->buildLoginDestination($dest_get, $destination_get);
           // Drupal 10 add log message with $destination.
           $this->loggerFactory->get('oit')->notice('User login form redirecting to saml_login with destination: @destination', ['@destination' => $destination]);
-          $response = new RedirectResponse('/saml/login' . $destination, 302);
-          $response->send();
+          $this->sendRedirect('/saml/login' . $destination, 302);
           unset($form['name']);
           unset($form['pass']);
           unset($form['actions']);
@@ -429,6 +427,27 @@ class FormHooks {
         $form['upload']['#group'] = 'oit_page_extras';
         break;
     }
+  }
+
+  /**
+   * Sends a redirect response.
+   *
+   * A single seam for the two form_alter() call sites that redirect from
+   * inside the hook. See the @todo (C1) notes at each call site: calling
+   * send() here bypasses the Symfony kernel response pipeline, but replacing
+   * that with a #submit handler or KernelEvents::RESPONSE subscriber is
+   * deferred. This method only emits the redirect; it does not return or
+   * otherwise affect control flow, since the two call sites diverge
+   * afterwards.
+   *
+   * @param string $url
+   *   The URL to redirect to.
+   * @param int $status
+   *   The HTTP status code for the redirect.
+   */
+  protected function sendRedirect(string $url, int $status = 302): void {
+    $response = new RedirectResponse($url, $status);
+    $response->send();
   }
 
   /**

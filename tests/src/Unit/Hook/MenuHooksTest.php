@@ -366,6 +366,26 @@ class MenuHooksTest extends DrupalUnitTestCase {
     $this->assertSame($before, $variables);
   }
 
+  /**
+   * Tests no TypeError is thrown when the account menu has no items key.
+   *
+   * Pins a regression fix documented in section 3.3 of the spec: passing
+   * $variables['items'] by reference into addLoginDestination(), which is
+   * typed `array`, autovivified a NULL key and fataled with a TypeError.
+   */
+  public function testPreprocessMenuNoItemsKeyReturnsCleanly(): void {
+    $redirect_destination = $this->createMock(RedirectDestinationInterface::class);
+    $redirect_destination->method('get')->willReturn('/node/5');
+    $hooks = $this->buildHooks('oit', $redirect_destination);
+
+    $variables = ['menu_name' => 'account'];
+    $hooks->preprocessMenu($variables);
+
+    // The guard returns before the by-reference pass, so no 'items' key is
+    // invented on the caller's variables.
+    $this->assertSame(['menu_name' => 'account'], $variables);
+  }
+
   /* --------------------------------------------------------------------
    * blockBuildAlter
    * ----------------------------------------------------------------- */

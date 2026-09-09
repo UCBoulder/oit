@@ -153,6 +153,11 @@ class MenuHooks {
     if (!$destination || str_starts_with($destination, self::SAML_LOGIN_PATH)) {
       return;
     }
+    // Core always sets 'items', but guard the by-reference pass anyway: PHP
+    // would create the missing key as NULL and fail the array type hint.
+    if (!isset($variables['items']) || !is_array($variables['items'])) {
+      return;
+    }
     $this->addLoginDestination($variables['items'], $destination);
   }
 
