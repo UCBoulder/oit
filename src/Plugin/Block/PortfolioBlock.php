@@ -5,6 +5,7 @@ namespace Drupal\oit\Plugin\Block;
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\Core\Render\RendererInterface;
 use Drupal\oit\Plugin\GoogleSheetsProcess;
 use Drupal\oit\Services\PortfolioData;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -28,6 +29,13 @@ class PortfolioBlock extends BlockBase implements ContainerFactoryPluginInterfac
   protected $portfolioData;
 
   /**
+   * The renderer service.
+   *
+   * @var \Drupal\Core\Render\RendererInterface
+   */
+  protected $renderer;
+
+  /**
    * Constructs a new PortfolioBlock.
    *
    * @param array $configuration
@@ -38,10 +46,13 @@ class PortfolioBlock extends BlockBase implements ContainerFactoryPluginInterfac
    *   The plugin definition.
    * @param \Drupal\oit\Services\PortfolioData $portfolio_data
    *   The portfolio data service.
+   * @param \Drupal\Core\Render\RendererInterface $renderer
+   *   The renderer service.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, PortfolioData $portfolio_data) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, PortfolioData $portfolio_data, RendererInterface $renderer) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->portfolioData = $portfolio_data;
+    $this->renderer = $renderer;
   }
 
   /**
@@ -52,7 +63,8 @@ class PortfolioBlock extends BlockBase implements ContainerFactoryPluginInterfac
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('oit.portfolio')
+      $container->get('oit.portfolio'),
+      $container->get('renderer')
     );
   }
 
@@ -76,7 +88,7 @@ class PortfolioBlock extends BlockBase implements ContainerFactoryPluginInterfac
     // the slow remote request happens off the request-render path (warmed by
     // cron) rather than on every render-cache miss.
     $gsheet_returned_data = $this->portfolioData->getSheetData();
-    $processData = new GoogleSheetsProcess($gsheet_returned_data, 'a,b,c,d,e,f,g,h,i,j', 'custom');
+    $processData = new GoogleSheetsProcess($gsheet_returned_data, 'a,b,c,d,e,f,g,h,i,j', 'custom', $this->renderer);
     $data = $processData->getProcessedData();
     $header = [
       'Name',

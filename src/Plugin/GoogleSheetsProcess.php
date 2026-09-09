@@ -3,6 +3,7 @@
 namespace Drupal\oit\Plugin;
 
 use Drupal\Component\Utility\Xss;
+use Drupal\Core\Render\RendererInterface;
 
 /**
  * Process google sheets data and spits out array.
@@ -22,6 +23,13 @@ class GoogleSheetsProcess {
   private $processedData;
 
   /**
+   * The renderer service.
+   *
+   * @var \Drupal\Core\Render\RendererInterface|null
+   */
+  private $renderer;
+
+  /**
    * Constructs a new GoogleSheetsProcess object and processes the sheet data.
    *
    * @param array $gsheet_returned_data
@@ -30,8 +38,12 @@ class GoogleSheetsProcess {
    *   Comma-separated column letters specifying which columns to include.
    * @param string $process
    *   Processing mode: 'ss' for standard or 'custom' for custom headers.
+   * @param ?\Drupal\Core\Render\RendererInterface $renderer
+   *   The renderer service.
    */
-  public function __construct($gsheet_returned_data, $sheet_letters, $process = 'ss') {
+  public function __construct($gsheet_returned_data, $sheet_letters, $process = 'ss', ?RendererInterface $renderer = NULL) {
+    $this->renderer = $renderer;
+
     // Validate input data.
     if (!is_array($gsheet_returned_data) || empty($gsheet_returned_data)) {
       $this->processedData = ['rows' => [], 'header' => []];
@@ -108,7 +120,7 @@ class GoogleSheetsProcess {
         foreach ($headers as $key => $header) {
           // Sanitize data from external spreadsheet.
           $raw_value = $value[$header] ?? '';
-          $item[$key] = check_markup(Xss::filter($raw_value), $format);
+          $item[$key] = $this->renderProcessedText(Xss::filter($raw_value), $format);
         }
         $rows[] = [
           'data' => $item,
@@ -139,7 +151,7 @@ class GoogleSheetsProcess {
             foreach ($sheet_items as $key => $header) {
               // Sanitize data from external spreadsheet.
               $raw_value = $value[$header] ?? '';
-              $item[$key]['data']['#markup'] = check_markup(Xss::filter($raw_value), $format);
+              $item[$key]['data']['#markup'] = $this->renderProcessedText(Xss::filter($raw_value), $format);
             }
             $rows[] = $item;
           }
@@ -163,6 +175,44 @@ class GoogleSheetsProcess {
    */
   public function getProcessedData() {
     return $this->processedData;
+  }
+
+  /**
+   * Render processed text.
+   *
+   * @param string $text
+   *   The filtered text.
+   * @param string $format
+   *   The text format machine name.
+   *
+   * @return \Drupal\Component\Render\MarkupInterface
+   *   The rendered text. Returned as markup (not a plain string) so that it is
+   *   not double-filtered or escaped downstream, matching the behavior of the
+   *   deprecated check_markup().
+   */
+  private function renderProcessedText($text, $format) {
+    $renderer = $this->renderer instanceof RendererInterface ? $this->renderer : self::fallbackRenderer();
+
+    $build = [
+      '#type' => 'processed_text',
+      '#text' => $text,
+      '#format' => $format,
+    ];
+
+    return $renderer->renderInIsolation($build);
+  }
+
+  /**
+   * Gets the renderer for callers that construct this class without one.
+   *
+   * This class is instantiated directly (see GoogleSheetsApi) rather than via
+   * the service container, so the renderer cannot always be injected.
+   *
+   * @return \Drupal\Core\Render\RendererInterface
+   *   The renderer service.
+   */
+  private static function fallbackRenderer() {
+    return \Drupal::service('renderer');
   }
 
 }

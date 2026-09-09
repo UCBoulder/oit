@@ -6,6 +6,7 @@ use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\Core\Render\RendererInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\node\NodeInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -36,6 +37,13 @@ class TutorialBlock extends BlockBase implements
   protected $entityInterface;
 
   /**
+   * The renderer service.
+   *
+   * @var \Drupal\Core\Render\RendererInterface
+   */
+  protected $renderer;
+
+  /**
    * Invoke renderer.
    *
    * @var \Drupal\Core\Routing\RouteMatchInterface
@@ -62,6 +70,7 @@ class TutorialBlock extends BlockBase implements
       $plugin_id,
       $plugin_definition,
       $container->get('entity_type.manager'),
+      $container->get('renderer'),
       $container->get('current_route_match'),
     );
   }
@@ -77,12 +86,15 @@ class TutorialBlock extends BlockBase implements
    *   Plugin Definition mixed.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_interface
    *   Invokes renderer.
+   * @param \Drupal\Core\Render\RendererInterface $renderer
+   *   The renderer service.
    * @param \Drupal\Core\Routing\RouteMatchInterface $route_match_interface
    *   Invokes routeMatch.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_interface, RouteMatchInterface $route_match_interface) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_interface, RendererInterface $renderer, RouteMatchInterface $route_match_interface) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->entityInterface = $entity_interface;
+    $this->renderer = $renderer;
     $this->routMatchInterface = $route_match_interface;
   }
 
@@ -112,7 +124,7 @@ class TutorialBlock extends BlockBase implements
           $k = $key['value'][0];
           $comp_key = $allowed_values['allowed_values'][$k];
           $comp = $os_list[$comp_key];
-          $icon = check_markup("[svg name=$comp width=25 color=000][/svg]", 'rich_text');
+          $icon = (string) $this->renderProcessedText("[svg name=$comp width=25 color=000][/svg]");
           $os_support .= "$icon ";
         }
       }
@@ -132,12 +144,32 @@ class TutorialBlock extends BlockBase implements
         '#context' => [
           'icon' => $os_support,
           'layout' => $this->t('Layout'),
-          'onecol' => check_markup("[svg name=onecol alt='one column' width=25 color=000][/svg]", 'rich_text'),
-          'twocol' => check_markup("[svg name=twocol alt='two columns' width=25 color=000][/svg]", 'rich_text'),
+          'onecol' => $this->renderProcessedText("[svg name=onecol alt='one column' width=25 color=000][/svg]"),
+          'twocol' => $this->renderProcessedText("[svg name=twocol alt='two columns' width=25 color=000][/svg]"),
         ],
       ];
     }
     return [];
+  }
+
+  /**
+   * Renders text through a text format filter pipeline.
+   *
+   * @param string $text
+   *   The text to process.
+   * @param string $format
+   *   The text format machine name.
+   *
+   * @return \Drupal\Component\Render\MarkupInterface
+   *   The rendered markup.
+   */
+  protected function renderProcessedText($text, $format = 'rich_text') {
+    $build = [
+      '#type' => 'processed_text',
+      '#text' => $text,
+      '#format' => $format,
+    ];
+    return $this->renderer->renderInIsolation($build);
   }
 
   /**

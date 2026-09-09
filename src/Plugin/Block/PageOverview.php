@@ -6,6 +6,7 @@ use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\Core\Render\RendererInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\node\NodeInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -36,6 +37,13 @@ class PageOverview extends BlockBase implements
   protected $routMatchInterface;
 
   /**
+   * The renderer service.
+   *
+   * @var \Drupal\Core\Render\RendererInterface
+   */
+  protected $renderer;
+
+  /**
    * {@inheritdoc}
    *
    * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
@@ -55,6 +63,7 @@ class PageOverview extends BlockBase implements
       $plugin_id,
       $plugin_definition,
       $container->get('entity_type.manager'),
+      $container->get('renderer'),
       $container->get('current_route_match'),
     );
   }
@@ -70,12 +79,15 @@ class PageOverview extends BlockBase implements
    *   Plugin Definition mixed.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_interface
    *   Invokes renderer.
+   * @param \Drupal\Core\Render\RendererInterface $renderer
+   *   The renderer service.
    * @param \Drupal\Core\Routing\RouteMatchInterface $route_match_interface
    *   Invokes routeMatch.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_interface, RouteMatchInterface $route_match_interface) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_interface, RendererInterface $renderer, RouteMatchInterface $route_match_interface) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->entityInterface = $entity_interface;
+    $this->renderer = $renderer;
     $this->routMatchInterface = $route_match_interface;
   }
 
@@ -88,7 +100,7 @@ class PageOverview extends BlockBase implements
       $nid = $thisNode->id();
       $node = $this->entityInterface->getStorage('node')->load($nid);
       $content = $node->get('body')->getValue();
-      $summary = isset($content[0]['summary']) ? check_markup($content[0]['summary'], 'rich_text') : '';
+      $summary = isset($content[0]['summary']) ? (string) $this->renderProcessedText($content[0]['summary']) : '';
       // Add this to phish category.
       if ($node->getType() == 'page') {
         if (!empty($comp_type = $node->get('field_tut_comp_type_d7')->getValue())) {
@@ -114,7 +126,7 @@ class PageOverview extends BlockBase implements
             );
             $set_comp_type .= isset($icon_key[$os['value']]) ? "[svg name=" . $icon_key[$os['value']] . " alt ='$alt' width=25 color=000][/svg] " : '';
           }
-          $os = check_markup($set_comp_type, 'rich_text');
+          $os = (string) $this->renderProcessedText($set_comp_type);
           $summary .= "<div class='flex-one-third'>$os</div>";
 
           // Download link if set.
@@ -126,7 +138,7 @@ class PageOverview extends BlockBase implements
             else {
               $download = $node->field_software_download_link->get(0)->getUrl()->toString();
             }
-            $download_icon = check_markup("[svg name=download width=25 color=0073E6][/svg]", 'rich_text');
+            $download_icon = (string) $this->renderProcessedText("[svg name=download width=25 color=0073E6][/svg]");
             $download_text = $this->t('Access Software');
             $class = $node->get('taxonomy_vocabulary_11')->getValue() ? 'm-auto' : 'ml-auto';
             $summary .= "<div class='flex-one-third'><div class='$class'><a href='$download' class='text-uppercase'>$download_text&nbsp; $download_icon</a></div></div>";
@@ -140,7 +152,7 @@ class PageOverview extends BlockBase implements
               $term_name = $this->entityInterface->getStorage('taxonomy_term')->load($aff['target_id'])->get('name')->value;
               $set_affiliation .= isset($icon_key[$aff['target_id']]) ? "[svg name=" . $icon_key[$aff['target_id']] . " alt='$term_name' width=25 color=000][/svg] " : '';
             }
-            $whom = check_markup("$set_affiliation", 'rich_text');
+            $whom = (string) $this->renderProcessedText($set_affiliation);
             $summary .= "<div class='flex-one-third'><div class='ml-auto'>$whom</div></div>";
           }
 
@@ -150,8 +162,8 @@ class PageOverview extends BlockBase implements
       }
       return [
         '#type' => 'inline_template',
-        // The 'raw' filter is safe here: $summary is assembled from
-        // check_markup()-processed content (Drupal's text filter pipeline).
+        // The 'raw' filter is safe here: $summary is assembled from rendered
+        // text filter output and trusted HTML wrappers in this method.
         '#template' => '{{ summary | raw }} ',
         '#context' => [
           'summary' => $summary,
@@ -159,6 +171,26 @@ class PageOverview extends BlockBase implements
       ];
     }
     return [];
+  }
+
+  /**
+   * Renders text through a text format filter pipeline.
+   *
+   * @param string $text
+   *   The text to process.
+   * @param string $format
+   *   The text format machine name.
+   *
+   * @return \Drupal\Component\Render\MarkupInterface
+   *   The rendered markup.
+   */
+  protected function renderProcessedText($text, $format = 'rich_text') {
+    $build = [
+      '#type' => 'processed_text',
+      '#text' => $text,
+      '#format' => $format,
+    ];
+    return $this->renderer->renderInIsolation($build);
   }
 
   /**
