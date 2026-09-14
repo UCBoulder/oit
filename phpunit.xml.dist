@@ -16,6 +16,9 @@
   <testsuites>
     <testsuite name="oit">
       <directory>./tests</directory>
+      <!-- Kernel tests need SIMPLETEST_DB and run from the project-root
+           phpunit.xml inside DDEV, not from this module-local config. -->
+      <exclude>./tests/src/Kernel</exclude>
     </testsuite>
   </testsuites>
 </phpunit>
