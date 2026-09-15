@@ -2,19 +2,21 @@
 
 namespace Drupal\oit\Plugin\Filter;
 
+use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\filter\Attribute\Filter;
 use Drupal\filter\FilterProcessResult;
 use Drupal\filter\Plugin\FilterBase;
+use Drupal\filter\Plugin\FilterInterface;
 
 /**
  * Filter dash out of Email text.
- *
- * @Filter(
- *   id = "filter_email",
- *   title = @Translation("Email Filter"),
- *   description = @Translation("Remove hyphen from E-mail"),
- *   type = Drupal\filter\Plugin\FilterInterface::TYPE_TRANSFORM_IRREVERSIBLE,
- * )
  */
+#[Filter(
+  id: "filter_email",
+  title: new TranslatableMarkup("Email Filter"),
+  type: FilterInterface::TYPE_TRANSFORM_IRREVERSIBLE,
+  description: new TranslatableMarkup("Remove hyphen from E-mail"),
+)]
 class FilterEmail extends FilterBase {
 
   /**

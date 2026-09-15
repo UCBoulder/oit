@@ -7,18 +7,15 @@
 
 use Drupal\block\Entity\Block;
 use Drupal\Component\Serialization\Json;
-use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Render\BubbleableMetadata;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\node\NodeInterface;
 use Drupal\oit\Plugin\OitImageStyled;
-use Drupal\user\Entity\User;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
 /**
@@ -196,152 +193,6 @@ function oit_news_types_categories(&$form, FormStateInterface $form_state) {
 }
 
 /**
- * Implements hook_token_info().
- */
-function oit_token_info() {
-  $type = [
-    'name' => t('OIT'),
-    'description' => t('Custom OIT tokens.'),
-  ];
-  $node['tweet_pic'] = [
-    'name' => t("Twitter Picture"),
-    'description' => t('Sets the twitter picture for news/service alerts.'),
-  ];
-  $node['og_image'] = [
-    'name' => t("OG Image"),
-    'description' => t('Sets the Open Graph image for news/service alerts at 1200x630 for LinkedIn and other platforms.'),
-  ];
-  $node['sa_status'] = [
-    'name' => t("Service Alert Status"),
-    'description' => t('Set status of the service alert node type.'),
-  ];
-  $node['sa_title'] = [
-    'name' => t("Service Alert Title"),
-    'description' => t('Display the service alert title field.'),
-  ];
-  $node['who_i_is'] = [
-    'name' => t("Who I Is"),
-    'description' => t('Displays users name.'),
-  ];
-  return [
-    'types' => ['oittoken' => $type],
-    'tokens' => ['oittoken' => $node],
-  ];
-}
-
-/**
- * Implements hook_tokens().
- */
-function oit_tokens($type, $tokens, array $data, array $options, BubbleableMetadata $bubbleable_metadata) {
-  $replacements = [];
-  if ($type == 'oittoken') {
-
-    foreach ($tokens as $name => $original) {
-      // Find the desired token by name.
-      switch ($name) {
-        case 'who_i_is':
-          $user = User::load(\Drupal::currentUser()->id());
-          $user_name = '';
-          if (!$user->isAnonymous()) {
-            if ($user->get('field_user_name') != NULL) {
-              $user_name = $user->get('field_user_name')->getValue();
-              if (array_key_exists(0, $user_name)) {
-                $user_name = $user_name[0]['value'];
-              }
-            }
-          }
-          $replacements[$original] = Html::escape($user_name);
-          break;
-
-        case 'tweet_pic':
-          if (!empty($data['node'])) {
-            $replacements[$original] = '';
-            if ($data['node']->getType() == 'news') {
-              $sa_image = oit_get_hero_image_fid($data['node']);
-              if ($sa_image) {
-                $sa_image_style = new OitImageStyled($sa_image, 'large', '', \Drupal::entityTypeManager());
-                $sa_image_styled = $sa_image_style->getImageUrl();
-                $replacements[$original] = $sa_image_styled;
-              }
-            }
-            if ($data['node']->getType() == 'service_alert' && count($data['node']->get('field_service_alert_dash_cat')->getValue()) !== 0) {
-              $set_dashboard = $data['node']->get('field_service_alert_dash_cat')->getValue()[0]['value'];
-
-              $taxonomy = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load($set_dashboard);
-              $tax_image = $taxonomy->get('field_twitter_image');
-              $image_id = $tax_image->getValue()[0]['target_id'] ?? NULL;
-              $image_url = '';
-              if ($image_id) {
-                $image_style = new OitImageStyled($image_id, 'large', '', \Drupal::entityTypeManager());
-                $image_url = $image_style->getImageUrl();
-              }
-
-              $host = \Drupal::request()->getSchemeAndHttpHost();
-
-              if ($image_url) {
-                $twitter_image = $image_url;
-              }
-              else {
-                $twitter_image = "$host/sites/default/files/sa_images/sa_other.png";
-              }
-
-              $replacements[$original] = $twitter_image;
-            }
-          }
-          break;
-
-        case 'og_image':
-          if (!empty($data['node'])) {
-            $replacements[$original] = '';
-            if ($data['node']->getType() == 'news') {
-              $og_image_id = oit_get_hero_image_fid($data['node']);
-              $og_image_url = '';
-              if ($og_image_id) {
-                $og_image_style = new OitImageStyled($og_image_id, 'social_share', '', \Drupal::entityTypeManager());
-                $og_image_url = $og_image_style->getImageUrl();
-              }
-              $replacements[$original] = $og_image_url;
-            }
-            if ($data['node']->getType() == 'service_alert' && count($data['node']->get('field_service_alert_dash_cat')->getValue()) !== 0) {
-              $set_dashboard = $data['node']->get('field_service_alert_dash_cat')->getValue()[0]['target_id'];
-              $taxonomy = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load($set_dashboard);
-              $image_id = NULL;
-              if ($taxonomy !== NULL) {
-                $tax_image = $taxonomy->get('field_twitter_image');
-                $tax_image_values = $tax_image->getValue();
-                $image_id = !empty($tax_image_values) ? ($tax_image_values[0]['target_id'] ?? NULL) : NULL;
-              }
-              $image_url = '';
-              if ($image_id) {
-                $image_style = new OitImageStyled($image_id, 'social_share', '', \Drupal::entityTypeManager());
-                $image_url = $image_style->getImageUrl();
-              }
-              $host = \Drupal::request()->getSchemeAndHttpHost();
-              $replacements[$original] = $image_url ?: "$host/sites/default/files/sa_images/sa_other.png";
-            }
-          }
-          break;
-
-        case 'sa_status':
-          if (!empty($data['node'])) {
-            $sa_status = $data['node']->get('field_service_alert_status')->getValue() !== NULL ? $data['node']->get('field_service_alert_status')->getValue() : '';
-            $replacements[$original] = $sa_status[0]['value'];
-          }
-          break;
-
-        case 'sa_title':
-          if (!empty($data['node'])) {
-            $sa_title = $data['node']->get('field_service_alert_title')->getValue() !== NULL ? $data['node']->get('field_service_alert_title')->getValue() : '';
-            $replacements[$original] = $sa_title[0]['value'];
-          }
-          break;
-      }
-    }
-  }
-  return $replacements;
-}
-
-/**
  * Implements hook_page_attachments_alter().
  */
 function oit_page_attachments_alter(array &$attachments) {
@@ -460,7 +311,7 @@ function oit_news_update($entity) {
     || (isset($meta_info['twitter_cards_image']) && strpos($meta_info['twitter_cards_image'], '/system/temporary') !== FALSE);
   $og_using_large = isset($meta_info['og_image']) && strpos($meta_info['og_image'], '/styles/large/') !== FALSE;
   if (!isset($meta_info['twitter_cards_image']) || !isset($meta_info['og_image']) || $is_temp_image || $og_using_large) {
-    $image_id = oit_get_hero_image_fid($entity);
+    $image_id = \Drupal::service('oit.hero_image')->getFileId($entity);
     if (!empty($image_id)) {
       $twitter_style = new OitImageStyled($image_id, 'large', '', \Drupal::entityTypeManager());
       $twitter_styled = $twitter_style->getImageUrl();
@@ -479,21 +330,6 @@ function oit_news_update($entity) {
   if ($entity->getType() == 'news' && $entity->get('field_news_archive')->getValue()[0]['value'] == 2) {
     $entity->set('unpublish_on', strtotime("100 days"));
   }
-}
-
-/**
- * Get the file entity ID from the news hero media field.
- */
-function oit_get_hero_image_fid($node) {
-  if ($node->get('field_media_hero_image')->isEmpty()) {
-    return NULL;
-  }
-  $media_id = $node->get('field_media_hero_image')->getValue()[0]['target_id'];
-  $media = \Drupal::entityTypeManager()->getStorage('media')->load($media_id);
-  if (!$media || $media->get('field_media_image_2')->isEmpty()) {
-    return NULL;
-  }
-  return $media->get('field_media_image_2')->getValue()[0]['target_id'];
 }
 
 /**

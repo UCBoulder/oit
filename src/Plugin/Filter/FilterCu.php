@@ -2,19 +2,21 @@
 
 namespace Drupal\oit\Plugin\Filter;
 
+use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\filter\Attribute\Filter;
 use Drupal\filter\FilterProcessResult;
 use Drupal\filter\Plugin\FilterBase;
+use Drupal\filter\Plugin\FilterInterface;
 
 /**
  * Filter to remove any dashes in Cu Boulder text.
- *
- * @Filter(
- *   id = "filter_cu",
- *   title = @Translation("CU Boulder Filter"),
- *   description = @Translation("Remove hyphen in CU-Boulder"),
- *   type = Drupal\filter\Plugin\FilterInterface::TYPE_TRANSFORM_IRREVERSIBLE,
- * )
  */
+#[Filter(
+  id: "filter_cu",
+  title: new TranslatableMarkup("CU Boulder Filter"),
+  type: FilterInterface::TYPE_TRANSFORM_IRREVERSIBLE,
+  description: new TranslatableMarkup("Remove hyphen in CU-Boulder"),
+)]
 class FilterCu extends FilterBase {
 
   /**

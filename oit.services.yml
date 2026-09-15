@@ -61,6 +61,9 @@ services:
   oit.portfolio:
     class: Drupal\oit\Services\PortfolioData
     arguments: ['@cache.default', '@cache_tags.invalidator']
+  oit.hero_image:
+    class: Drupal\oit\Services\HeroImage
+    arguments: ['@entity_type.manager']
   oit.route_subscriber:
     class: Drupal\oit\Services\RouteSubscriber
     tags:
