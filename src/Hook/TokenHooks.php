@@ -94,7 +94,9 @@ class TokenHooks {
     foreach ($tokens as $name => $original) {
       switch ($name) {
         case 'who_i_is':
-          $replacements[$original] = $this->currentUserName();
+          // The value varies per account, including the empty anonymous one.
+          $bubbleable_metadata->addCacheContexts(['user']);
+          $replacements[$original] = $this->currentUserName($bubbleable_metadata);
           break;
 
         case 'tweet_pic':
@@ -117,16 +119,25 @@ class TokenHooks {
   /**
    * Gets the current user's display name for the who_i_is token.
    *
+   * @param \Drupal\Core\Render\BubbleableMetadata $bubbleable_metadata
+   *   The bubbleable metadata the loaded user is added to as a dependency.
+   *
    * @return string
    *   The HTML-escaped user name, or an empty string.
    */
-  protected function currentUserName(): string {
+  protected function currentUserName(BubbleableMetadata $bubbleable_metadata): string {
     if ($this->currentUser->isAnonymous()) {
       return '';
     }
 
     $user = $this->entityTypeManager->getStorage('user')->load($this->currentUser->id());
-    if (!$user || !$user->hasField('field_user_name') || $user->get('field_user_name')->isEmpty()) {
+    if (!$user) {
+      return '';
+    }
+
+    // Invalidate the replacement when the user's name changes.
+    $bubbleable_metadata->addCacheableDependency($user);
+    if (!$user->hasField('field_user_name') || $user->get('field_user_name')->isEmpty()) {
       return '';
     }
 

@@ -2,6 +2,9 @@
 
 namespace Drupal\Tests\oit\Unit\Hook;
 
+use Drupal\Core\Cache\Cache;
+use Drupal\Core\Cache\Context\CacheContextsManager;
+use Drupal\Core\DependencyInjection\ContainerBuilder;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Field\FieldItemListInterface;
@@ -83,6 +86,14 @@ class TokenHooksTest extends DrupalUnitTestCase {
     $this->requestStack = new RequestStack();
     $request = Request::create(self::HOST . '/node/1');
     $this->requestStack->push($request);
+
+    // BubbleableMetadata::addCacheContexts() validates contexts through the
+    // cache_contexts_manager service.
+    $cacheContextsManager = $this->createMock(CacheContextsManager::class);
+    $cacheContextsManager->method('assertValidTokens')->willReturn(TRUE);
+    $container = new ContainerBuilder();
+    $container->set('cache_contexts_manager', $cacheContextsManager);
+    \Drupal::setContainer($container);
   }
 
   /**
@@ -244,9 +255,11 @@ class TokenHooksTest extends DrupalUnitTestCase {
 
     $hooks = $this->createTokenHooks();
     $tokens = ['who_i_is' => '[oittoken:who_i_is]'];
-    $result = $hooks->tokens('oittoken', $tokens, [], [], new BubbleableMetadata());
+    $metadata = new BubbleableMetadata();
+    $result = $hooks->tokens('oittoken', $tokens, [], [], $metadata);
 
     $this->assertSame('', $result['[oittoken:who_i_is]']);
+    $this->assertContains('user', $metadata->getCacheContexts());
   }
 
   /**
@@ -276,6 +289,7 @@ class TokenHooksTest extends DrupalUnitTestCase {
 
     $user = $this->createMock(UserInterface::class);
     $user->method('hasField')->with('field_user_name')->willReturn(FALSE);
+    $this->stubUserCacheability($user, 7);
 
     $userStorage = $this->createMock(EntityStorageInterface::class);
     $userStorage->method('load')->with(7)->willReturn($user);
@@ -298,6 +312,7 @@ class TokenHooksTest extends DrupalUnitTestCase {
     $user = $this->createMock(UserInterface::class);
     $user->method('hasField')->with('field_user_name')->willReturn(TRUE);
     $user->method('get')->with('field_user_name')->willReturn($this->mockField(TRUE));
+    $this->stubUserCacheability($user, 7);
 
     $userStorage = $this->createMock(EntityStorageInterface::class);
     $userStorage->method('load')->with(7)->willReturn($user);
@@ -305,9 +320,12 @@ class TokenHooksTest extends DrupalUnitTestCase {
 
     $hooks = $this->createTokenHooks();
     $tokens = ['who_i_is' => '[oittoken:who_i_is]'];
-    $result = $hooks->tokens('oittoken', $tokens, [], [], new BubbleableMetadata());
+    $metadata = new BubbleableMetadata();
+    $result = $hooks->tokens('oittoken', $tokens, [], [], $metadata);
 
     $this->assertSame('', $result['[oittoken:who_i_is]']);
+    $this->assertContains('user', $metadata->getCacheContexts());
+    $this->assertContains('user:7', $metadata->getCacheTags());
   }
 
   /**
@@ -320,6 +338,7 @@ class TokenHooksTest extends DrupalUnitTestCase {
     $user = $this->createMock(UserInterface::class);
     $user->method('hasField')->with('field_user_name')->willReturn(TRUE);
     $user->method('get')->with('field_user_name')->willReturn($this->mockField(FALSE, 'Ralphie <b>'));
+    $this->stubUserCacheability($user, 7);
 
     $userStorage = $this->createMock(EntityStorageInterface::class);
     $userStorage->method('load')->with(7)->willReturn($user);
@@ -327,9 +346,27 @@ class TokenHooksTest extends DrupalUnitTestCase {
 
     $hooks = $this->createTokenHooks();
     $tokens = ['who_i_is' => '[oittoken:who_i_is]'];
-    $result = $hooks->tokens('oittoken', $tokens, [], [], new BubbleableMetadata());
+    $metadata = new BubbleableMetadata();
+    $result = $hooks->tokens('oittoken', $tokens, [], [], $metadata);
 
     $this->assertSame('Ralphie &lt;b&gt;', $result['[oittoken:who_i_is]']);
+    $this->assertContains('user', $metadata->getCacheContexts());
+    $this->assertContains('user:7', $metadata->getCacheTags());
+    $this->assertSame(Cache::PERMANENT, $metadata->getCacheMaxAge());
+  }
+
+  /**
+   * Stubs the cacheability methods on a mocked user entity.
+   *
+   * @param \Drupal\user\UserInterface|\PHPUnit\Framework\MockObject\MockObject $user
+   *   The mocked user.
+   * @param int $uid
+   *   The user ID used for the cache tag.
+   */
+  protected function stubUserCacheability($user, int $uid): void {
+    $user->method('getCacheTags')->willReturn(['user:' . $uid]);
+    $user->method('getCacheContexts')->willReturn([]);
+    $user->method('getCacheMaxAge')->willReturn(Cache::PERMANENT);
   }
 
   /**

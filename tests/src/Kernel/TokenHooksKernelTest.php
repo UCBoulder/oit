@@ -4,6 +4,7 @@ namespace Drupal\Tests\oit\Kernel;
 
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
+use Drupal\Core\Render\BubbleableMetadata;
 use Drupal\KernelTests\KernelTestBase;
 use Drupal\oit\Hook\TokenHooks;
 use Drupal\user\Entity\User;
@@ -94,18 +95,23 @@ class TokenHooksKernelTest extends KernelTestBase {
     $user->save();
     \Drupal::currentUser()->setAccount($user);
 
-    $result = \Drupal::token()->replacePlain('[oittoken:who_i_is]');
+    $metadata = new BubbleableMetadata();
+    $result = \Drupal::token()->replacePlain('[oittoken:who_i_is]', [], [], $metadata);
 
     $this->assertSame('Ralphie &lt;b&gt;', $result);
+    $this->assertContains('user', $metadata->getCacheContexts());
+    $this->assertContains('user:' . $user->id(), $metadata->getCacheTags());
   }
 
   /**
    * Tests who_i_is returns an empty string for anonymous users.
    */
   public function testWhoIisForAnonymous(): void {
-    $result = \Drupal::token()->replacePlain('[oittoken:who_i_is]');
+    $metadata = new BubbleableMetadata();
+    $result = \Drupal::token()->replacePlain('[oittoken:who_i_is]', [], [], $metadata);
 
     $this->assertSame('', $result);
+    $this->assertContains('user', $metadata->getCacheContexts());
   }
 
 }
