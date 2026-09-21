@@ -18,11 +18,18 @@ use Drupal\key\KeyRepositoryInterface;
  */
 class TeamsAlert {
   /**
-   * Stores Teams URL.
+   * Stores Teams URL, or NULL until it has been resolved.
    *
-   * @var string
+   * @var string|null
    */
   private $teamsUrl;
+
+  /**
+   * Whether the Teams URL has been resolved.
+   *
+   * @var bool
+   */
+  private $teamsUrlResolved = FALSE;
 
   /**
    * Message to send.
@@ -77,10 +84,37 @@ class TeamsAlert {
     $this->keyRepository = $key_repository;
     $this->encryptService = $encrypt_service;
     $this->logger = $channelFactory->get('oit');
-    $key_encrypted = trim($this->keyRepository->getKey('ms_teams')->getKeyValue());
-    $encryption_profile = EncryptionProfile::load('key_encryption');
-    $this->teamsUrl = $this->encryptService->decrypt($key_encrypted, $encryption_profile);
     $this->env = getenv('PANTHEON_ENVIRONMENT');
+  }
+
+  /**
+   * Resolves the Teams webhook URL from the encrypted key.
+   *
+   * Resolved lazily so that constructing this service never requires the
+   * 'ms_teams' key or the 'key_encryption' profile to exist.
+   *
+   * @return string|null
+   *   The decrypted webhook URL, or NULL if it cannot be resolved.
+   */
+  protected function getTeamsUrl() {
+    if ($this->teamsUrlResolved) {
+      return $this->teamsUrl;
+    }
+    $this->teamsUrlResolved = TRUE;
+
+    $key = $this->keyRepository->getKey('ms_teams');
+    if ($key === NULL) {
+      $this->logger->error("Unable to send Teams message: the 'ms_teams' key does not exist.");
+      return NULL;
+    }
+    $encryption_profile = EncryptionProfile::load('key_encryption');
+    if ($encryption_profile === NULL) {
+      $this->logger->error("Unable to send Teams message: the 'key_encryption' encryption profile does not exist.");
+      return NULL;
+    }
+    $this->teamsUrl = $this->encryptService->decrypt(trim($key->getKeyValue()), $encryption_profile);
+
+    return $this->teamsUrl;
   }
 
   /**
@@ -98,10 +132,14 @@ class TeamsAlert {
     if (!in_array($this->env, $environment)) {
       return;
     }
+    $teams_url = $this->getTeamsUrl();
+    if (empty($teams_url)) {
+      return;
+    }
     $this->message = $message;
     $teams_card = json_encode($this->getMessage());
     // Initialize curl handle.
-    $ch = curl_init($this->teamsUrl);
+    $ch = curl_init($teams_url);
     curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
     curl_setopt($ch, CURLOPT_POSTFIELDS, $teams_card);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
