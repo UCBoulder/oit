@@ -150,15 +150,15 @@ class MenuHooks {
     }
     $destination = $this->redirectDestination->get();
     // Never send the user back to the login flow itself.
-    if (!$destination || str_starts_with($destination, self::SAML_LOGIN_PATH)) {
-      return;
+    if ($destination && str_starts_with($destination, self::SAML_LOGIN_PATH)) {
+      $destination = NULL;
     }
     // Core always sets 'items', but guard the by-reference pass anyway: PHP
     // would create the missing key as NULL and fail the array type hint.
     if (!isset($variables['items']) || !is_array($variables['items'])) {
       return;
     }
-    $this->addLoginDestination($variables['items'], $destination);
+    $this->alterLoginLinks($variables['items'], $destination);
   }
 
   /**
@@ -177,25 +177,53 @@ class MenuHooks {
   }
 
   /**
-   * Recursively adds the destination query to any SAML login link.
+   * Recursively alters any SAML login link.
+   *
+   * Adds the destination query when one is available and marks the link
+   * "nofollow" so crawlers do not follow it into the login flow.
    *
    * @param array $items
    *   The menu items, passed by reference.
-   * @param string $destination
-   *   The destination path to return to after login.
+   * @param string|null $destination
+   *   The destination path to return to after login, or NULL for none.
    */
-  protected function addLoginDestination(array &$items, string $destination): void {
+  protected function alterLoginLinks(array &$items, ?string $destination): void {
     foreach ($items as &$item) {
       $url = $item['url'] ?? NULL;
       if ($url instanceof Url && $this->isSamlLoginUrl($url)) {
-        $query = $url->getOption('query') ?: [];
-        $query['destination'] = $destination;
-        $url->setOption('query', $query);
+        if ($destination) {
+          $query = $url->getOption('query') ?: [];
+          $query['destination'] = $destination;
+          $url->setOption('query', $query);
+        }
+        $this->addNofollow($url);
       }
       if (!empty($item['below'])) {
-        $this->addLoginDestination($item['below'], $destination);
+        $this->alterLoginLinks($item['below'], $destination);
       }
     }
+  }
+
+  /**
+   * Adds rel="nofollow" to a link URL.
+   *
+   * The attributes option is used rather than the menu item attributes: the
+   * latter are rendered on the wrapping <li>, while link() merges the URL
+   * option onto the <a> itself.
+   *
+   * @param \Drupal\Core\Url $url
+   *   The link URL.
+   */
+  protected function addNofollow(Url $url): void {
+    $attributes = $url->getOption('attributes') ?: [];
+    $rel = $attributes['rel'] ?? '';
+    $values = is_array($rel) ? $rel : preg_split('/\s+/', trim((string) $rel), -1, PREG_SPLIT_NO_EMPTY);
+    if (in_array('nofollow', $values, TRUE)) {
+      return;
+    }
+    $values[] = 'nofollow';
+    $attributes['rel'] = is_array($rel) ? $values : implode(' ', $values);
+    $url->setOption('attributes', $attributes);
   }
 
   /**

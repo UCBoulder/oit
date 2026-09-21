@@ -26,7 +26,8 @@ use PHPUnit\Framework\Attributes\Group;
 #[CoversMethod(MenuHooks::class, 'horizontalManipulatorsAlter')]
 #[CoversMethod(MenuHooks::class, 'preprocessMenu')]
 #[CoversMethod(MenuHooks::class, 'blockBuildAlter')]
-#[CoversMethod(MenuHooks::class, 'addLoginDestination')]
+#[CoversMethod(MenuHooks::class, 'alterLoginLinks')]
+#[CoversMethod(MenuHooks::class, 'addNofollow')]
 #[CoversMethod(MenuHooks::class, 'isSamlLoginUrl')]
 class MenuHooksTest extends DrupalUnitTestCase {
 
@@ -74,6 +75,32 @@ class MenuHooksTest extends DrupalUnitTestCase {
     $url->method('toString')->willReturn($as_string);
 
     return $url;
+  }
+
+  /**
+   * Stubs get/setOption on a mocked Url with a mutable options store.
+   *
+   * @param \Drupal\Core\Url|\PHPUnit\Framework\MockObject\MockObject $url
+   *   The mocked URL.
+   * @param array $initial
+   *   The initial URL options.
+   *
+   * @return \ArrayObject
+   *   The live options store, readable after the hook has run.
+   */
+  protected function stubOptions(Url $url, array $initial = []): \ArrayObject {
+    $options = new \ArrayObject($initial);
+    $url->method('getOption')->willReturnCallback(
+      fn(string $name) => $options[$name] ?? NULL
+    );
+    $url->method('setOption')->willReturnCallback(
+      function (string $name, $value) use ($options, $url) {
+        $options[$name] = $value;
+        return $url;
+      }
+    );
+
+    return $options;
   }
 
   /* --------------------------------------------------------------------
@@ -235,10 +262,7 @@ class MenuHooksTest extends DrupalUnitTestCase {
     $hooks = $this->buildHooks('oit', $redirect_destination);
 
     $url = $this->mockUrl(TRUE, 'samlauth.saml_controller_login', FALSE, '');
-    $url->method('getOption')->with('query')->willReturn(NULL);
-    $url->expects($this->once())
-      ->method('setOption')
-      ->with('query', ['destination' => '/node/5']);
+    $options = $this->stubOptions($url);
 
     $variables = [
       'menu_name' => 'account',
@@ -247,6 +271,8 @@ class MenuHooksTest extends DrupalUnitTestCase {
       ],
     ];
     $hooks->preprocessMenu($variables);
+
+    $this->assertSame(['destination' => '/node/5'], $options['query']);
   }
 
   /**
@@ -258,10 +284,7 @@ class MenuHooksTest extends DrupalUnitTestCase {
     $hooks = $this->buildHooks('oit', $redirect_destination);
 
     $url = $this->mockUrl(TRUE, 'samlauth.saml_controller_login', FALSE, '');
-    $url->method('getOption')->with('query')->willReturn(NULL);
-    $url->expects($this->once())
-      ->method('setOption')
-      ->with('query', ['destination' => '/node/5']);
+    $options = $this->stubOptions($url);
 
     $variables = [
       'menu_name' => 'account',
@@ -275,6 +298,8 @@ class MenuHooksTest extends DrupalUnitTestCase {
       ],
     ];
     $hooks->preprocessMenu($variables);
+
+    $this->assertSame(['destination' => '/node/5'], $options['query']);
   }
 
   /**
@@ -286,10 +311,7 @@ class MenuHooksTest extends DrupalUnitTestCase {
     $hooks = $this->buildHooks('oit', $redirect_destination);
 
     $url = $this->mockUrl(FALSE, NULL, FALSE, '/saml/login');
-    $url->method('getOption')->with('query')->willReturn(NULL);
-    $url->expects($this->once())
-      ->method('setOption')
-      ->with('query', ['destination' => '/node/5']);
+    $options = $this->stubOptions($url);
 
     $variables = [
       'menu_name' => 'account',
@@ -298,6 +320,8 @@ class MenuHooksTest extends DrupalUnitTestCase {
       ],
     ];
     $hooks->preprocessMenu($variables);
+
+    $this->assertSame(['destination' => '/node/5'], $options['query']);
   }
 
   /**
@@ -332,10 +356,7 @@ class MenuHooksTest extends DrupalUnitTestCase {
     $hooks = $this->buildHooks('oit', $redirect_destination);
 
     $url = $this->mockUrl(TRUE, 'samlauth.saml_controller_login', FALSE, '');
-    $url->method('getOption')->with('query')->willReturn(['foo' => 'bar']);
-    $url->expects($this->once())
-      ->method('setOption')
-      ->with('query', ['foo' => 'bar', 'destination' => '/node/5']);
+    $options = $this->stubOptions($url, ['query' => ['foo' => 'bar']]);
 
     $variables = [
       'menu_name' => 'account',
@@ -344,6 +365,8 @@ class MenuHooksTest extends DrupalUnitTestCase {
       ],
     ];
     $hooks->preprocessMenu($variables);
+
+    $this->assertSame(['foo' => 'bar', 'destination' => '/node/5'], $options['query']);
   }
 
   /**
@@ -370,7 +393,7 @@ class MenuHooksTest extends DrupalUnitTestCase {
    * Tests no TypeError is thrown when the account menu has no items key.
    *
    * Pins a regression fix documented in section 3.3 of the spec: passing
-   * $variables['items'] by reference into addLoginDestination(), which is
+   * $variables['items'] by reference into alterLoginLinks(), which is
    * typed `array`, autovivified a NULL key and fataled with a TypeError.
    */
   public function testPreprocessMenuNoItemsKeyReturnsCleanly(): void {
@@ -384,6 +407,105 @@ class MenuHooksTest extends DrupalUnitTestCase {
     // The guard returns before the by-reference pass, so no 'items' key is
     // invented on the caller's variables.
     $this->assertSame(['menu_name' => 'account'], $variables);
+  }
+
+  /**
+   * Tests rel="nofollow" is set in the URL attributes of the SAML login link.
+   */
+  public function testPreprocessMenuAddsNofollowToSamlLink(): void {
+    $redirect_destination = $this->createMock(RedirectDestinationInterface::class);
+    $redirect_destination->method('get')->willReturn('/node/5');
+    $hooks = $this->buildHooks('oit', $redirect_destination);
+
+    $url = $this->mockUrl(TRUE, 'samlauth.saml_controller_login', FALSE, '');
+    $options = $this->stubOptions($url);
+
+    $variables = [
+      'menu_name' => 'account',
+      'items' => [
+        ['title' => 'Log in', 'url' => $url],
+      ],
+    ];
+    $hooks->preprocessMenu($variables);
+
+    $this->assertSame(['rel' => 'nofollow'], $options['attributes']);
+    // The item attributes render on the wrapping <li>, so they stay clean.
+    $this->assertArrayNotHasKey('attributes', $variables['items'][0]);
+  }
+
+  /**
+   * Tests nofollow is still added when there is no usable destination.
+   */
+  public function testPreprocessMenuAddsNofollowWithoutDestination(): void {
+    $redirect_destination = $this->createMock(RedirectDestinationInterface::class);
+    $redirect_destination->method('get')->willReturn('/saml/login?destination=%2Fnode%2F1');
+    $hooks = $this->buildHooks('oit', $redirect_destination);
+
+    $url = $this->mockUrl(TRUE, 'samlauth.saml_controller_login', FALSE, '');
+    $options = $this->stubOptions($url);
+
+    $variables = [
+      'menu_name' => 'account',
+      'items' => [
+        ['title' => 'Log in', 'url' => $url],
+      ],
+    ];
+    $hooks->preprocessMenu($variables);
+
+    $this->assertSame(['rel' => 'nofollow'], $options['attributes']);
+    $this->assertArrayNotHasKey('query', $options);
+  }
+
+  /**
+   * Tests an existing string rel is preserved and nofollow appended once.
+   */
+  public function testPreprocessMenuPreservesExistingStringRel(): void {
+    $redirect_destination = $this->createMock(RedirectDestinationInterface::class);
+    $redirect_destination->method('get')->willReturn('/node/5');
+    $hooks = $this->buildHooks('oit', $redirect_destination);
+
+    $url = $this->mockUrl(TRUE, 'samlauth.saml_controller_login', FALSE, '');
+    $options = $this->stubOptions($url, [
+      'attributes' => ['class' => ['button'], 'rel' => 'noopener'],
+    ]);
+
+    $variables = [
+      'menu_name' => 'account',
+      'items' => [
+        ['title' => 'Log in', 'url' => $url],
+      ],
+    ];
+    $hooks->preprocessMenu($variables);
+    // A second pass must not duplicate the value.
+    $hooks->preprocessMenu($variables);
+
+    $this->assertSame(
+      ['class' => ['button'], 'rel' => 'noopener nofollow'],
+      $options['attributes']
+    );
+  }
+
+  /**
+   * Tests an array rel is preserved as an array with nofollow appended.
+   */
+  public function testPreprocessMenuPreservesArrayRel(): void {
+    $redirect_destination = $this->createMock(RedirectDestinationInterface::class);
+    $redirect_destination->method('get')->willReturn('/node/5');
+    $hooks = $this->buildHooks('oit', $redirect_destination);
+
+    $url = $this->mockUrl(TRUE, 'samlauth.saml_controller_login', FALSE, '');
+    $options = $this->stubOptions($url, ['attributes' => ['rel' => ['noopener']]]);
+
+    $variables = [
+      'menu_name' => 'account',
+      'items' => [
+        ['title' => 'Log in', 'url' => $url],
+      ],
+    ];
+    $hooks->preprocessMenu($variables);
+    $hooks->preprocessMenu($variables);
+
+    $this->assertSame(['rel' => ['noopener', 'nofollow']], $options['attributes']);
   }
 
   /* --------------------------------------------------------------------
