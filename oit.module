@@ -6,11 +6,9 @@
  */
 
 use Drupal\block\Entity\Block;
-use Drupal\Component\Serialization\Json;
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Cache\Cache;
-use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Session\AccountInterface;
@@ -189,80 +187,6 @@ function oit_news_types_categories(&$form, FormStateInterface $form_state) {
   }
   if (!empty($cat_type)) {
     $form_state->setErrorByName('field_oit_category', t('Please select a @type category', ['@type' => $cat_type]));
-  }
-}
-
-/**
- * Implements hook_page_attachments_alter().
- */
-function oit_page_attachments_alter(array &$attachments) {
-  $node = \Drupal::routeMatch()->getParameter('node');
-  if (!is_null($node)) {
-    $id = is_string($node) ? $node : $node->id();
-    if ($id == 262) {
-      $attachments['#attached']['library'][] = 'oit/listjs';
-      $attachments['#attached']['library'][] = 'oit/downloads_search';
-    }
-    if (!is_string($node)) {
-      if ($node->getType() == 'tutorial') {
-        $attachments['#attached']['library'][] = 'dingo/tutorial';
-      }
-    }
-  }
-  $domain = \Drupal::service('oit.domain')->getDomain();
-  if ($domain == 'oit') {
-    $google_site_verify = [
-      '#tag' => 'meta',
-      '#attributes' => [
-        'name' => 'google-site-verification',
-        'content' => '7W5qMq8L0e0Ar6WDHCTrcC5IDXMBDj1Cm1DL0evR32o',
-      ],
-    ];
-    $attachments['#attached']['html_head'][] = [$google_site_verify, 'google-site-verification'];
-
-    $user = \Drupal::currentUser();
-    $roles = $user->getRoles();
-    $environment = getenv('PANTHEON_ENVIRONMENT');
-    if (!in_array('administrator', $roles) && $environment != 'local') {
-      // Goodkind chatbot widget.
-      $chatbot_config = [
-        'aiBotId' => '6765a3c67b1f300012149d6e',
-        'apiKey' => '659425d1a56d1027865e1d658b27679e288bdd07adb4814d0d812a69bba6b429c77939ec0214f41e731ec17a26ce1ddcff47d138efbfc5199ff87a2569ed8115f4fbfca462109099a2cdf031b6c7b55fb3734024368179943a227b5cc6ec566bb01a45695e42a074f00d15ad0029775f46b7ad',
-      ];
-      $chatbot_settings = [
-        '#tag' => 'script',
-        '#attributes' => ['type' => 'text/javascript'],
-        '#value' => 'window.gkCBWConfig = ' . Json::encode($chatbot_config) . ';',
-      ];
-      $attachments['#attached']['html_head'][] = [$chatbot_settings, 'gk-chatbot-widget-config'];
-      $chatbot_widget = [
-        '#tag' => 'script',
-        '#attributes' => [
-          'type' => 'module',
-          'src' => 'https://widget.goodkind.com/gk-chatbot-widget.js',
-          'defer' => TRUE,
-        ],
-        '#value' => '',
-      ];
-      $attachments['#attached']['html_head'][] = [$chatbot_widget, 'gk-chatbot-widget'];
-    }
-  }
-}
-
-/**
- * Implements hook_entity_view().
- */
-function oit_entity_view(array &$build, EntityInterface $entity, EntityViewDisplayInterface $display, $view_mode) {
-  if ($entity->getEntityType()->getBundleEntityType() == 'node_type' && $entity->getType() == 'webform') {
-    if ($webform_id = $entity->get('webform')->getValue()) {
-      $webform_id = $webform_id[0]['target_id'];
-      $webform = \Drupal::entityTypeManager()->getStorage('webform')->load($webform_id);
-      // Report error if webform node is pointing to a deleted webform.
-      if ($webform == NULL && $webform_id != 0) {
-        \Drupal::service('oit.teamsalert')->sendMessage('Webform no longer exists but is set on node: ' . $entity->id(), ['live']);
-        \Drupal::logger('oit')->error('Webform no longer exists but is set on node: ' . $entity->id());
-      }
-    }
   }
 }
 
