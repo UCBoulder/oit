@@ -171,7 +171,7 @@ class PortfolioBlock extends BlockBase implements ContainerFactoryPluginInterfac
       '#rows' => $rows,
       '#attributes' => ['id' => 'gdoc-table', 'class' => ['table-search']],
       '#attached' => [
-        'library' => ['oit/table_search', 'oit/oit_projects'],
+        'library' => ['oit/table_search', 'oit/oit_projects', 'oit/oit_portfolio'],
       ],
     ];
     // Set a single top-level cache entry so the tag bubbles to the node page
