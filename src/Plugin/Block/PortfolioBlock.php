@@ -8,6 +8,7 @@ use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\oit\Plugin\GoogleSheetsProcess;
 use Drupal\oit\Services\PortfolioData;
+use Drupal\shortcode_svg\ShortcodeIcon;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -36,6 +37,13 @@ class PortfolioBlock extends BlockBase implements ContainerFactoryPluginInterfac
   protected $renderer;
 
   /**
+   * The shortcode svg icon service.
+   *
+   * @var \Drupal\shortcode_svg\ShortcodeIcon
+   */
+  protected $shortcodeSvgIcon;
+
+  /**
    * Constructs a new PortfolioBlock.
    *
    * @param array $configuration
@@ -48,11 +56,14 @@ class PortfolioBlock extends BlockBase implements ContainerFactoryPluginInterfac
    *   The portfolio data service.
    * @param \Drupal\Core\Render\RendererInterface $renderer
    *   The renderer service.
+   * @param \Drupal\shortcode_svg\ShortcodeIcon $shortcode_svg_icon
+   *   The shortcode svg icon service.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, PortfolioData $portfolio_data, RendererInterface $renderer) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, PortfolioData $portfolio_data, RendererInterface $renderer, ShortcodeIcon $shortcode_svg_icon) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->portfolioData = $portfolio_data;
     $this->renderer = $renderer;
+    $this->shortcodeSvgIcon = $shortcode_svg_icon;
   }
 
   /**
@@ -64,7 +75,8 @@ class PortfolioBlock extends BlockBase implements ContainerFactoryPluginInterfac
       $plugin_id,
       $plugin_definition,
       $container->get('oit.portfolio'),
-      $container->get('renderer')
+      $container->get('renderer'),
+      $container->get('shortcode_svg.icon')
     );
   }
 
@@ -172,6 +184,9 @@ class PortfolioBlock extends BlockBase implements ContainerFactoryPluginInterfac
       '#attributes' => ['id' => 'gdoc-table', 'class' => ['table-search']],
       '#attached' => [
         'library' => ['oit/table_search', 'oit/oit_projects'],
+        'drupalSettings' => [
+          'oit' => ['spriteUrl' => $this->shortcodeSvgIcon->getSvg()],
+        ],
       ],
     ];
     // Set a single top-level cache entry so the tag bubbles to the node page
@@ -179,7 +194,7 @@ class PortfolioBlock extends BlockBase implements ContainerFactoryPluginInterfac
     // CDN. The max-age is a freshness backstop only — the remote fetch is gated
     // behind the oit.portfolio data cache, not this value.
     $html['#cache'] = [
-      'tags' => [PortfolioData::TAG],
+      'tags' => [PortfolioData::TAG, 'config:shortcode_svg.settings'],
       'max-age' => PortfolioData::TTL,
     ];
     return $html;

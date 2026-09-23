@@ -200,17 +200,17 @@ class OitController extends ControllerBase {
           <div class="flex">
             <div class="flex-one-third">
               <a id="search-404" class="icon button" href="/search/cse"><span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 34 34" class="svg-icon search" width="20">
-                <use fill="#fff" xlink:href="/sites/default/files/svg/sprite_5.svg#search"></use>
+                <use fill="#fff" xlink:href="{{ sprite }}#search"></use>
                 </svg></span>&nbsp;&nbsp; {{ button_search }}</a>
             </div>
             <div class="flex-one-third">
               <a class="icon button" href="/node/24951"><span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 34 34" class="svg-icon megaphone" width="20">
-                <use fill="#fff" xlink:href="/sites/default/files/svg/sprite_5.svg#megaphone"></use>
+                <use fill="#fff" xlink:href="{{ sprite }}#megaphone"></use>
                 </svg></span>&nbsp;&nbsp; {{ button_report }}</a>
             </div>
             <div class="flex-one-third">
               <div class="icon button" id="toggle404"><span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 34 34" class="svg-icon circleoflife" width="20">
-                <use fill="#fff" xlink:href="/sites/default/files/svg/sprite_5.svg#circleoflife"></use>
+                <use fill="#fff" xlink:href="{{ sprite }}#circleoflife"></use>
                 </svg></span>&nbsp;&nbsp; {{ button_spin }}!</div>
             </div>
           </div>
@@ -237,6 +237,7 @@ class OitController extends ControllerBase {
       '#context' => [
         'title' => $this->t('Hmm...looks like something went wrong.'),
         'module_path' => "/$module_path/images/404",
+        'sprite' => $this->shortcodeSvgIcon->getSvg(),
         'host_default' => '404_barker.png',
         'host_carey' => '404_carey.png',
         'buffimg_alt' => $this->t('Buffalo holding broken plug - text 404'),
@@ -250,9 +251,11 @@ class OitController extends ControllerBase {
         'spint_text' => $this->t('Spin the wheel to go to a random page in the service area the spinner lands on'),
       ],
       // The page no longer varies by request URI or date, so it can be
-      // cached permanently with no cache contexts.
+      // cached permanently with no cache contexts. The settings tag is
+      // invalidated whenever a new sprite is uploaded.
       '#cache' => [
         'contexts' => [],
+        'tags' => ['config:shortcode_svg.settings'],
         'max-age' => Cache::PERMANENT,
       ],
     ];
