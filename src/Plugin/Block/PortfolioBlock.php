@@ -4,6 +4,7 @@ namespace Drupal\oit\Plugin\Block;
 
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Block\BlockBase;
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\oit\Plugin\GoogleSheetsProcess;
@@ -185,7 +186,10 @@ class PortfolioBlock extends BlockBase implements ContainerFactoryPluginInterfac
       '#attached' => [
         'library' => ['oit/table_search', 'oit/oit_projects'],
         'drupalSettings' => [
-          'oit' => ['spriteUrl' => $this->shortcodeSvgIcon->getSvg()],
+          'oit' => [
+            'spriteUrl' => $this->shortcodeSvgIcon->getSvg(),
+            'spriteViewBox' => $this->shortcodeSvgIcon->getViewBox(),
+          ],
         ],
       ],
     ];
@@ -194,7 +198,7 @@ class PortfolioBlock extends BlockBase implements ContainerFactoryPluginInterfac
     // CDN. The max-age is a freshness backstop only — the remote fetch is gated
     // behind the oit.portfolio data cache, not this value.
     $html['#cache'] = [
-      'tags' => [PortfolioData::TAG, 'config:shortcode_svg.settings'],
+      'tags' => Cache::mergeTags([PortfolioData::TAG], $this->shortcodeSvgIcon->getCacheTags()),
       'max-age' => PortfolioData::TTL,
     ];
     return $html;

@@ -1,7 +1,31 @@
 (function ($, drupalSettings) {
   // The sprite URL changes with every upload, so it comes from the server.
   var spriteUrl = drupalSettings.oit && drupalSettings.oit.spriteUrl;
-  var clearIcon = spriteUrl ? '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 34 34" class="svg-icon x-skinny" width="10"><use fill="#000" xlink:href="' + spriteUrl + '#x-skinny"></use></svg>' : '&times;';
+  var spriteViewBox = (drupalSettings.oit && drupalSettings.oit.spriteViewBox) || '0 0 34 34';
+
+  /**
+   * Build the "clear" icon as a DOM node so attribute values never need to be
+   * concatenated into an HTML string.
+   *
+   * @return {Node}
+   *   Either an <a>-ready SVG element, or a plain text node fallback.
+   */
+  function buildClearIcon() {
+    if (!spriteUrl) {
+      return document.createTextNode('×');
+    }
+    var svgNs = 'http://www.w3.org/2000/svg';
+    var svg = document.createElementNS(svgNs, 'svg');
+    svg.setAttribute('xmlns', svgNs);
+    svg.setAttribute('viewBox', spriteViewBox);
+    svg.setAttribute('class', 'svg-icon x-skinny');
+    svg.setAttribute('width', '10');
+    var use = document.createElementNS(svgNs, 'use');
+    use.setAttribute('fill', '#000');
+    use.setAttribute('href', spriteUrl + '#x-skinny');
+    svg.appendChild(use);
+    return svg;
+  }
 
   $(document).ready(function () {
     if ( $( ".table-search" ).length ) {
@@ -10,10 +34,11 @@
         var tableId = $ts.next().attr('id');
         var inputId = 'searchtable-' + i;
         var clearId = 'clear-' + inputId;
-        $ts.before('<div style="position: relative; width: fit-content;"><label for="' + inputId + '"><strong>Enter keyword to search </strong></label><input id="' + inputId + '" autosave="csrsearch" results="1" placeholder="search" name="s"><a href="#" id="' + clearId + '" class="search-clear" style="display:none; position: absolute; right: 5px;">' + clearIcon + '<span style="position:absolute; left:-10000px; top:auto; width:1px; height:1px; overflow:hidden;">Clear</span></a></div>');
+        $ts.before('<div style="position: relative; width: fit-content;"><label for="' + inputId + '"><strong>Enter keyword to search </strong></label><input id="' + inputId + '" autosave="csrsearch" results="1" placeholder="search" name="s"><a href="#" id="' + clearId + '" class="search-clear" style="display:none; position: absolute; right: 5px;"><span style="position:absolute; left:-10000px; top:auto; width:1px; height:1px; overflow:hidden;">Clear</span></a></div>');
 
         var $input = $('#' + inputId);
         var $clear = $('#' + clearId);
+        $clear.prepend(buildClearIcon());
 
         $input.keyup(function (e) {
           var val = $(this).val();
@@ -63,10 +88,11 @@
         var listId = $ls.next().attr('id');
         var inputId = 'searchlist-' + i;
         var clearId = 'clear-' + inputId;
-        $ls.before('<div style="position: relative; width: fit-content;"><label for="' + inputId + '"><strong>Enter keyword to search </strong></label><input id="' + inputId + '" autosave="csrsearch" results="1" placeholder="search" name="s"><a href="#" id="' + clearId + '" class="search-clear" style="display:none; position: absolute; right: 5px;">' + clearIcon + '<span style="position:absolute; left:-10000px; top:auto; width:1px; height:1px; overflow:hidden;">Clear</span></a></div>');
+        $ls.before('<div style="position: relative; width: fit-content;"><label for="' + inputId + '"><strong>Enter keyword to search </strong></label><input id="' + inputId + '" autosave="csrsearch" results="1" placeholder="search" name="s"><a href="#" id="' + clearId + '" class="search-clear" style="display:none; position: absolute; right: 5px;"><span style="position:absolute; left:-10000px; top:auto; width:1px; height:1px; overflow:hidden;">Clear</span></a></div>');
 
         var $input = $('#' + inputId);
         var $clear = $('#' + clearId);
+        $clear.prepend(buildClearIcon());
 
         $input.keyup(function (e) {
           var val = $(this).val();

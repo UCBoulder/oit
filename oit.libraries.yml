@@ -18,12 +18,19 @@ oit_node_news_form:
 oit_node_page_form:
   js:
     js/oit_node_page_form.js: {}
+  dependencies:
+    - core/jquery
+    - core/drupal
+    - core/once
+    - oit/oit_clipboard
   license:
     name: 'GPL-2.0-or-later'
     url: 'https://www.drupal.org/licensing/faq'
 oit_clipboard:
   js:
     js/oit_clipboard.js: {}
+  dependencies:
+    - core/drupal
   license:
     name: 'GPL-2.0-or-later'
     url: 'https://www.drupal.org/licensing/faq'

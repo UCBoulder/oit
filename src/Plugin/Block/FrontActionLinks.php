@@ -3,6 +3,7 @@
 namespace Drupal\oit\Plugin\Block;
 
 use Drupal\Core\Block\BlockBase;
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\oit\Plugin\BlockUuidQuery;
@@ -142,14 +143,15 @@ class FrontActionLinks extends BlockBase implements
         'requestText' => $this->t('Request Catalog'),
         'how' => $this->t('How do I'),
         'block' => $render,
-        'important' => $icon->setIcon('exclamation-stroke', 20, '#fff'),
-        'phone' => $icon->setIcon('megaphone', 20, '#fff'),
-        'check' => $icon->setIcon('bell-request', 20, '#fff'),
+        'important' => $icon->setIcon('exclamation-stroke', '20', 'fff'),
+        'phone' => $icon->setIcon('megaphone', '20', 'fff'),
+        'check' => $icon->setIcon('bell-request', '20', 'fff'),
       ],
       '#cache' => [
-        'tags' => [
-          'node_type:service_alert',
-        ],
+        'tags' => Cache::mergeTags(
+          ['node_type:service_alert'],
+          $icon->getCacheTags()
+        ),
       ],
     ];
   }
