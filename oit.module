@@ -14,6 +14,8 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\node\NodeInterface;
 use Drupal\oit\Plugin\OitImageStyled;
+use Drupal\webform\WebformInterface;
+use Drupal\webform\WebformSubmissionStorageInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
 /**
@@ -362,5 +364,16 @@ function oit_mail_alter(&$message) {
   $message['headers']['Return-Path'] = 'oitsrvcom@colorado.edu';
   if (empty($message['headers']['Reply-To'])) {
     $message['headers']['Reply-To'] = 'oithelp@colorado.edu';
+  }
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_create() for webform entities.
+ */
+function oit_webform_create(WebformInterface $webform) {
+  // Default new webforms to purge all submissions after 30 days.
+  if ($webform->getSetting('purge') === WebformSubmissionStorageInterface::PURGE_NONE) {
+    $webform->setSetting('purge', WebformSubmissionStorageInterface::PURGE_ALL);
+    $webform->setSetting('purge_days', 30);
   }
 }
