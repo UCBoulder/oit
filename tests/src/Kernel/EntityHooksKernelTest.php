@@ -2,6 +2,7 @@
 
 namespace Drupal\Tests\oit\Kernel;
 
+use Drupal\Core\Cache\Cache;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\KernelTests\KernelTestBase;
@@ -26,6 +27,7 @@ use Drupal\oit\Hook\EntityHooks;
 #[Group('oit')]
 #[RunTestsInSeparateProcesses]
 #[CoversMethod(EntityHooks::class, 'entityCreate')]
+#[CoversMethod(EntityHooks::class, 'entityPresave')]
 class EntityHooksKernelTest extends KernelTestBase {
 
   /**
@@ -86,6 +88,23 @@ class EntityHooksKernelTest extends KernelTestBase {
 
     $reloaded = Node::load($node->id());
     $this->assertSame('475', $reloaded->get('field_access_control_2')->value);
+  }
+
+  /**
+   * Tests the discovered presave hook invalidates node-type cache tags.
+   */
+  public function testNodePresaveInvalidatesNodeTypeCache(): void {
+    $node = Node::create([
+      'type' => 'webform',
+      'title' => 'Test presave cache invalidation',
+    ]);
+    $cache = $this->container->get('cache.default');
+    $cache->set('oit_presave', 'cached', Cache::PERMANENT, ['node_type:webform']);
+    $this->assertNotFalse($cache->get('oit_presave'));
+
+    $node->save();
+
+    $this->assertFalse($cache->get('oit_presave'));
   }
 
 }
