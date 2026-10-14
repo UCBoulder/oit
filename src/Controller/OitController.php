@@ -9,6 +9,7 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Extension\ModuleExtensionList;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\PageCache\ResponsePolicy\KillSwitch;
+use Drupal\Core\Render\Markup;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\Core\State\StateInterface;
 use Drupal\oit\Plugin\BlockUuidQuery;
@@ -199,19 +200,13 @@ class OitController extends ControllerBase {
           </div>
           <div class="flex">
             <div class="flex-one-third">
-              <a id="search-404" class="icon button" href="/search/cse"><span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 34 34" class="svg-icon search" width="20">
-                <use fill="#fff" xlink:href="/sites/default/files/svg/sprite_5.svg#search"></use>
-                </svg></span>&nbsp;&nbsp; {{ button_search }}</a>
+              <a id="search-404" class="icon button" href="/search/cse"><span>{{ icon_search }}</span>&nbsp;&nbsp; {{ button_search }}</a>
             </div>
             <div class="flex-one-third">
-              <a class="icon button" href="/node/24951"><span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 34 34" class="svg-icon megaphone" width="20">
-                <use fill="#fff" xlink:href="/sites/default/files/svg/sprite_5.svg#megaphone"></use>
-                </svg></span>&nbsp;&nbsp; {{ button_report }}</a>
+              <a class="icon button" href="/node/24951"><span>{{ icon_megaphone }}</span>&nbsp;&nbsp; {{ button_report }}</a>
             </div>
             <div class="flex-one-third">
-              <div class="icon button" id="toggle404"><span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 34 34" class="svg-icon circleoflife" width="20">
-                <use fill="#fff" xlink:href="/sites/default/files/svg/sprite_5.svg#circleoflife"></use>
-                </svg></span>&nbsp;&nbsp; {{ button_spin }}!</div>
+              <div class="icon button" id="toggle404"><span>{{ icon_circleoflife }}</span>&nbsp;&nbsp; {{ button_spin }}!</div>
             </div>
           </div>
           <div class="flex spin-contain" style="display:none;">
@@ -237,6 +232,9 @@ class OitController extends ControllerBase {
       '#context' => [
         'title' => $this->t('Hmm...looks like something went wrong.'),
         'module_path' => "/$module_path/images/404",
+        'icon_search' => Markup::create($this->shortcodeSvgIcon->setIcon('search', '20', 'fff')),
+        'icon_megaphone' => Markup::create($this->shortcodeSvgIcon->setIcon('megaphone', '20', 'fff')),
+        'icon_circleoflife' => Markup::create($this->shortcodeSvgIcon->setIcon('circleoflife', '20', 'fff')),
         'host_default' => '404_barker.png',
         'host_carey' => '404_carey.png',
         'buffimg_alt' => $this->t('Buffalo holding broken plug - text 404'),
@@ -250,9 +248,11 @@ class OitController extends ControllerBase {
         'spint_text' => $this->t('Spin the wheel to go to a random page in the service area the spinner lands on'),
       ],
       // The page no longer varies by request URI or date, so it can be
-      // cached permanently with no cache contexts.
+      // cached permanently with no cache contexts. The sprite cache tag is
+      // invalidated whenever a new sprite is uploaded.
       '#cache' => [
         'contexts' => [],
+        'tags' => $this->shortcodeSvgIcon->getCacheTags(),
         'max-age' => Cache::PERMANENT,
       ],
     ];
@@ -363,15 +363,15 @@ class OitController extends ControllerBase {
     $topreq = $topreq_query->loadBlock();
     $view_id = 'request_portal';
     $display = 'block_1';
-    $mc_title = $this->t('Messaging and Collaboration') . ' ' . $svg->setIcon('email', '60', '#000');
+    $mc_title = $this->t('Messaging and Collaboration') . ' ' . $svg->setIcon('email', '60', '000');
     $mc = $this->requestPortalView($view_id, $display, ['857'], '');
-    $tla_title = $this->t('Teaching and Learning Apps') . ' ' . $svg->setIcon('electronicharmony', '60', '#000');
+    $tla_title = $this->t('Teaching and Learning Apps') . ' ' . $svg->setIcon('electronicharmony', '60', '000');
     $tla = $this->requestPortalView($view_id, $display, ['875'], '');
-    $ia_title = $this->t('Identity and Accounts') . ' ' . $svg->setIcon('techsupport', '60', '#000');
+    $ia_title = $this->t('Identity and Accounts') . ' ' . $svg->setIcon('techsupport', '60', '000');
     $ia = $this->requestPortalView($view_id, $display, ['861'], '');
-    $ni_title = $this->t('Network and Internet') . ' ' . $svg->setIcon('radiowaves', '60', '#000');
+    $ni_title = $this->t('Network and Internet') . ' ' . $svg->setIcon('radiowaves', '60', '000');
     $ni = $this->requestPortalView($view_id, $display, ['865'], '');
-    $lst_title = $this->t('Learning Spaces Technology') . ' ' . $svg->setIcon('laptop', '60', '#000');
+    $lst_title = $this->t('Learning Spaces Technology') . ' ' . $svg->setIcon('laptop', '60', '000');
     $lst = $this->requestPortalView($view_id, $display, ['873'], '');
 
     $page['string'] = [
