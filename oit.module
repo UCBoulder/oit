@@ -8,8 +8,6 @@
 use Drupal\block\Entity\Block;
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Access\AccessResult;
-use Drupal\Core\Cache\Cache;
-use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\node\NodeInterface;
@@ -188,17 +186,6 @@ function oit_news_types_categories(&$form, FormStateInterface $form_state) {
   }
   if (!empty($cat_type)) {
     $form_state->setErrorByName('field_oit_category', t('Please select a @type category', ['@type' => $cat_type]));
-  }
-}
-
-/**
- * Implements hook_entity_delete().
- */
-function oit_entity_delete(EntityInterface $entity) {
-  if (method_exists($entity, 'getType') && $entity->getEntityTypeId() == 'node') {
-    // Allows for clearing of blocks based on node type.
-    $tags = ['node_type:' . $entity->getType()];
-    Cache::invalidateTags($tags);
   }
 }
 

@@ -2,7 +2,6 @@
 
 namespace Drupal\Tests\oit\Unit\Hook;
 
-use Drupal\Core\Cache\CacheTagsInvalidatorInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
@@ -22,7 +21,6 @@ use Drupal\Tests\UnitTestCase as DrupalUnitTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\CoversMethod;
 use PHPUnit\Framework\Attributes\Group;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -104,46 +102,6 @@ class EntityHooksTest extends DrupalUnitTestCase {
     $this->assertFalse(function_exists('oit_entity_presave'));
     $this->assertFalse(function_exists('oit_news_update'));
     $this->assertFalse(function_exists('oit_servicealert_update'));
-  }
-
-  /**
-   * Tests node saves invalidate the node-type cache tag.
-   */
-  public function testEntityPresaveInvalidatesNodeTypeCache(): void {
-    $invalidator = $this->createMock(CacheTagsInvalidatorInterface::class);
-    $invalidator->expects($this->once())
-      ->method('invalidateTags')
-      ->with(['node_type:page']);
-    $container = new ContainerBuilder();
-    $container->set('cache_tags.invalidator', $invalidator);
-    \Drupal::setContainer($container);
-
-    $entity_type = $this->createMock(EntityTypeInterface::class);
-    $entity_type->method('id')->willReturn('node');
-    $entity = $this->createMock(NodeInterface::class);
-    $entity->method('getEntityType')->willReturn($entity_type);
-    $entity->method('getType')->willReturn('page');
-    $entity->method('bundle')->willReturn('page');
-    $entity->expects($this->never())->method('set');
-
-    $this->hooks->entityPresave($entity);
-  }
-
-  /**
-   * Tests entities without getType() do not invalidate node cache tags.
-   */
-  public function testEntityPresaveSkipsOtherEntities(): void {
-    $invalidator = $this->createMock(CacheTagsInvalidatorInterface::class);
-    $invalidator->expects($this->never())->method('invalidateTags');
-    $container = new ContainerBuilder();
-    $container->set('cache_tags.invalidator', $invalidator);
-    \Drupal::setContainer($container);
-
-    $entity = $this->createMock(EntityInterface::class);
-    $entity->method('bundle')->willReturn('other');
-    $entity->expects($this->never())->method('getEntityType');
-
-    $this->hooks->entityPresave($entity);
   }
 
   /**

@@ -219,7 +219,7 @@ class FrontActionLinksTest extends UnitTestCase {
 
     $build = $block->build();
 
-    $this->assertContains('node_type:service_alert', $build['#cache']['tags']);
+    $this->assertContains('node_list:service_alert', $build['#cache']['tags']);
     $this->assertContains('shortcode_svg.sprite', $build['#cache']['tags']);
   }
 

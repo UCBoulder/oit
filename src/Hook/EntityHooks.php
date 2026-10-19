@@ -2,7 +2,6 @@
 
 namespace Drupal\oit\Hook;
 
-use Drupal\Core\Cache\Cache;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
@@ -54,11 +53,6 @@ class EntityHooks {
       }
       if ($entity->getType() == 'service_alert') {
         $this->updateServiceAlert($entity);
-      }
-      if ($entity->getEntityType()->id() == 'node') {
-        // Allows for clearing of blocks based on node type.
-        $tags = ['node_type:' . $entity->getType()];
-        Cache::invalidateTags($tags);
       }
     }
     // Set image alt.

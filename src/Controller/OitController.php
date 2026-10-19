@@ -502,7 +502,7 @@ class OitController extends ControllerBase {
       '#empty' => $this->t('No content has been found.'),
       '#cache' => [
         'tags' => [
-          'node_type:service_alert',
+          'node_list:service_alert',
         ],
       ],
     ];

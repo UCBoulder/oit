@@ -149,7 +149,7 @@ class FrontActionLinks extends BlockBase implements
       ],
       '#cache' => [
         'tags' => Cache::mergeTags(
-          ['node_type:service_alert'],
+          ['node_list:service_alert'],
           $icon->getCacheTags()
         ),
       ],

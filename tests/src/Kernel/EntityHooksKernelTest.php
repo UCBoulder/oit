@@ -27,7 +27,6 @@ use Drupal\oit\Hook\EntityHooks;
 #[Group('oit')]
 #[RunTestsInSeparateProcesses]
 #[CoversMethod(EntityHooks::class, 'entityCreate')]
-#[CoversMethod(EntityHooks::class, 'entityPresave')]
 class EntityHooksKernelTest extends KernelTestBase {
 
   /**
@@ -91,20 +90,30 @@ class EntityHooksKernelTest extends KernelTestBase {
   }
 
   /**
-   * Tests the discovered presave hook invalidates node-type cache tags.
+   * Tests the bundle list cache tag is invalidated on create/update/delete.
+   *
+   * The service alert block and dashboard rely on core's node_list:<bundle>
+   * tag instead of a custom hook, so this guards that core behavior.
    */
-  public function testNodePresaveInvalidatesNodeTypeCache(): void {
+  public function testNodeBundleListCacheTagInvalidation(): void {
+    $cache = $this->container->get('cache.default');
+    $tags = ['node_list:webform'];
+
+    $cache->set('oit_bundle_list', 'cached', Cache::PERMANENT, $tags);
     $node = Node::create([
       'type' => 'webform',
-      'title' => 'Test presave cache invalidation',
+      'title' => 'Test bundle list cache invalidation',
     ]);
-    $cache = $this->container->get('cache.default');
-    $cache->set('oit_presave', 'cached', Cache::PERMANENT, ['node_type:webform']);
-    $this->assertNotFalse($cache->get('oit_presave'));
-
     $node->save();
+    $this->assertFalse($cache->get('oit_bundle_list'), 'Invalidated on create.');
 
-    $this->assertFalse($cache->get('oit_presave'));
+    $cache->set('oit_bundle_list', 'cached', Cache::PERMANENT, $tags);
+    $node->setTitle('Updated title')->save();
+    $this->assertFalse($cache->get('oit_bundle_list'), 'Invalidated on update.');
+
+    $cache->set('oit_bundle_list', 'cached', Cache::PERMANENT, $tags);
+    $node->delete();
+    $this->assertFalse($cache->get('oit_bundle_list'), 'Invalidated on delete.');
   }
 
 }
