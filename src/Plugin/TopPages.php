@@ -337,6 +337,8 @@ class TopPages {
         $title = '';
       }
       $title = explode(' | ', $title)[0];
+      // Title is already HTML-encoded; decode so it isn't escaped twice.
+      $title = trim(Html::decodeEntities($title));
 
       // Make sure no redirect to SSO login.
       if ($response->getHeader('Server')[0] != 'nginx') {
