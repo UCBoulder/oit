@@ -190,15 +190,6 @@ function oit_news_types_categories(&$form, FormStateInterface $form_state) {
 }
 
 /**
- * Implements hook_menu_local_tasks_alter().
- */
-function oit_menu_local_tasks_alter(&$data, $route_name) {
-  if ($route_name == 'user.login') {
-    $data['tabs'][0]['user.pass']['#access'] = FALSE;
-  }
-}
-
-/**
  * Implements hook_block_access().
  */
 function oit_block_access(Block $block, $operation, AccountInterface $account) {

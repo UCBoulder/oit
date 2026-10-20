@@ -177,6 +177,18 @@ class MenuHooks {
   }
 
   /**
+   * Implements hook_menu_local_tasks_alter().
+   *
+   * Hides the "Reset your password" tab on the login page.
+   */
+  #[Hook('menu_local_tasks_alter')]
+  public function menuLocalTasksAlter(array &$data, string $route_name): void {
+    if ($route_name === 'user.login') {
+      $data['tabs'][0]['user.pass']['#access'] = FALSE;
+    }
+  }
+
+  /**
    * Recursively alters any SAML login link.
    *
    * Adds the destination query when one is available and marks the link
