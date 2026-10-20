@@ -248,3 +248,35 @@ function oit_deploy_10003_news_hero_media(&$sandbox) {
     '@total' => $sandbox['total'],
   ]);
 }
+
+/**
+ * Exclude nodes that redirect elsewhere from the XML sitemap.
+ */
+function oit_deploy_10004_sitemap_exclude_redirects() {
+  $nids = [
+    // Webforms redirecting to ServiceNow.
+    27131,
+    27141,
+    27146,
+    27156,
+    27161,
+    27166,
+    32427,
+    32428,
+    32429,
+    32430,
+    32431,
+    // Old aliases redirecting to newer pages already in the sitemap.
+    1685,
+    1771,
+    8615,
+    27346,
+  ];
+
+  $entity_manager = \Drupal::service('simple_sitemap.generator')->entityManager();
+  foreach ($nids as $nid) {
+    $entity_manager->setEntityInstanceSettings('node', (string) $nid, ['index' => FALSE]);
+  }
+
+  return t('Excluded @count redirecting nodes from the sitemap.', ['@count' => count($nids)]);
+}
