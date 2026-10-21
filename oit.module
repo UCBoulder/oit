@@ -5,12 +5,8 @@
  * Module containing custom oit code.
  */
 
-use Drupal\block\Entity\Block;
 use Drupal\Component\Utility\Xss;
-use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Session\AccountInterface;
-use Drupal\node\NodeInterface;
 use Drupal\webform\WebformInterface;
 use Drupal\webform\WebformSubmissionStorageInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -186,32 +182,6 @@ function oit_news_types_categories(&$form, FormStateInterface $form_state) {
   }
   if (!empty($cat_type)) {
     $form_state->setErrorByName('field_oit_category', t('Please select a @type category', ['@type' => $cat_type]));
-  }
-}
-
-/**
- * Implements hook_block_access().
- */
-function oit_block_access(Block $block, $operation, AccountInterface $account) {
-  // Forbid access to unpublished block on published nodes.
-  if ($block->getPluginId() == 'block_content:b64c8b8f-40f5-492b-9cd9-4261baee0cfd') {
-    $node = \Drupal::routeMatch()->getParameter('node');
-    if ($node instanceof NodeInterface) {
-      if ($node->isPublished()) {
-        return AccessResult::forbidden();
-      }
-    }
-  }
-  if ($block->id() == 'mainnavigation') {
-    $node = \Drupal::routeMatch()->getParameter('node');
-    if (!is_string($node) && isset($node)) {
-      if ($node->bundle() == 'page') {
-        $child = $node->get('field_show_child_links')->getValue();
-        if (!$child[0]['value']) {
-          return AccessResult::forbiddenIf(TRUE)->addCacheableDependency($block);
-        }
-      }
-    }
   }
 }
 
