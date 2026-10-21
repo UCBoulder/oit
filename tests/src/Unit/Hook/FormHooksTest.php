@@ -53,7 +53,6 @@ class FormHooksTest extends DrupalUnitTestCase {
    */
   protected function invoke(string $method, array $args): mixed {
     $ref = new \ReflectionMethod($this->hooks, $method);
-    $ref->setAccessible(TRUE);
     return $ref->invokeArgs($this->hooks, $args);
   }
 
@@ -377,7 +376,6 @@ class FormHooksTest extends DrupalUnitTestCase {
     $stack->push(new Request($query));
     $hooks = $this->buildHooks([], NULL, $stack);
     $ref = new \ReflectionMethod($hooks, 'loginWords');
-    $ref->setAccessible(TRUE);
     $build = $ref->invokeArgs($hooks, [NULL, TRUE]);
 
     $this->assertSame($expected, $build['#context']['saml_url']);
