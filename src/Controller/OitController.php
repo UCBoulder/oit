@@ -447,6 +447,9 @@ class OitController extends ControllerBase {
     $n = 0;
     $r = [];
     foreach ($view_result as $row) {
+      // Views keys render tokens by row index, so it must be set when
+      // rendering fields outside of the normal style plugin loop.
+      $view->row_index = $n;
       foreach ($view->field as $field) {
         $r[$n]['#markup'] = '<span class="truncate">' . $field->advancedRender($row)->__toString() . '</span>';
       }
