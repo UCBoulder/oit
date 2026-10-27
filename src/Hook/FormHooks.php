@@ -158,12 +158,6 @@ class FormHooks {
       oit_set_domain_defaults($form, 'oit', 'oit_colorado_edu');
     }
 
-    if (($form['#id'] ?? NULL) == 'views-exposed-form-moderated-content-moderated-content') {
-      if ($domain == 'oit') {
-        _oit_form_set_domain('content/moderated', 'oit_colorado_edu');
-      }
-    }
-
     if ($form_id == "views_form_content_page_1") {
       if ($domain == 'oit') {
         // Get user roles.
@@ -172,24 +166,6 @@ class FormHooks {
           $message = $this->t('You are logged into the OIT site and cannot edit content. Please log into the Data site to edit content.');
           $this->messenger->addMessage($message, 'warning');
           $form['#access'] = FALSE;
-        }
-        // Get query string.
-        $query = $this->requestStack->getCurrentRequest()->query->all();
-        $domain_set = FALSE;
-        foreach ($query as $key => $value) {
-          if ($key == 'field_domain_access_target_id') {
-            $domain_set = TRUE;
-          }
-        }
-        if (!$domain_set) {
-          // Redirect to query string
-          // "field_domain_access_target_id=oit_colorado_edu".
-          // @todo (C1): Calling send() inside hook_form_alter() bypasses the Symfony
-          // kernel response pipeline. The proper fix is to convert this to a
-          // #submit handler or KernelEvents::RESPONSE subscriber. Until then,
-          // return immediately after send() so no further form-build code runs.
-          $this->sendRedirect('/admin/content?' . $this->moderatedContentRedirectQuery($query));
-          return;
         }
       }
     }
@@ -578,23 +554,6 @@ class FormHooks {
     }
 
     return $result;
-  }
-
-  /**
-   * Builds the moderated content redirect query string.
-   *
-   * Injects the default domain access target id when it is not already present.
-   *
-   * @param array $query
-   *   The current request query parameters.
-   *
-   * @return string
-   *   The encoded query string including the default domain access target id.
-   */
-  protected function moderatedContentRedirectQuery(array $query): string {
-    $query['field_domain_access_target_id'] = 'oit_colorado_edu';
-
-    return http_build_query($query);
   }
 
   /**

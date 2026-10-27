@@ -68,3 +68,8 @@ services:
     class: Drupal\oit\Services\RouteSubscriber
     tags:
       - { name: event_subscriber }
+  oit.domain_filter_redirect_subscriber:
+    class: Drupal\oit\Services\DomainFilterRedirectSubscriber
+    arguments: ['@oit.domain']
+    tags:
+      - { name: event_subscriber }

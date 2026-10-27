@@ -27,7 +27,6 @@ use Symfony\Component\HttpFoundation\RequestStack;
 #[CoversMethod(FormHooks::class, 'captchaPointDefaults')]
 #[CoversMethod(FormHooks::class, 'isSpaceMonkey')]
 #[CoversMethod(FormHooks::class, 'buildLoginDestination')]
-#[CoversMethod(FormHooks::class, 'moderatedContentRedirectQuery')]
 #[CoversMethod(FormHooks::class, 'securityWindowWarning')]
 #[CoversMethod(FormHooks::class, 'loginWords')]
 #[CoversMethod(FormHooks::class, 'samlLoginUrl')]
@@ -204,22 +203,6 @@ class FormHooksTest extends DrupalUnitTestCase {
       'external destination rejected' => ['', 'https://evil.com', ''],
       'both empty' => ['', '', ''],
     ];
-  }
-
-  /**
-   * Tests the moderated content redirect query injects the default domain.
-   */
-  public function testModeratedContentRedirectQueryAddsDefault(): void {
-    $result = $this->invoke('moderatedContentRedirectQuery', [['page' => '2']]);
-    $this->assertSame('page=2&field_domain_access_target_id=oit_colorado_edu', $result);
-  }
-
-  /**
-   * Tests an empty query still yields the default domain target.
-   */
-  public function testModeratedContentRedirectQueryEmptyQuery(): void {
-    $result = $this->invoke('moderatedContentRedirectQuery', [[]]);
-    $this->assertSame('field_domain_access_target_id=oit_colorado_edu', $result);
   }
 
   /**
