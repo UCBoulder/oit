@@ -676,4 +676,29 @@ class FormHooks {
     }
   }
 
+  /**
+   * Submit handler to force domain access/source values.
+   *
+   * Reads the domain set on the form by oit_set_domain_defaults(). Static so
+   * the callback stored in the cached form array does not serialize this hook
+   * class and its injected services.
+   *
+   * @param array $form
+   *   The form array.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   */
+  public static function setDomainSubmit(array &$form, FormStateInterface $form_state) {
+    if (!isset($form['#oit_domain'])) {
+      return;
+    }
+
+    ['name' => $domain_name, 'id' => $domain_id] = $form['#oit_domain'];
+    $domain = \Drupal::service('oit.domain')->getDomain();
+    if ($domain == $domain_name && (!$form_state->getValues()['field_domain_access'] || !$form_state->getValues()['field_domain_source'])) {
+      $form_state->setValue('field_domain_access', ['target_id' => $domain_id]);
+      $form_state->setValue('field_domain_source', ['target_id' => $domain_id]);
+    }
+  }
+
 }

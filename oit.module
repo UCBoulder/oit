@@ -7,14 +7,8 @@
 
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\oit\Hook\FormHooks;
 use Symfony\Component\HttpFoundation\RedirectResponse;
-
-/**
- * Set domain on content to match site domain.
- */
-function _oit_set_oit_domain(&$form, FormStateInterface $form_state) {
-  _oit_set_domain_submit($form, $form_state, 'oit', 'oit_colorado_edu');
-}
 
 /**
  * Set domain on view filter on content pages.
@@ -69,33 +63,14 @@ function oit_set_domain_defaults(array &$form, $domain_name, $domain_id) {
       }
 
       // Force access and source if not set.
-      array_unshift($form['actions']['submit']['#submit'], '_' . $domain_name . '_set_' . $domain_name . '_domain');
+      $form['#oit_domain'] = ['name' => $domain_name, 'id' => $domain_id];
+      array_unshift($form['actions']['submit']['#submit'], [FormHooks::class, 'setDomainSubmit']);
     }
     else {
       // Disable source locally.
       $form['field_domain_source']['widget']['#default_value'] = [];
       $form['field_domain_source']['widget']['#default_value'][] = '_none';
     }
-  }
-}
-
-/**
- * Shared: Submit handler to force domain access/source values.
- *
- * @param array $form
- *   The form array.
- * @param \Drupal\Core\Form\FormStateInterface $form_state
- *   The form state.
- * @param string $domain_name
- *   The domain name (e.g. 'oit', 'oda').
- * @param string $domain_id
- *   The domain ID (e.g. 'oit_colorado_edu', 'oda_colorado_edu').
- */
-function _oit_set_domain_submit(array &$form, FormStateInterface $form_state, $domain_name, $domain_id) {
-  $domain = \Drupal::service('oit.domain')->getDomain();
-  if ($domain == $domain_name && (!$form_state->getValues()['field_domain_access'] || !$form_state->getValues()['field_domain_source'])) {
-    $form_state->setValue('field_domain_access', ['target_id' => $domain_id]);
-    $form_state->setValue('field_domain_source', ['target_id' => $domain_id]);
   }
 }
 
