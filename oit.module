@@ -5,8 +5,6 @@
  * Module containing custom oit code.
  */
 
-use Drupal\Component\Utility\Xss;
-use Drupal\Core\Form\FormStateInterface;
 use Drupal\oit\Hook\FormHooks;
 
 /**
@@ -44,90 +42,6 @@ function oit_set_domain_defaults(array &$form, $domain_name, $domain_id) {
       $form['field_domain_source']['widget']['#default_value'] = [];
       $form['field_domain_source']['widget']['#default_value'][] = '_none';
     }
-  }
-}
-
-/**
- * Service alert dashboard category add handler.
- */
-function oit_servicealert_dashboard_category_add($form, FormStateInterface $form_state) {
-  $name = Xss::filter($form_state->getValue('name')[0]['value']);
-  $dashboard_state = \Drupal::state()->get('oit_dashboard_add');
-
-  if ($dashboard_state) {
-    $dashboard_state = json_decode($dashboard_state, TRUE);
-  }
-
-  $dashboard_state[] = $name;
-
-  // Add term_name to a drupal state for future GH action processing.
-  \Drupal::state()->set('oit_dashboard_add', json_encode($dashboard_state));
-}
-
-/**
- * Service alert dashboard category delete handler.
- */
-function oit_servicealert_dashboard_category_delete($form, FormStateInterface $form_state) {
-  $term = $form_state->getFormObject()->getEntity();
-  $term_name = $term->getName();
-
-  $dashboard_state = \Drupal::state()->get('oit_dashboard_delete');
-
-  if ($dashboard_state) {
-    $dashboard_state = json_decode($dashboard_state, TRUE);
-  }
-
-  $dashboard_state[] = $term_name;
-
-  // Add term_name to a drupal state for future GH action processing.
-  \Drupal::state()->set('oit_dashboard_delete', json_encode($dashboard_state));
-}
-
-/**
- * Node form validate for GP blank body.
- */
-function oit_news_gp_check(&$form, FormStateInterface $form_state) {
-  $body = $form_state->getValue('body');
-  $body_value = $body[0]['value'];
-
-  $node = $form_state->getFormObject()->getEntity();
-  if ($node->isNew()) {
-    return;
-  }
-  else {
-    $old_body = $node->get('body')->value;
-  }
-
-  if (trim($body_value) == '' && !empty(trim($old_body))) {
-    $form_state->setErrorByName('body', t('You went from having body content to none. As a hall monitor, I will not allow such tomfoolery.'));
-  }
-}
-
-/**
- * News form validate.
- */
-function oit_news_types_categories(&$form, FormStateInterface $form_state) {
-  $categories = $form_state->getValue('field_oit_category');
-  $parent_cat = [];
-  if (isset($categories)) {
-    foreach ($categories as $category) {
-      $term = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load($category['target_id']);
-      $parent_term_id = $term->parent->target_id;
-      $parent_cat[] = $parent_term_id;
-    }
-  }
-  $cat_type = '';
-  if (!in_array('885', $parent_cat)) {
-    $cat_type = 'Service';
-  }
-  if (!in_array('889', $parent_cat)) {
-    if ($cat_type == 'Service') {
-      $cat_type .= ' & ';
-    }
-    $cat_type .= 'News';
-  }
-  if (!empty($cat_type)) {
-    $form_state->setErrorByName('field_oit_category', t('Please select a @type category', ['@type' => $cat_type]));
   }
 }
 

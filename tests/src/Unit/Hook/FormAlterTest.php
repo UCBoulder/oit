@@ -419,8 +419,8 @@ class FormAlterTest extends DrupalUnitTestCase {
   public function testDashboardCategoryAddSubmit(): void {
     $form = $this->runFormAlter('taxonomy_term_service_dashboard_category_form');
 
-    $this->assertContains('oit_servicealert_dashboard_category_add', $form['actions']['submit']['#submit']);
-    $this->assertContains('oit_servicealert_dashboard_category_add', $form['actions']['overview']['#submit']);
+    $this->assertContains([FormHooks::class, 'dashboardCategoryAddSubmit'], $form['actions']['submit']['#submit']);
+    $this->assertContains([FormHooks::class, 'dashboardCategoryAddSubmit'], $form['actions']['overview']['#submit']);
   }
 
   /**
@@ -429,7 +429,7 @@ class FormAlterTest extends DrupalUnitTestCase {
   public function testDashboardCategoryDeleteSubmit(): void {
     $form = $this->runFormAlter('taxonomy_term_service_dashboard_category_delete_form');
 
-    $this->assertContains('oit_servicealert_dashboard_category_delete', $form['actions']['submit']['#submit']);
+    $this->assertContains([FormHooks::class, 'dashboardCategoryDeleteSubmit'], $form['actions']['submit']['#submit']);
   }
 
   /* --------------------------------------------------------------------
@@ -469,7 +469,7 @@ class FormAlterTest extends DrupalUnitTestCase {
   public function testGpBodyValidateAppended(string $form_id): void {
     $form = $this->runFormAlter($form_id);
 
-    $this->assertContains('oit_news_gp_check', $form['#validate']);
+    $this->assertContains([FormHooks::class, 'gpBodyValidate'], $form['#validate']);
   }
 
   /**
@@ -739,7 +739,7 @@ class FormAlterTest extends DrupalUnitTestCase {
 
     $this->assertContains('webform/webform.element.select2', $form['#attached']['library']);
     $this->assertContains('oit/oit_node_news_form', $form['#attached']['library']);
-    $this->assertContains('oit_news_types_categories', $form['#validate']);
+    $this->assertContains([FormHooks::class, 'newsCategoriesValidate'], $form['#validate']);
     $this->assertContains([FormHooks::class, 'newsNodeFormSubmit'], $form['actions']['submit']['#submit']);
   }
 

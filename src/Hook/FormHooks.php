@@ -130,12 +130,12 @@ class FormHooks {
     }
 
     if ($form_id == "taxonomy_term_service_dashboard_category_form") {
-      $form['actions']['submit']['#submit'][] = 'oit_servicealert_dashboard_category_add';
-      $form['actions']['overview']['#submit'][] = 'oit_servicealert_dashboard_category_add';
+      $form['actions']['submit']['#submit'][] = [self::class, 'dashboardCategoryAddSubmit'];
+      $form['actions']['overview']['#submit'][] = [self::class, 'dashboardCategoryAddSubmit'];
     }
 
     if ($form_id == "taxonomy_term_service_dashboard_category_delete_form") {
-      $form['actions']['submit']['#submit'][] = 'oit_servicealert_dashboard_category_delete';
+      $form['actions']['submit']['#submit'][] = [self::class, 'dashboardCategoryDeleteSubmit'];
     }
 
     if ($form_id == 'node_news_form' || $form_id == 'node_news_edit_form' ||
@@ -148,7 +148,7 @@ class FormHooks {
     // GP blank body for editing news, tutorial, or page.
     if ($form_id == 'node_news_edit_form' || $form_id == 'node_tutorial_edit_form' || $form_id == 'node_page_edit_form') {
       // Add validation function.
-      $form['#validate'][] = 'oit_news_gp_check';
+      $form['#validate'][] = [self::class, 'gpBodyValidate'];
     }
 
     // Set to oit domain on oit site when viewing the content.
@@ -341,7 +341,7 @@ class FormHooks {
         $form['field_oit_page_related_content']['#group'] = 'oit_news_extras';
         $form['#attached']['library'][] = 'webform/webform.element.select2';
         $form['#attached']['library'][] = 'oit/oit_node_news_form';
-        $form['#validate'][] = 'oit_news_types_categories';
+        $form['#validate'][] = [self::class, 'newsCategoriesValidate'];
         // Add submit handler.
         $form['actions']['submit']['#submit'][] = [self::class, 'newsNodeFormSubmit'];
         break;
@@ -657,6 +657,124 @@ class FormHooks {
     if ($domain == $domain_name && (!$form_state->getValues()['field_domain_access'] || !$form_state->getValues()['field_domain_source'])) {
       $form_state->setValue('field_domain_access', ['target_id' => $domain_id]);
       $form_state->setValue('field_domain_source', ['target_id' => $domain_id]);
+    }
+  }
+
+  /**
+   * Submit handler for the service dashboard category term form.
+   *
+   * Queues the term name in the oit_dashboard_add state for later GitHub
+   * action processing. Static so the callback stored in the cached form array
+   * does not serialize this hook class and its injected services.
+   *
+   * @param array $form
+   *   The form array.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   */
+  public static function dashboardCategoryAddSubmit(array &$form, FormStateInterface $form_state) {
+    $name = Xss::filter($form_state->getValue('name')[0]['value']);
+    $dashboard_state = \Drupal::state()->get('oit_dashboard_add');
+
+    if ($dashboard_state) {
+      $dashboard_state = json_decode($dashboard_state, TRUE);
+    }
+
+    $dashboard_state[] = $name;
+
+    // Add term_name to a drupal state for future GH action processing.
+    \Drupal::state()->set('oit_dashboard_add', json_encode($dashboard_state));
+  }
+
+  /**
+   * Submit handler for the service dashboard category term delete form.
+   *
+   * Queues the term name in the oit_dashboard_delete state for later GitHub
+   * action processing. Static so the callback stored in the cached form array
+   * does not serialize this hook class and its injected services.
+   *
+   * @param array $form
+   *   The form array.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   */
+  public static function dashboardCategoryDeleteSubmit(array &$form, FormStateInterface $form_state) {
+    $term = $form_state->getFormObject()->getEntity();
+    $term_name = $term->getName();
+
+    $dashboard_state = \Drupal::state()->get('oit_dashboard_delete');
+
+    if ($dashboard_state) {
+      $dashboard_state = json_decode($dashboard_state, TRUE);
+    }
+
+    $dashboard_state[] = $term_name;
+
+    // Add term_name to a drupal state for future GH action processing.
+    \Drupal::state()->set('oit_dashboard_delete', json_encode($dashboard_state));
+  }
+
+  /**
+   * Validate handler that blocks emptying the body of an existing node.
+   *
+   * Static so the callback stored in the cached form array does not serialize
+   * this hook class and its injected services.
+   *
+   * @param array $form
+   *   The form array.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   */
+  public static function gpBodyValidate(array &$form, FormStateInterface $form_state) {
+    $body = $form_state->getValue('body');
+    $body_value = $body[0]['value'];
+
+    $node = $form_state->getFormObject()->getEntity();
+    if ($node->isNew()) {
+      return;
+    }
+
+    $old_body = (string) $node->get('body')->value;
+
+    if (trim($body_value) == '' && !empty(trim($old_body))) {
+      $form_state->setErrorByName('body', new TranslatableMarkup('You went from having body content to none. As a hall monitor, I will not allow such tomfoolery.'));
+    }
+  }
+
+  /**
+   * Validate handler requiring news to have a Service and a News category.
+   *
+   * Term 885 is the Service parent and 889 the News parent. Static so the
+   * callback stored in the cached form array does not serialize this hook
+   * class and its injected services.
+   *
+   * @param array $form
+   *   The form array.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   */
+  public static function newsCategoriesValidate(array &$form, FormStateInterface $form_state) {
+    $categories = $form_state->getValue('field_oit_category');
+    $parent_cat = [];
+    if (isset($categories)) {
+      foreach ($categories as $category) {
+        $term = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load($category['target_id']);
+        $parent_term_id = $term->parent->target_id;
+        $parent_cat[] = $parent_term_id;
+      }
+    }
+    $cat_type = '';
+    if (!in_array('885', $parent_cat)) {
+      $cat_type = 'Service';
+    }
+    if (!in_array('889', $parent_cat)) {
+      if ($cat_type == 'Service') {
+        $cat_type .= ' & ';
+      }
+      $cat_type .= 'News';
+    }
+    if (!empty($cat_type)) {
+      $form_state->setErrorByName('field_oit_category', new TranslatableMarkup('Please select a @type category', ['@type' => $cat_type]));
     }
   }
 
