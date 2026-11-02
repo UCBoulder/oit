@@ -155,7 +155,7 @@ class FormHooks {
     $domain = $this->domain->getDomain();
 
     if ($domain == 'oit') {
-      oit_set_domain_defaults($form, 'oit', 'oit_colorado_edu');
+      self::setDomainDefaults($form, 'oit', 'oit_colorado_edu');
     }
 
     if ($form_id == "views_form_content_page_1") {
@@ -636,9 +636,47 @@ class FormHooks {
   }
 
   /**
+   * Shared: Set domain defaults on form for the given domain.
+   *
+   * Used by oit and oda modules to auto-fill domain access/source fields.
+   *
+   * @param array $form
+   *   The form array.
+   * @param string $domain_name
+   *   The domain name (e.g. 'oit', 'oda').
+   * @param string $domain_id
+   *   The domain ID (e.g. 'oit_colorado_edu', 'oda_colorado_edu').
+   */
+  public static function setDomainDefaults(array &$form, $domain_name, $domain_id) {
+    if (isset($form['field_domain_access'])) {
+      $env = getenv('PANTHEON_ENVIRONMENT');
+
+      // Add on dev, test, and live.
+      if ($env != 'local' && strpos($env, 'md-') !== 0) {
+
+        // Auto fill for admins as they are the only ones that can see the field
+        // to set it.
+        if (in_array('administrator', \Drupal::currentUser()->getRoles())) {
+          $form['field_domain_access']['widget']['#default_value'][] = $domain_id;
+          $form['field_domain_source']['widget']['#default_value'][] = $domain_id;
+        }
+
+        // Force access and source if not set.
+        $form['#oit_domain'] = ['name' => $domain_name, 'id' => $domain_id];
+        array_unshift($form['actions']['submit']['#submit'], [self::class, 'setDomainSubmit']);
+      }
+      else {
+        // Disable source locally.
+        $form['field_domain_source']['widget']['#default_value'] = [];
+        $form['field_domain_source']['widget']['#default_value'][] = '_none';
+      }
+    }
+  }
+
+  /**
    * Submit handler to force domain access/source values.
    *
-   * Reads the domain set on the form by oit_set_domain_defaults(). Static so
+   * Reads the domain set on the form by self::setDomainDefaults(). Static so
    * the callback stored in the cached form array does not serialize this hook
    * class and its injected services.
    *
