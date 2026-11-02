@@ -46,7 +46,11 @@ class BlockHooksTest extends DrupalUnitTestCase {
    * Tests block access is registered only as an object-oriented hook.
    */
   public function testBlockAccessHookRegistration(): void {
-    require_once __DIR__ . '/../../../../oit.module';
+    // Load oit.module, if present, so leftover procedural hooks are detected.
+    $module_file = __DIR__ . '/../../../../oit.module';
+    if (file_exists($module_file)) {
+      require_once $module_file;
+    }
 
     $method = new \ReflectionMethod(BlockHooks::class, 'blockAccess');
     $attributes = $method->getAttributes(Hook::class);

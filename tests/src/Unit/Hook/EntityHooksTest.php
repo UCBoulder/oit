@@ -93,7 +93,11 @@ class EntityHooksTest extends DrupalUnitTestCase {
    * Tests presave is registered only as an object-oriented hook.
    */
   public function testEntityPresaveHookRegistration(): void {
-    require_once __DIR__ . '/../../../../oit.module';
+    // Load oit.module, if present, so leftover procedural hooks are detected.
+    $module_file = __DIR__ . '/../../../../oit.module';
+    if (file_exists($module_file)) {
+      require_once $module_file;
+    }
 
     $method = new \ReflectionMethod(EntityHooks::class, 'entityPresave');
     $attributes = $method->getAttributes(Hook::class);

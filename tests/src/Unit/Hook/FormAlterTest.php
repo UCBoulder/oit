@@ -31,8 +31,8 @@ use Symfony\Component\HttpFoundation\RequestStack;
  * Unit tests for formAlter() (spec section 5.2) and newsNodeFormSubmit() (5.3).
  *
  * Domain::getDomain() is mocked to a non-oit value in every case so the
- * procedural functions from oit.module (section 3.2) are never reached; the
- * oit-domain branches stay uncovered here, per spec section 5.1. The three
+ * oit-domain branches (FormHooks::setDomainDefaults(), section 3.2) are never
+ * reached; they stay uncovered here, per spec section 5.1. The three
  * defect-regression rows (missing '#id', service alert with no body, webform
  * captcha roles NULL) live in FormAlterRegressionTest and are not repeated.
  */

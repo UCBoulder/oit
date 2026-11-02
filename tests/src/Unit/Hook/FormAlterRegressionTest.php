@@ -26,7 +26,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
  * roles missing from config. The rest of formAlter() coverage is Unit 3.
  *
  * Domain::getDomain() is mocked to a non-oit value in every case so the
- * procedural functions from oit.module are never reached.
+ * oit-domain branches (FormHooks::setDomainDefaults()) are never reached.
  */
 #[Group('oit')]
 #[CoversMethod(FormHooks::class, 'formAlter')]
