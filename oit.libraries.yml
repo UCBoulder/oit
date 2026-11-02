@@ -172,3 +172,22 @@ oit_env:
   license:
     name: 'GPL-2.0-or-later'
     url: 'https://www.drupal.org/licensing/faq'
+
+# Icon color/background styles for the oitIconExtras CKEditor 5 plugin.
+oit_icon_extras:
+  css:
+    theme:
+      css/oit_icon_extras.css: {}
+  license:
+    name: 'GPL-2.0-or-later'
+    url: 'https://www.drupal.org/licensing/faq'
+
+oit_icon_extras.editor:
+  js:
+    js/ckeditor5_plugins/oiticonextras.js: { preprocess: false }
+  dependencies:
+    - core/ckeditor5
+    - oit/oit_icon_extras
+  license:
+    name: 'GPL-2.0-or-later'
+    url: 'https://www.drupal.org/licensing/faq'

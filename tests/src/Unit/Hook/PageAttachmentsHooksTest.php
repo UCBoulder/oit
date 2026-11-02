@@ -167,7 +167,8 @@ class PageAttachmentsHooksTest extends DrupalUnitTestCase {
     $hooks = new PageAttachmentsHooks($this->routeMatch, $this->domain, $this->currentUser);
     $hooks->pageAttachmentsAlter($attachments);
 
-    $this->assertArrayNotHasKey('#attached', $attachments);
+    $this->assertSame(['oit/oit_icon_extras'], $attachments['#attached']['library']);
+    $this->assertArrayNotHasKey('html_head', $attachments['#attached']);
   }
 
   /**
@@ -283,7 +284,8 @@ class PageAttachmentsHooksTest extends DrupalUnitTestCase {
     $hooks = new PageAttachmentsHooks($this->routeMatch, $this->domain, $this->currentUser);
     $hooks->pageAttachmentsAlter($attachments);
 
-    $this->assertArrayNotHasKey('#attached', $attachments);
+    $this->assertSame(['oit/oit_icon_extras'], $attachments['#attached']['library']);
+    $this->assertArrayNotHasKey('html_head', $attachments['#attached']);
   }
 
   /**

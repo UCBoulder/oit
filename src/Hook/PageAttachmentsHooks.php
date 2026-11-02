@@ -64,6 +64,10 @@ class PageAttachmentsHooks {
    */
   #[Hook('page_attachments_alter')]
   public function pageAttachmentsAlter(array &$attachments): void {
+    // Icon color/background classes added by the oitIconExtras CKEditor 5
+    // plugin can appear in any formatted text, so load the styles globally.
+    $attachments['#attached']['library'][] = 'oit/oit_icon_extras';
+
     $node = $this->routeMatch->getParameter('node');
     if (!is_null($node)) {
       $id = is_string($node) ? $node : $node->id();

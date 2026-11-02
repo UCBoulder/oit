@@ -1,0 +1,13 @@
+oit_icon_extras:
+  ckeditor5:
+    plugins:
+      - oitIconExtras.OitIconExtras
+  drupal:
+    label: OIT Icon Extras
+    library: oit/oit_icon_extras.editor
+    elements:
+      - <i>
+      - <i class>
+    conditions:
+      plugins:
+        - ckeditor5_icons_icon

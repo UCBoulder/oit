@@ -1,0 +1,101 @@
+/**
+ * @file
+ * Color and background styles for CKEditor 5 icons (oitIconExtras plugin).
+ *
+ * --oit-icon-primary-color is the icon color (and background color when a
+ * background shape is used). --oit-icon-secondary-color is the icon color
+ * shown on top of a background shape. Colors match the dingo theme palette.
+ */
+
+.oit-icon-color-gold {
+  --oit-icon-primary-color: #cfb87c;
+  --oit-icon-secondary-color: #000;
+}
+
+.oit-icon-color-blue {
+  --oit-icon-primary-color: #0277bd;
+  --oit-icon-secondary-color: #fff;
+}
+
+.oit-icon-color-green {
+  --oit-icon-primary-color: #26874a;
+  --oit-icon-secondary-color: #fff;
+}
+
+.oit-icon-color-red {
+  --oit-icon-primary-color: #8a3131;
+  --oit-icon-secondary-color: #fff;
+}
+
+.oit-icon-color-black {
+  --oit-icon-primary-color: #000;
+  --oit-icon-secondary-color: #fff;
+}
+
+.oit-icon-color-dark-gray {
+  --oit-icon-primary-color: #424242;
+  --oit-icon-secondary-color: #fff;
+}
+
+.oit-icon-color-gray {
+  --oit-icon-primary-color: #666;
+  --oit-icon-secondary-color: #fff;
+}
+
+.oit-icon-color-light-gray {
+  --oit-icon-primary-color: #ccc;
+  --oit-icon-secondary-color: #000;
+}
+
+.oit-icon-color-white {
+  --oit-icon-primary-color: #fff;
+  --oit-icon-secondary-color: #000;
+}
+
+[class*="oit-icon-color-"] {
+  color: var(--oit-icon-primary-color);
+}
+
+/* Background shapes. */
+.oit-icon-style-square,
+.oit-icon-style-square-rounded,
+.oit-icon-style-circle {
+  display: inline-block;
+  box-sizing: content-box;
+  width: 1em;
+  max-width: 1em;
+  padding: 0.5em;
+  text-align: center;
+  vertical-align: top;
+  background-color: var(--oit-icon-primary-color, currentColor);
+  color: var(--oit-icon-secondary-color, #fff);
+}
+
+.oit-icon-style-square svg,
+.oit-icon-style-square-rounded svg,
+.oit-icon-style-circle svg {
+  width: 1em;
+  max-width: 1em;
+}
+
+.oit-icon-style-square > *,
+.oit-icon-style-square-rounded > *,
+.oit-icon-style-circle > * {
+  color: var(--oit-icon-secondary-color, #fff);
+}
+
+.oit-icon-style-square-rounded {
+  border-radius: 0.25em;
+}
+
+.oit-icon-style-circle {
+  border-radius: 1em;
+}
+
+/* When Font Awesome replaces <i> with an <svg>, mask it into a circle. */
+svg.oit-icon-style-circle {
+  --oit-icon-style-mask-image: url("data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMzIgMzIiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMTYiIGN5PSIxNiIgcj0iMTYiIC8+PC9zdmc+");
+  border-radius: 0;
+  -webkit-mask-image: var(--oit-icon-style-mask-image);
+  mask-image: var(--oit-icon-style-mask-image);
+}
