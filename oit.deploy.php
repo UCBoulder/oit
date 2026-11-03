@@ -280,3 +280,99 @@ function oit_deploy_10004_sitemap_exclude_redirects() {
 
   return t('Excluded @count redirecting nodes from the sitemap.', ['@count' => count($nids)]);
 }
+
+/**
+ * Add quick links to the navigation-shortcut menu.
+ *
+ * Replaces the Shortcut module sets ahead of its removal from core in
+ * Drupal 12. Menu link access checks hide links a user cannot reach, so a
+ * single menu covers the old per-role shortcut sets. All links are nested
+ * under a single "Shortcuts" parent item.
+ */
+function oit_deploy_10005_navigation_shortcut_links() {
+  $menu_name = 'navigation-shortcut';
+  if (!\Drupal::entityTypeManager()->getStorage('menu')->load($menu_name)) {
+    return t('Menu @menu does not exist; import config first.', ['@menu' => $menu_name]);
+  }
+
+  $links = [
+    // Content.
+    ['Add content', '/node/add'],
+    ['Add News', '/node/add/news'],
+    ['Add Service Alert', '/node/add/service_alert'],
+    ['Find content', '/admin/content'],
+    ['Shentity list', '/shentity/list'],
+    // Blocks.
+    ['Block layout', '/admin/structure/block'],
+    ['IT Service Center hours', '/admin/content/block/51'],
+    ['Edit Collections block', '/admin/content/block/109'],
+    // Menus.
+    ['Menus', '/admin/structure/menu'],
+    ['Main menu', '/admin/structure/menu/manage/main'],
+    ['ODA main menu', '/admin/structure/menu/manage/oda-main-menu'],
+    // Webforms.
+    ['Webforms', '/admin/structure/webform'],
+    ['Create webform', '/admin/structure/webform/add'],
+    // Feeds and taxonomy.
+    ['Feeds', '/admin/content/feed'],
+    ['Feed types', '/admin/structure/feeds'],
+    ['Taxonomy', '/admin/structure/taxonomy'],
+    // System.
+    ['Admin index', '/admin/index'],
+    ['Asset Injector', '/admin/config/development/asset-injector'],
+    ['Config changes', '/admin/config/development/configuration'],
+    ['Cron', '/admin/config/system/cron'],
+    ['Site information', '/admin/config/system/site-information'],
+    ['Status report', '/admin/reports/status'],
+  ];
+
+  $storage = \Drupal::entityTypeManager()->getStorage('menu_link_content');
+  $created = 0;
+
+  // Top-level, non-clickable parent so Navigation renders the links as a
+  // single expandable item instead of a long flat list.
+  $parent_title = 'Shortcuts';
+  $parents = $storage->loadByProperties([
+    'menu_name' => $menu_name,
+    'link.uri' => 'route:<nolink>',
+    'title' => $parent_title,
+  ]);
+  $parent = reset($parents);
+  if (!$parent) {
+    $parent = $storage->create([
+      'title' => $parent_title,
+      'link' => ['uri' => 'route:<nolink>'],
+      'menu_name' => $menu_name,
+      'weight' => 0,
+      'expanded' => TRUE,
+    ]);
+    $parent->save();
+    $created++;
+  }
+  $parent_id = $parent->getPluginId();
+
+  foreach ($links as $weight => [$title, $path]) {
+    $uri = 'internal:' . $path;
+    $existing = $storage->loadByProperties([
+      'menu_name' => $menu_name,
+      'link.uri' => $uri,
+    ]);
+    if ($existing) {
+      continue;
+    }
+    $storage->create([
+      'title' => $title,
+      'link' => ['uri' => $uri],
+      'menu_name' => $menu_name,
+      'parent' => $parent_id,
+      'weight' => $weight,
+      'expanded' => FALSE,
+    ])->save();
+    $created++;
+  }
+
+  return t('Added @count links to the @menu menu.', [
+    '@count' => $created,
+    '@menu' => $menu_name,
+  ]);
+}
