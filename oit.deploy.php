@@ -296,14 +296,7 @@ function oit_deploy_10005_navigation_shortcut_links() {
   }
 
   $links = [
-    // Content.
-    ['Add content', '/node/add'],
-    ['Add News', '/node/add/news'],
-    ['Add Service Alert', '/node/add/service_alert'],
-    ['Find content', '/admin/content'],
-    ['Shentity list', '/shentity/list'],
     // Blocks.
-    ['Block layout', '/admin/structure/block'],
     ['IT Service Center hours', '/admin/content/block/51'],
     ['Edit Collections block', '/admin/content/block/109'],
     // Menus.
@@ -319,11 +312,7 @@ function oit_deploy_10005_navigation_shortcut_links() {
     ['Taxonomy', '/admin/structure/taxonomy'],
     // System.
     ['Admin index', '/admin/index'],
-    ['Asset Injector', '/admin/config/development/asset-injector'],
-    ['Config changes', '/admin/config/development/configuration'],
     ['Cron', '/admin/config/system/cron'],
-    ['Site information', '/admin/config/system/site-information'],
-    ['Status report', '/admin/reports/status'],
   ];
 
   $storage = \Drupal::entityTypeManager()->getStorage('menu_link_content');
