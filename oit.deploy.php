@@ -311,7 +311,6 @@ function oit_deploy_10005_navigation_shortcut_links() {
     ['Feed types', '/admin/structure/feeds'],
     ['Taxonomy', '/admin/structure/taxonomy'],
     // System.
-    ['Admin index', '/admin/index'],
     ['Cron', '/admin/config/system/cron'],
   ];
 
