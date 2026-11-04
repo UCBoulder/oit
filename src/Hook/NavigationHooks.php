@@ -79,4 +79,23 @@ class NavigationHooks {
     ];
   }
 
+  /**
+   * Implements hook_preprocess_HOOK() for navigation_menu.
+   *
+   * Core Navigation derives a menu item's icon from its plugin ID, which for
+   * menu_link_content items is a UUID with no matching icon, so the button
+   * falls back to the first two letters of the title. Give the top-level
+   * items of the navigation-shortcut menu the OIT shortcuts icon instead.
+   */
+  #[Hook('preprocess_navigation_menu')]
+  public function preprocessNavigationMenu(array &$variables): void {
+    if (($variables['menu_name'] ?? '') !== 'navigation-shortcut' || empty($variables['items'])) {
+      return;
+    }
+    foreach ($variables['items'] as &$item) {
+      $item['icon']['pack_id'] = 'oit';
+      $item['icon']['icon_id'] = 'navigation-shortcuts';
+    }
+  }
+
 }
