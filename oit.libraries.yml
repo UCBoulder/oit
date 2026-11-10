@@ -132,7 +132,7 @@ gin_select:
   js:
     js/gin_add_select2.js: {}
   dependencies:
-    - webform/libraries.jquery.select2
+    - webform/webform.element.select2
   license:
     name: 'GPL-2.0-or-later'
     url: 'https://www.drupal.org/licensing/faq'
