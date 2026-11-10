@@ -191,3 +191,14 @@ oit_icon_extras.editor:
   license:
     name: 'GPL-2.0-or-later'
     url: 'https://www.drupal.org/licensing/faq'
+navigation_coffee:
+  js:
+    js/navigation_coffee.js: {}
+  dependencies:
+    - core/drupal
+    - core/jquery
+    - core/once
+    - coffee/drupal.coffee
+  license:
+    name: 'GPL-2.0-or-later'
+    url: 'https://www.drupal.org/licensing/faq'

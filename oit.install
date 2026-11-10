@@ -751,3 +751,38 @@ function oit_update_10021() {
     \Drupal::service('module_installer')->uninstall($module, TRUE);
   }
 }
+
+/**
+ * Delete all shortcuts and uninstall the shortcut module.
+ */
+function oit_update_10022() {
+  if (!\Drupal::moduleHandler()->moduleExists('shortcut')) {
+    return t('Shortcut module is not installed.');
+  }
+
+  // Content entities must be removed before the module can be uninstalled.
+  $storage = \Drupal::entityTypeManager()->getStorage('shortcut');
+  $shortcuts = $storage->loadMultiple();
+  $count = count($shortcuts);
+  if ($shortcuts) {
+    $storage->delete($shortcuts);
+  }
+
+  // Shortcut sets are config entities (bundles) and are removed on uninstall.
+  // Deleting a bundle triggers hook_entity_bundle_delete() implementations
+  // (e.g. simple_sitemap) that run access-checked shortcut entity queries.
+  // shortcut_query_shortcut_access_alter() then looks up the shortcut set
+  // displayed to the current user, which fails with a TypeError for the
+  // anonymous drush user once the "default" set has been deleted. Run the
+  // uninstall as user 1 so the access alter is bypassed.
+  $account_switcher = \Drupal::service('account_switcher');
+  $account_switcher->switchTo(User::load(1));
+  try {
+    \Drupal::service('module_installer')->uninstall(['shortcut']);
+  }
+  finally {
+    $account_switcher->switchBack();
+  }
+
+  return t('Deleted @count shortcuts and uninstalled the shortcut module.', ['@count' => $count]);
+}
