@@ -74,7 +74,7 @@ class ServiceMaintenanceCompletion {
    * @param string $to_status
    *   The status value to set when the end date has passed.
    */
-  public function statusChange($from_status, $to_status) {
+  public function statusChange($from_status, $to_status): void {
     $query = $this->connection->select('node__field_service_alert_status', 'sa');
     $query->fields('sa', ['entity_id']);
     $query->condition('sa.field_service_alert_status_value', $from_status);

@@ -62,7 +62,7 @@ class TeamsAlert {
   /**
    * The Teams logging channel.
    *
-   * @var \Drupal\Core\Logger\LoggerChannelFactoryInterface
+   * @var \Drupal\Core\Logger\LoggerChannelInterface
    */
   protected $logger;
 
@@ -122,13 +122,13 @@ class TeamsAlert {
    *
    * @param string $message
    *   The message text to send.
-   * @param array $environment
+   * @param list<string> $environment
    *   List of environments in which to send the alert.
    */
   public function sendMessage(
     $message,
     $environment = ['live', 'dev', 'test', 'local'],
-  ) {
+  ): void {
     if (!in_array($this->env, $environment)) {
       return;
     }
@@ -161,7 +161,7 @@ class TeamsAlert {
   /**
    * Build the MS Teams adaptive card payload array.
    *
-   * @return array
+   * @return array<string, mixed>
    *   The adaptive card message array for the Teams webhook.
    */
   public function getMessage() {

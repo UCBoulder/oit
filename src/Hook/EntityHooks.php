@@ -2,11 +2,13 @@
 
 namespace Drupal\oit\Hook;
 
+use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Hook\Attribute\Hook;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
+use Drupal\node\NodeInterface;
 use Drupal\oit\Plugin\OitImageStyled;
 use Drupal\oit\Plugin\TeamsAlert;
 use Drupal\oit\Services\HeroImage;
@@ -47,7 +49,7 @@ class EntityHooks {
    */
   #[Hook('entity_presave')]
   public function entityPresave(EntityInterface $entity): void {
-    if (method_exists($entity, 'getType')) {
+    if ($entity instanceof NodeInterface) {
       if ($entity->getType() == 'news') {
         $this->updateNews($entity);
       }
@@ -56,7 +58,7 @@ class EntityHooks {
       }
     }
     // Set image alt.
-    if (method_exists($entity, 'bundle')) {
+    if ($entity instanceof ContentEntityInterface) {
       if ($entity->bundle() == 'pictures') {
         $entity->field_finished_picture->alt = $entity->get('title')->value;
       }
@@ -68,7 +70,7 @@ class EntityHooks {
    */
   #[Hook('entity_create')]
   public function entityCreate(EntityInterface $entity): void {
-    if ($entity->getEntityType()->getBundleEntityType() == 'node_type' && $entity->getType() == 'webform') {
+    if ($entity->getEntityType()->getBundleEntityType() == 'node_type' && $entity instanceof NodeInterface && $entity->getType() == 'webform') {
       // Set access control set to Authenticated.
       $entity->set('field_access_control_2', '475');
     }
@@ -76,10 +78,19 @@ class EntityHooks {
 
   /**
    * Implements hook_entity_view().
+   *
+   * @param array<string, mixed> $build
+   *   The renderable array.
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   The entity being viewed.
+   * @param \Drupal\Core\Entity\Display\EntityViewDisplayInterface $display
+   *   The entity view display.
+   * @param string $view_mode
+   *   The view mode.
    */
   #[Hook('entity_view')]
   public function entityView(array &$build, EntityInterface $entity, EntityViewDisplayInterface $display, string $view_mode): void {
-    if ($entity->getEntityType()->getBundleEntityType() == 'node_type' && $entity->getType() == 'webform') {
+    if ($entity->getEntityType()->getBundleEntityType() == 'node_type' && $entity instanceof NodeInterface && $entity->getType() == 'webform') {
       if ($webform_id = $entity->get('webform')->getValue()) {
         $webform_id = $webform_id[0]['target_id'];
         $webform = $this->entityTypeManager->getStorage('webform')->load($webform_id);
@@ -95,10 +106,10 @@ class EntityHooks {
   /**
    * Sets news social metadata images and the unpublish date.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @param \Drupal\node\NodeInterface $entity
    *   The news entity being saved.
    */
-  protected function updateNews(EntityInterface $entity): void {
+  protected function updateNews(NodeInterface $entity): void {
     $meta_info = json_decode($entity->get('field_meta_tags')->getValue()[0]['value'], TRUE) ?? [];
     $is_temp_image = (isset($meta_info['og_image']) && strpos($meta_info['og_image'], '/system/temporary') !== FALSE)
       || (isset($meta_info['twitter_cards_image']) && strpos($meta_info['twitter_cards_image'], '/system/temporary') !== FALSE);
@@ -128,12 +139,12 @@ class EntityHooks {
   /**
    * Sets service alert social metadata images.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @param \Drupal\node\NodeInterface $entity
    *   The service alert entity being saved.
    */
-  protected function updateServiceAlert(EntityInterface $entity): void {
+  protected function updateServiceAlert(NodeInterface $entity): void {
     $meta_info = json_decode($entity->get('field_meta_tags')->getValue()[0]['value']) ?? [];
-    if ((!isset($meta_info->twitter_cards_image) || !isset($meta_info->og_image)) && $entity->get('field_service_alert_dash_cat')) {
+    if (!isset($meta_info->twitter_cards_image) || !isset($meta_info->og_image)) {
       if (is_object($meta_info)) {
         $meta_info->twitter_cards_type = "summary";
       }

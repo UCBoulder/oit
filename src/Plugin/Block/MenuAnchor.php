@@ -15,7 +15,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   admin_label = @Translation("Menu anchor link")
  * )
  */
-class MenuAnchor extends BlockBase implements
+final class MenuAnchor extends BlockBase implements
   ContainerFactoryPluginInterface {
 
   /**
@@ -30,7 +30,7 @@ class MenuAnchor extends BlockBase implements
    *
    * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
    *   Container pulled in.
-   * @param array $configuration
+   * @param array<string, mixed> $configuration
    *   Configuration added.
    * @param string $plugin_id
    *   Plugin_id added.
@@ -39,8 +39,8 @@ class MenuAnchor extends BlockBase implements
    *
    * @return static
    */
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition): self {
-    return new self(
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition): static {
+    return new static(
       $configuration,
       $plugin_id,
       $plugin_definition,
@@ -51,7 +51,7 @@ class MenuAnchor extends BlockBase implements
   /**
    * {@inheritdoc}
    *
-   * @param array $configuration
+   * @param array<string, mixed> $configuration
    *   Configuration array.
    * @param string $plugin_id
    *   Plugin id string.
@@ -67,6 +67,9 @@ class MenuAnchor extends BlockBase implements
 
   /**
    * {@inheritdoc}
+   *
+   * @return array<string, mixed>
+   *   Render array.
    */
   public function build() {
     $icon = '<svg

@@ -8,6 +8,7 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\link\LinkItemInterface;
 use Drupal\node\NodeInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -19,7 +20,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   admin_label = @Translation("Page Overview Block")
  * )
  */
-class PageOverview extends BlockBase implements
+final class PageOverview extends BlockBase implements
   ContainerFactoryPluginInterface {
 
   /**
@@ -48,7 +49,7 @@ class PageOverview extends BlockBase implements
    *
    * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
    *   Container pulled in.
-   * @param array $configuration
+   * @param array<string, mixed> $configuration
    *   Configuration added.
    * @param string $plugin_id
    *   Plugin_id added.
@@ -57,8 +58,8 @@ class PageOverview extends BlockBase implements
    *
    * @return static
    */
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition): self {
-    return new self(
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition): static {
+    return new static(
       $configuration,
       $plugin_id,
       $plugin_definition,
@@ -71,7 +72,7 @@ class PageOverview extends BlockBase implements
   /**
    * {@inheritdoc}
    *
-   * @param array $configuration
+   * @param array<string, mixed> $configuration
    *   Configuration array.
    * @param string $plugin_id
    *   Plugin id string.
@@ -93,6 +94,9 @@ class PageOverview extends BlockBase implements
 
   /**
    * {@inheritdoc}
+   *
+   * @return array<string, mixed>
+   *   Render array.
    */
   public function build() {
     $thisNode = $this->routMatchInterface->getParameter('node');
@@ -131,12 +135,13 @@ class PageOverview extends BlockBase implements
 
           // Download link if set.
           // Return full external url or /node/# for internal links.
-          if ($node->field_software_download_link->get(0) !== NULL) {
-            if ($node->field_software_download_link->get(0)->isExternal()) {
-              $download = $node->field_software_download_link->get(0)->getString();
+          $download_link = $node->field_software_download_link->get(0);
+          if ($download_link instanceof LinkItemInterface) {
+            if ($download_link->isExternal()) {
+              $download = $download_link->getString();
             }
             else {
-              $download = $node->field_software_download_link->get(0)->getUrl()->toString();
+              $download = $download_link->getUrl()->toString();
             }
             $download_icon = (string) $this->renderProcessedText("[svg name=download width=25 color=0073E6][/svg]");
             $download_text = $this->t('Access Software');

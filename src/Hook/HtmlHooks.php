@@ -32,6 +32,9 @@ class HtmlHooks {
 
   /**
    * Implements hook_preprocess_HOOK() for html templates.
+   *
+   * @param array<string, mixed> $variables
+   *   The template variables.
    */
   #[Hook('preprocess_html')]
   public function preprocessHtml(array &$variables): void {

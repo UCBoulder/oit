@@ -4,6 +4,7 @@ namespace Drupal\oit\Hook;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Extension\ExtensionPathResolver;
+use Drupal\Core\Entity\EntityFormInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Hook\Attribute\Hook;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
@@ -16,7 +17,9 @@ use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\Component\Utility\Xss;
+use Drupal\node\NodeInterface;
 use Drupal\oit\Plugin\Domain;
+use Drupal\taxonomy\TermInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -66,6 +69,13 @@ class FormHooks {
 
   /**
    * Implements hook_form_alter().
+   *
+   * @param array<string, mixed> $form
+   *   The form array.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   * @param string $form_id
+   *   The form ID.
    */
   #[Hook('form_alter')]
   public function formAlter(array &$form, FormStateInterface $form_state, string $form_id): void {
@@ -439,7 +449,7 @@ class FormHooks {
    *   Whether to render a SAML login link below the SVG. Pass FALSE where
    *   samlauth already supplies its own login link.
    *
-   * @return array
+   * @return array<string, mixed>
    *   A render array for the 'login_words' form element.
    */
   protected function loginWords(?TranslatableMarkup $text = NULL, bool $saml_link = TRUE): array {
@@ -496,7 +506,7 @@ class FormHooks {
    * @param mixed $webform_id
    *   The raw 'webform_id' value from the query string.
    *
-   * @return array|null
+   * @return array<string, string>|null
    *   An array with 'label' and 'formId' default values, or NULL when the
    *   webform id is missing or not a positive integer.
    */
@@ -561,7 +571,7 @@ class FormHooks {
    *
    * Displayed Wednesday 1600–2200 UTC to administrator and pseudo_admin roles.
    *
-   * @param array $form
+   * @param array<string, mixed> $form
    *   The form array.
    * @param string $form_id
    *   The form ID.
@@ -607,17 +617,21 @@ class FormHooks {
    * Static so the callback stored in the cached form array does not
    * serialize this hook class and its injected services.
    *
-   * @param array $form
+   * @param array<string, mixed> $form
    *   The form array.
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The form state.
    */
-  public static function newsNodeFormSubmit(array &$form, FormStateInterface $form_state) {
+  public static function newsNodeFormSubmit(array &$form, FormStateInterface $form_state): void {
     if (!$form_state->getValue(['promote', 'value'])) {
       return;
     }
 
-    $node_id = $form_state->getFormObject()->getEntity()->id();
+    $form_object = $form_state->getFormObject();
+    if (!$form_object instanceof EntityFormInterface) {
+      return;
+    }
+    $node_id = $form_object->getEntity()->id();
     $node_storage = \Drupal::entityTypeManager()->getStorage('node');
 
     $nids = $node_storage->getQuery()
@@ -640,14 +654,14 @@ class FormHooks {
    *
    * Used by oit and oda modules to auto-fill domain access/source fields.
    *
-   * @param array $form
+   * @param array<string, mixed> $form
    *   The form array.
    * @param string $domain_name
    *   The domain name (e.g. 'oit', 'oda').
    * @param string $domain_id
    *   The domain ID (e.g. 'oit_colorado_edu', 'oda_colorado_edu').
    */
-  public static function setDomainDefaults(array &$form, $domain_name, $domain_id) {
+  public static function setDomainDefaults(array &$form, $domain_name, $domain_id): void {
     if (isset($form['field_domain_access'])) {
       $env = getenv('PANTHEON_ENVIRONMENT');
 
@@ -680,12 +694,12 @@ class FormHooks {
    * the callback stored in the cached form array does not serialize this hook
    * class and its injected services.
    *
-   * @param array $form
+   * @param array<string, mixed> $form
    *   The form array.
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The form state.
    */
-  public static function setDomainSubmit(array &$form, FormStateInterface $form_state) {
+  public static function setDomainSubmit(array &$form, FormStateInterface $form_state): void {
     if (!isset($form['#oit_domain'])) {
       return;
     }
@@ -705,12 +719,12 @@ class FormHooks {
    * action processing. Static so the callback stored in the cached form array
    * does not serialize this hook class and its injected services.
    *
-   * @param array $form
+   * @param array<string, mixed> $form
    *   The form array.
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The form state.
    */
-  public static function dashboardCategoryAddSubmit(array &$form, FormStateInterface $form_state) {
+  public static function dashboardCategoryAddSubmit(array &$form, FormStateInterface $form_state): void {
     $name = Xss::filter($form_state->getValue('name')[0]['value']);
     $dashboard_state = \Drupal::state()->get('oit_dashboard_add');
 
@@ -731,13 +745,20 @@ class FormHooks {
    * action processing. Static so the callback stored in the cached form array
    * does not serialize this hook class and its injected services.
    *
-   * @param array $form
+   * @param array<string, mixed> $form
    *   The form array.
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The form state.
    */
-  public static function dashboardCategoryDeleteSubmit(array &$form, FormStateInterface $form_state) {
-    $term = $form_state->getFormObject()->getEntity();
+  public static function dashboardCategoryDeleteSubmit(array &$form, FormStateInterface $form_state): void {
+    $form_object = $form_state->getFormObject();
+    if (!$form_object instanceof EntityFormInterface) {
+      return;
+    }
+    $term = $form_object->getEntity();
+    if (!$term instanceof TermInterface) {
+      return;
+    }
     $term_name = $term->getName();
 
     $dashboard_state = \Drupal::state()->get('oit_dashboard_delete');
@@ -758,16 +779,23 @@ class FormHooks {
    * Static so the callback stored in the cached form array does not serialize
    * this hook class and its injected services.
    *
-   * @param array $form
+   * @param array<string, mixed> $form
    *   The form array.
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The form state.
    */
-  public static function gpBodyValidate(array &$form, FormStateInterface $form_state) {
+  public static function gpBodyValidate(array &$form, FormStateInterface $form_state): void {
     $body = $form_state->getValue('body');
     $body_value = $body[0]['value'];
 
-    $node = $form_state->getFormObject()->getEntity();
+    $form_object = $form_state->getFormObject();
+    if (!$form_object instanceof EntityFormInterface) {
+      return;
+    }
+    $node = $form_object->getEntity();
+    if (!$node instanceof NodeInterface) {
+      return;
+    }
     if ($node->isNew()) {
       return;
     }
@@ -786,12 +814,12 @@ class FormHooks {
    * callback stored in the cached form array does not serialize this hook
    * class and its injected services.
    *
-   * @param array $form
+   * @param array<string, mixed> $form
    *   The form array.
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The form state.
    */
-  public static function newsCategoriesValidate(array &$form, FormStateInterface $form_state) {
+  public static function newsCategoriesValidate(array &$form, FormStateInterface $form_state): void {
     $categories = $form_state->getValue('field_oit_category');
     $parent_cat = [];
     if (isset($categories)) {

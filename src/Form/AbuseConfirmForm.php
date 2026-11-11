@@ -15,7 +15,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * Confirmation form for abuse IP actions.
  */
-class AbuseConfirmForm extends ConfirmFormBase {
+final class AbuseConfirmForm extends ConfirmFormBase {
 
   const ACTION_KEEP = 1;
   const ACTION_NOKEEP = 2;
@@ -81,8 +81,8 @@ class AbuseConfirmForm extends ConfirmFormBase {
   /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container): self {
-    return new self(
+  public static function create(ContainerInterface $container): static {
+    return new static(
       $container->get('state'),
       $container->get('database'),
       $container->get('config.factory'),
@@ -123,6 +123,18 @@ class AbuseConfirmForm extends ConfirmFormBase {
 
   /**
    * {@inheritdoc}
+   *
+   * @param array<string, mixed> $form
+   *   The form array.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   * @param string|null $ip
+   *   The IP address from the route.
+   * @param int|string|null $action
+   *   The action from the route.
+   *
+   * @return array<string, mixed>|\Symfony\Component\HttpFoundation\RedirectResponse
+   *   The confirmation form, or a redirect when the IP or action is invalid.
    */
   public function buildForm(array $form, FormStateInterface $form_state, $ip = NULL, $action = NULL) {
     $this->ip = urldecode(Xss::filter((string) $ip));
@@ -143,8 +155,13 @@ class AbuseConfirmForm extends ConfirmFormBase {
 
   /**
    * {@inheritdoc}
+   *
+   * @param array<string, mixed> $form
+   *   The form array.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
    */
-  public function submitForm(array &$form, FormStateInterface $form_state) {
+  public function submitForm(array &$form, FormStateInterface $form_state): void {
     if ($this->action >= self::ACTION_KEEP) {
       $this->abuseIpRemove($this->ip);
     }
@@ -178,7 +195,7 @@ class AbuseConfirmForm extends ConfirmFormBase {
    * @param string $ip
    *   The IP address to remove.
    */
-  private function abuseIpRemove($ip) {
+  private function abuseIpRemove($ip): void {
     $abuse = json_decode($this->state->get('ban_ip_questionable'), TRUE) ?: [];
     if (isset($abuse[$ip])) {
       unset($abuse[$ip]);
@@ -192,7 +209,7 @@ class AbuseConfirmForm extends ConfirmFormBase {
    * @param string $ip
    *   The IP address to remove.
    */
-  private function banIpRemove($ip) {
+  private function banIpRemove($ip): void {
     $this->database->delete('advban_ip')
       ->condition('ip', $ip)
       ->execute();
@@ -204,7 +221,7 @@ class AbuseConfirmForm extends ConfirmFormBase {
    * @param string $ip
    *   The IP address to whitelist.
    */
-  private function ipWhitelist($ip) {
+  private function ipWhitelist($ip): void {
     $autoban_settings = $this->configFactory->getEditable('autoban.settings');
     $whitelist_raw = $autoban_settings->get('autoban_whitelist') ?? '';
     $entries = array_filter(array_map('trim', explode("\n", $whitelist_raw)));

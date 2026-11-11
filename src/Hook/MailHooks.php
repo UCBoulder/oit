@@ -23,7 +23,7 @@ class MailHooks {
    * Reply-To defaults to oithelp@colorado.edu so replies still reach the help
    * desk, but any Reply-To a module set explicitly is preserved.
    *
-   * @param array $message
+   * @param array<string, mixed> $message
    *   The mail message array, passed by reference.
    */
   #[Hook('mail_alter')]

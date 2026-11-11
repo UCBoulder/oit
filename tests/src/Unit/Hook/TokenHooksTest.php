@@ -145,7 +145,7 @@ class TokenHooksTest extends DrupalUnitTestCase {
    * @param string $key
    *   Either 'value' or 'target_id'.
    *
-   * @return \Drupal\Core\Field\FieldItemListInterface|\PHPUnit\Framework\MockObject\MockObject
+   * @return \Drupal\Core\Field\FieldItemListInterface<\Drupal\Core\Field\FieldItemInterface>&\PHPUnit\Framework\MockObject\MockObject
    *   The mocked field item list.
    */
   protected function mockField(bool $empty, $value = NULL, string $key = 'value'): FieldItemListInterface {
@@ -165,7 +165,7 @@ class TokenHooksTest extends DrupalUnitTestCase {
    *
    * @param string $bundle
    *   The node bundle/type.
-   * @param array $fields
+   * @param array<int|string, mixed> $fields
    *   Map of field name to mocked FieldItemListInterface.
    *
    * @return \Drupal\node\NodeInterface|\PHPUnit\Framework\MockObject\MockObject
@@ -372,7 +372,7 @@ class TokenHooksTest extends DrupalUnitTestCase {
   /**
    * Data provider for the tweet_pic / og_image image tokens.
    *
-   * @return array
+   * @return array<int|string, array<int, mixed>>
    *   Sets of [token name, image style].
    */
   public static function imageTokenProvider(): array {

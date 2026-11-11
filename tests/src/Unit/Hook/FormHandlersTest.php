@@ -31,7 +31,7 @@ class FormHandlersTest extends DrupalUnitTestCase {
   /**
    * In-memory backing store for the mocked state service.
    *
-   * @var array
+   * @var array<int|string, mixed>
    */
   protected array $stateValues = [];
 
@@ -46,7 +46,7 @@ class FormHandlersTest extends DrupalUnitTestCase {
   /**
    * Sets a container whose state service reads and writes $stateValues.
    *
-   * @param array $values
+   * @param array<int|string, mixed> $values
    *   Initial state values, keyed by state key.
    */
   protected function setState(array $values = []): void {
@@ -64,7 +64,7 @@ class FormHandlersTest extends DrupalUnitTestCase {
   /**
    * Data provider for testDashboardCategoryAddSubmit().
    *
-   * @return array
+   * @return array<int|string, array<int, mixed>>
    *   Rows of [initial state, submitted name, expected state].
    */
   public static function addProvider(): array {
@@ -94,7 +94,7 @@ class FormHandlersTest extends DrupalUnitTestCase {
   /**
    * Data provider for testDashboardCategoryDeleteSubmit().
    *
-   * @return array
+   * @return array<int|string, array<int, mixed>>
    *   Rows of [initial state, term name, expected state].
    */
   public static function deleteProvider(): array {
@@ -154,7 +154,7 @@ class FormHandlersTest extends DrupalUnitTestCase {
   /**
    * Data provider for testGpBodyValidate().
    *
-   * @return array
+   * @return array<int|string, array<int, mixed>>
    *   Rows of [is new, old body, new body, expect error].
    */
   public static function gpProvider(): array {
@@ -196,7 +196,7 @@ class FormHandlersTest extends DrupalUnitTestCase {
   /**
    * Data provider for testNewsCategoriesValidate().
    *
-   * @return array
+   * @return array<int|string, array<int, mixed>>
    *   Rows of [term id => parent id map or NULL, expected error or NULL].
    */
   public static function newsCategoriesProvider(): array {
@@ -214,6 +214,11 @@ class FormHandlersTest extends DrupalUnitTestCase {
 
   /**
    * Tests news needs a category under both the Service and News parents.
+   *
+   * @param array<int|string, int|string>|null $parents
+   *   The parent term IDs keyed by term ID, or NULL when none.
+   * @param string|null $expected
+   *   The expected error message, or NULL when the value is valid.
    */
   #[DataProvider('newsCategoriesProvider')]
   public function testNewsCategoriesValidate(?array $parents, ?string $expected): void {

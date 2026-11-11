@@ -59,7 +59,7 @@ class DeleteOldTermNode {
    * @param int $date
    *   Unix timestamp; nodes created before this date will be deleted.
    */
-  public function update($term_id, $date) {
+  public function update($term_id, $date): void {
     $query = $this->connection->select('taxonomy_index', 'ti');
     $query->fields('ti', ['nid']);
     $query->condition('ti.tid', $term_id, 'IN');

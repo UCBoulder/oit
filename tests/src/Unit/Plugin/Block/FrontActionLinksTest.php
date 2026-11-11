@@ -80,7 +80,7 @@ class FrontActionLinksTest extends UnitTestCase {
       /**
        * Fakes StatementInterface::fetchAssoc().
        *
-       * @return array
+       * @return array<int|string, mixed>
        *   A zero count row.
        */
       public function fetchAssoc() {
@@ -190,8 +190,8 @@ class FrontActionLinksTest extends UnitTestCase {
     ], $calls);
 
     foreach ($calls as $call) {
-      // Width must be a string, and colors must be bare hex (no leading #).
-      $this->assertIsString($call[1]);
+      // Colors must be bare hex (no leading #). The width being a string is
+      // already enforced by the strict assertSame() on $calls above.
       $this->assertStringStartsNotWith('#', $call[2]);
     }
   }

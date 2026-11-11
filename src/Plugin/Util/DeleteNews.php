@@ -72,7 +72,7 @@ class DeleteNews {
    *   News nodes whose created timestamp is older than this many years
    *   are candidates for deletion.
    *
-   * @return array
+   * @return array{deleted: array<int, string>, skipped: array<int, array{title: string, reason: string}>}
    *   [
    *     'deleted' => [nid => title, ...],
    *     'skipped' => [nid => ['title' => '...', 'reason' => '...'], ...],
@@ -109,7 +109,7 @@ class DeleteNews {
    *   News nodes whose created timestamp is older than this many years
    *   are candidates for deletion.
    *
-   * @return array
+   * @return array{deleted: array<int, string>, skipped: array<int, array{title: string, reason: string}>}
    *   Same shape as findDeletable().
    */
   public function deleteNews(int $years): array {
@@ -141,6 +141,12 @@ class DeleteNews {
 
   /**
    * Query candidate news nodes older than $years years.
+   *
+   * @param int $years
+   *   Age threshold in years.
+   *
+   * @return array<int, string>
+   *   Candidate news titles keyed by nid.
    */
   protected function getCandidates(int $years): array {
     $cutoff = strtotime("-{$years} years");
@@ -157,6 +163,12 @@ class DeleteNews {
 
   /**
    * Build a map of nid => alias for candidates that have a custom alias.
+   *
+   * @param array<int, string> $candidates
+   *   Candidate news titles keyed by nid.
+   *
+   * @return array<int, string>
+   *   Custom path aliases keyed by nid.
    */
   protected function buildAliasMap(array $candidates): array {
     $alias_map = [];
@@ -173,6 +185,14 @@ class DeleteNews {
    * Run all reference checks and return [nid => reason] for referenced nodes.
    *
    * Checks run in order A -> B -> C -> D; first match wins per nid.
+   *
+   * @param array<int, string> $candidates
+   *   Candidate news titles keyed by nid.
+   * @param array<int, string> $alias_map
+   *   Custom path aliases keyed by nid.
+   *
+   * @return array<int, string>
+   *   Reasons keyed by nid for referenced candidates.
    */
   protected function buildReferencedSet(array $candidates, array $alias_map): array {
     $referenced = [];
@@ -185,6 +205,14 @@ class DeleteNews {
 
   /**
    * Check A: Scan text_long, text_with_summary, and string_long fields.
+   *
+   * @param array<int, string> $candidates
+   *   Candidate news titles keyed by nid.
+   * @param array<int, string> $alias_map
+   *   Custom path aliases keyed by nid.
+   * @param array<int, string> $referenced
+   *   Reasons keyed by nid, for candidates found to be referenced. Passed by
+   *   reference and added to.
    */
   protected function checkLongTextFields(array $candidates, array $alias_map, array &$referenced): void {
     $unique_fields = [];
@@ -260,6 +288,12 @@ class DeleteNews {
 
   /**
    * Check B: Entity reference fields whose target_type is node.
+   *
+   * @param array<int, string> $candidates
+   *   Candidate news titles keyed by nid.
+   * @param array<int, string> $referenced
+   *   Reasons keyed by nid, for candidates found to be referenced. Passed by
+   *   reference and added to.
    */
   protected function checkEntityReferenceFields(array $candidates, array &$referenced): void {
     $nids = array_keys($candidates);
@@ -307,6 +341,14 @@ class DeleteNews {
 
   /**
    * Check C: Menu links pointing at candidate nodes.
+   *
+   * @param array<int, string> $candidates
+   *   Candidate news titles keyed by nid.
+   * @param array<int, string> $alias_map
+   *   Custom path aliases keyed by nid.
+   * @param array<int, string> $referenced
+   *   Reasons keyed by nid, for candidates found to be referenced. Passed by
+   *   reference and added to.
    */
   protected function checkMenuLinks(array $candidates, array $alias_map, array &$referenced): void {
     if (!$this->connection->schema()->tableExists('menu_link_content_data')) {
@@ -342,6 +384,12 @@ class DeleteNews {
 
   /**
    * Check D: Redirects whose destination is a candidate node.
+   *
+   * @param array<int, string> $candidates
+   *   Candidate news titles keyed by nid.
+   * @param array<int, string> $referenced
+   *   Reasons keyed by nid, for candidates found to be referenced. Passed by
+   *   reference and added to.
    */
   protected function checkRedirects(array $candidates, array &$referenced): void {
     if (!$this->connection->schema()->tableExists('redirect')) {

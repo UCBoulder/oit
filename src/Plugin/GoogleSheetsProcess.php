@@ -18,7 +18,7 @@ class GoogleSheetsProcess {
   /**
    * Return processed data.
    *
-   * @var array
+   * @var array<string, mixed>
    */
   private $processedData;
 
@@ -32,9 +32,9 @@ class GoogleSheetsProcess {
   /**
    * Constructs a new GoogleSheetsProcess object and processes the sheet data.
    *
-   * @param array $gsheet_returned_data
+   * @param array<int, array<int, string|null>>|null $gsheet_returned_data
    *   The raw two-dimensional array from GoogleSheetsFetch.
-   * @param string $sheet_letters
+   * @param string|null $sheet_letters
    *   Comma-separated column letters specifying which columns to include.
    * @param string $process
    *   Processing mode: 'ss' for standard or 'custom' for custom headers.
@@ -170,7 +170,7 @@ class GoogleSheetsProcess {
   /**
    * Return the processed Google Sheets data.
    *
-   * @return array
+   * @return array<string, mixed>
    *   Associative array with 'rows' and 'header' keys.
    */
   public function getProcessedData() {

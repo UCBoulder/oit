@@ -82,10 +82,10 @@ class MenuHooksTest extends DrupalUnitTestCase {
    *
    * @param \Drupal\Core\Url|\PHPUnit\Framework\MockObject\MockObject $url
    *   The mocked URL.
-   * @param array $initial
+   * @param array<string, mixed> $initial
    *   The initial URL options.
    *
-   * @return \ArrayObject
+   * @return \ArrayObject<string, mixed>
    *   The live options store, readable after the hook has run.
    */
   protected function stubOptions(Url $url, array $initial = []): \ArrayObject {
@@ -145,6 +145,11 @@ class MenuHooksTest extends DrupalUnitTestCase {
 
   /**
    * Tests both entry points prepend the node access manipulator identically.
+   *
+   * @param array<int|string, mixed> $input
+   *   The manipulators passed to the hooks.
+   * @param array<int|string, mixed> $expected
+   *   The expected manipulators after the hooks run.
    */
   #[DataProvider('manipulatorProvider')]
   public function testAddNodeAccessManipulatorBothEntryPoints(array $input, array $expected): void {
@@ -162,7 +167,7 @@ class MenuHooksTest extends DrupalUnitTestCase {
   /**
    * Data provider for addNodeAccessManipulator cases.
    *
-   * @return array
+   * @return array<int|string, array<int, mixed>>
    *   Test cases.
    */
   public static function manipulatorProvider(): array {
@@ -514,6 +519,11 @@ class MenuHooksTest extends DrupalUnitTestCase {
 
   /**
    * Tests the render cache contexts added for account menu block variants.
+   *
+   * @param string $plugin_id
+   *   The block plugin ID.
+   * @param string[]|null $expected_contexts
+   *   The expected cache contexts, or NULL when none are added.
    */
   #[DataProvider('blockBuildProvider')]
   public function testBlockBuildAlter(string $plugin_id, ?array $expected_contexts): void {
@@ -535,7 +545,7 @@ class MenuHooksTest extends DrupalUnitTestCase {
   /**
    * Data provider for blockBuildAlter cases.
    *
-   * @return array
+   * @return array<int|string, array<int, mixed>>
    *   Test cases.
    */
   public static function blockBuildProvider(): array {

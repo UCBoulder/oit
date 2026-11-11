@@ -74,7 +74,7 @@ class FormAlterFieldConfigExistenceTest extends DrupalUnitTestCase {
    * FormHooks::formAlter(): node_page_form, node_service_alert_form,
    * node_news_form, node_webform_form and node_tutorial_form.
    *
-   * @return array
+   * @return array<int|string, array<int, mixed>>
    *   Test cases keyed 'bundle:field'.
    */
   public static function touchedFieldProvider(): array {

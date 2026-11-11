@@ -59,7 +59,7 @@ class SetDomainSubmitTest extends DrupalUnitTestCase {
   /**
    * Data provider for testForcesDomainWhenEmpty().
    *
-   * @return array
+   * @return array<int|string, array<int, mixed>>
    *   Rows of [domain name, domain id, access value, source value].
    */
   public static function emptyValuesProvider(): array {
@@ -73,6 +73,15 @@ class SetDomainSubmitTest extends DrupalUnitTestCase {
 
   /**
    * Tests access and source are forced when either is empty.
+   *
+   * @param string $name
+   *   The domain name.
+   * @param string $id
+   *   The domain ID.
+   * @param array<int|string, mixed> $access
+   *   The initial access field value.
+   * @param array<int|string, mixed> $source
+   *   The initial source field value.
    */
   #[DataProvider('emptyValuesProvider')]
   public function testForcesDomainWhenEmpty(string $name, string $id, array $access, array $source): void {

@@ -37,7 +37,7 @@ class TopPages {
   /**
    * Top pages json.
    *
-   * @var array
+   * @var array<int, array<string, mixed>>
    */
   private $fullTopPages;
 
@@ -120,7 +120,7 @@ class TopPages {
   /**
    * Fetch top pages JSON data from the remote source.
    */
-  private function fetchData() {
+  private function fetchData(): void {
     // Get yesterdays date in the format YYYYMMDD.
     $yesterday = date('Ymd', strtotime('-1 day'));
 
@@ -154,7 +154,7 @@ class TopPages {
   /**
    * Whitelist ip to prevent ban.
    */
-  public function whitelistIp() {
+  public function whitelistIp(): void {
     // Get current user ip.
     $ip = $this->requestStack->getCurrentRequest()->getClientIp();
     if (empty($ip)) {
@@ -174,7 +174,7 @@ class TopPages {
   /**
    * Top Pages List.
    */
-  public function getTopPages() {
+  public function getTopPages(): void {
     $this->fetchData();
 
     $this->iteration = 0;
@@ -221,7 +221,7 @@ class TopPages {
   /**
    * Top Tutorials List.
    */
-  public function getTopTutorials() {
+  public function getTopTutorials(): void {
     $this->fetchData();
 
     $this->iteration = 0;
@@ -272,8 +272,9 @@ class TopPages {
    *
    * @param int $count
    *   The expected number of items in the list.
-   * @param array $top_pages
-   *   Array of page data with 'title' and 'url' keys.
+   * @param array<int, array{title: string, url: string}>|null $top_pages
+   *   Array of page data with 'title' and 'url' keys, or NULL when the
+   *   source JSON was faulty.
    * @param int $block_id
    *   The block content entity ID to update.
    * @param string $block_title
@@ -283,7 +284,7 @@ class TopPages {
    * @param string $block_class
    *   CSS class to apply to the list element.
    */
-  private function buildSaveBlock($count, $top_pages, $block_id, $block_title, $block_url, $block_class) {
+  private function buildSaveBlock($count, $top_pages, $block_id, $block_title, $block_url, $block_class): void {
     if ($top_pages === NULL) {
       $this->logger->debug('Faulty JSON');
       $this->teamsAlert->sendMessage("Front Page - $block_title - Faulty JSON", ['live']);

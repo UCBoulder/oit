@@ -26,7 +26,7 @@ class BlockUuidQuery {
   /**
    * Return block id.
    *
-   * @var string
+   * @var string|null
    */
   private $bid;
 
@@ -55,20 +55,23 @@ class BlockUuidQuery {
    *
    * @param string $uuid
    *   The UUID of the block content entity.
+   *
+   * @return void
+   *   Nothing is returned; the block ID is stored on the instance.
    */
   public function getBidByUuid($uuid) {
     $query = $this->connection->select('block_content', 'bc');
     $query->fields('bc', ['id']);
     $query->condition('bc.uuid', $uuid);
     $results = $query->execute();
-    $results = $results->fetch();
-    $this->bid = $results->id;
+    $row = $results->fetch();
+    $this->bid = $row->id ?? NULL;
   }
 
   /**
    * Load and return a rendered block entity.
    *
-   * @return array
+   * @return array<string, mixed>
    *   Render array for the block content entity.
    */
   public function loadBlock() {

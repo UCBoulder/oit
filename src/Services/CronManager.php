@@ -10,14 +10,14 @@ class CronManager {
   /**
    * Adds analytics redirects via the oit.redirect.add.analytics service.
    */
-  public static function addAnalyticsRedirects() {
+  public static function addAnalyticsRedirects(): void {
     \Drupal::service('oit.redirect.add.analytics');
   }
 
   /**
    * Teams message for banned ips and check against abuse database.
    */
-  public static function autoBan() {
+  public static function autoBan(): void {
     // Send message when new banned ip is added.
     $latest_ban = \Drupal::service('oit.latestAutoBan');
     $current_ban_id = $latest_ban->latestBanId;
@@ -30,7 +30,7 @@ class CronManager {
   /**
    * Archive Old News.
    */
-  public static function archiveNews() {
+  public static function archiveNews(): void {
     // Archive news older than 90 days.
     $cut_off = strtotime("-90 days");
     $archivenews = \Drupal::service('oit.archivenews');
@@ -42,14 +42,14 @@ class CronManager {
    *
    * Archives service alerts that are past their completion date.
    */
-  public static function archiveServiceMaintenance() {
+  public static function archiveServiceMaintenance(): void {
     \Drupal::service('oit.smc');
   }
 
   /**
    * Update Top Services block.
    */
-  public static function topServices() {
+  public static function topServices(): void {
     $env = getenv('PANTHEON_ENVIRONMENT');
 
     if ($env === 'live') {
@@ -63,7 +63,7 @@ class CronManager {
   /**
    * Update Top tutorials block.
    */
-  public static function topTutorials() {
+  public static function topTutorials(): void {
     $env = getenv('PANTHEON_ENVIRONMENT');
 
     if ($env === 'live') {
@@ -80,7 +80,7 @@ class CronManager {
    * Live environment only. In non-live environments the block's cold-cache
    * fallback fetch handles dev/test.
    */
-  public static function refreshPortfolio() {
+  public static function refreshPortfolio(): void {
     $env = getenv('PANTHEON_ENVIRONMENT');
     if ($env !== 'live') {
       \Drupal::logger('oit')->notice('Portfolio refresh skipped. This is the @env environment.', ['@env' => $env]);
@@ -94,7 +94,7 @@ class CronManager {
    *
    * Live environment only. Sends Teams report and writes watchdog log.
    */
-  public static function deleteNews() {
+  public static function deleteNews(): void {
     $env = getenv('PANTHEON_ENVIRONMENT');
     if ($env !== 'live') {
       \Drupal::logger('oit')->notice('News deletion skipped. This is the @env environment.', ['@env' => $env]);

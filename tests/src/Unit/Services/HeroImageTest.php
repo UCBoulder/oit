@@ -52,7 +52,7 @@ class HeroImageTest extends DrupalUnitTestCase {
    * @param int|null $targetId
    *   The target ID the field's first value should carry.
    *
-   * @return \Drupal\Core\Field\FieldItemListInterface|\PHPUnit\Framework\MockObject\MockObject
+   * @return \Drupal\Core\Field\FieldItemListInterface<\Drupal\Core\Field\FieldItemInterface>&\PHPUnit\Framework\MockObject\MockObject
    *   The mocked field item list.
    */
   protected function mockField(bool $empty, ?int $targetId = NULL): FieldItemListInterface {

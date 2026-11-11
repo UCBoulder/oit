@@ -21,6 +21,7 @@ use Drupal\Tests\UnitTestCase as DrupalUnitTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\CoversMethod;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\MockObject\MockObject;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -44,30 +45,30 @@ class EntityHooksTest extends DrupalUnitTestCase {
   /**
    * The entity type manager mock.
    *
-   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface&\PHPUnit\Framework\MockObject\MockObject
    */
-  protected EntityTypeManagerInterface $entityTypeManager;
+  protected EntityTypeManagerInterface&MockObject $entityTypeManager;
 
   /**
    * The logger channel factory mock.
    *
-   * @var \Drupal\Core\Logger\LoggerChannelFactoryInterface
+   * @var \Drupal\Core\Logger\LoggerChannelFactoryInterface&\PHPUnit\Framework\MockObject\MockObject
    */
-  protected LoggerChannelFactoryInterface $loggerFactory;
+  protected LoggerChannelFactoryInterface&MockObject $loggerFactory;
 
   /**
    * The Teams alert mock.
    *
-   * @var \Drupal\oit\Plugin\TeamsAlert
+   * @var \Drupal\oit\Plugin\TeamsAlert&\PHPUnit\Framework\MockObject\MockObject
    */
-  protected TeamsAlert $teamsAlert;
+  protected TeamsAlert&MockObject $teamsAlert;
 
   /**
    * The hero image service mock.
    *
-   * @var \Drupal\oit\Services\HeroImage
+   * @var \Drupal\oit\Services\HeroImage&\PHPUnit\Framework\MockObject\MockObject
    */
-  protected HeroImage $heroImage;
+  protected HeroImage&MockObject $heroImage;
 
   /**
    * The request stack.

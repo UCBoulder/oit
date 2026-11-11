@@ -11,7 +11,7 @@ use Drupal\file\Entity\File;
 /**
  * Dashboard taxonomy add.
  */
-function oit_deploy_10000_dashtax() {
+function oit_deploy_10000_dashtax(): void {
   $service_links = [
     'Buff Portal' => '21566',
     'Canvas' => '19026',
@@ -55,7 +55,7 @@ function oit_deploy_10000_dashtax() {
 /**
  * Update dash tax from current dashboard categories.
  */
-function oit_deploy_10001_mapcats() {
+function oit_deploy_10001_mapcats(): void {
   $dash_cat = [
   // Buff Portal.
     1 => 1269,
@@ -150,7 +150,7 @@ function oit_deploy_10001_mapcats() {
 /**
  * Update dashboard category weights.
  */
-function oit_deploy_10002_dashboard_weight() {
+function oit_deploy_10002_dashboard_weight(): void {
   $term_update = [
     1286 => 0,
     1290 => 1,
@@ -174,6 +174,12 @@ function oit_deploy_10002_dashboard_weight() {
 
 /**
  * Migrate hero images from field_news_front_image to field_media_hero_image.
+ *
+ * @param array<string, mixed> $sandbox
+ *   The batch sandbox.
+ *
+ * @return \Drupal\Core\StringTranslation\TranslatableMarkup
+ *   A message describing the result.
  */
 function oit_deploy_10003_news_hero_media(&$sandbox) {
   if (!isset($sandbox['progress'])) {
@@ -251,6 +257,9 @@ function oit_deploy_10003_news_hero_media(&$sandbox) {
 
 /**
  * Exclude nodes that redirect elsewhere from the XML sitemap.
+ *
+ * @return \Drupal\Core\StringTranslation\TranslatableMarkup
+ *   A message describing the result.
  */
 function oit_deploy_10004_sitemap_exclude_redirects() {
   $nids = [

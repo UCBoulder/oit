@@ -99,7 +99,7 @@ class OitCommands extends DrushCommands {
    * @command oit:send-teams-alert
    * @aliases oit:sta
    */
-  public function sendTeamsAlert($userMessage) {
+  public function sendTeamsAlert($userMessage): void {
     $teams = $this->teamsAlert;
     $teams->sendMessage($userMessage);
     $this->messenger->addMessage('Teams Alert Sent.');
@@ -114,7 +114,7 @@ class OitCommands extends DrushCommands {
    * @command oit:clean-users
    * @aliases oit:cu
    */
-  public function cleanUsers($limit = 0) {
+  public function cleanUsers($limit = 0): void {
     $this->userClean->removeUsers($limit);
   }
 
@@ -124,7 +124,7 @@ class OitCommands extends DrushCommands {
    * @command oit:top-service-pages
    * @aliases oit:tsp
    */
-  public function topServicePages() {
+  public function topServicePages(): void {
     $this->topPages->getTopPages();
   }
 
@@ -134,12 +134,17 @@ class OitCommands extends DrushCommands {
    * @command oit:top-tutorial-pages
    * @aliases oit:ttp
    */
-  public function topTutorialPages() {
+  public function topTutorialPages(): void {
     $this->topPages->getTopTutorials();
   }
 
   /**
    * Delete news nodes older than N years that are not linked anywhere.
+   *
+   * @param int $years
+   *   Number of years back to use as the deletion cutoff.
+   * @param array<string,bool> $options
+   *   The command options.
    *
    * @command oit:news-delete
    * @aliases oit:nd

@@ -45,7 +45,7 @@ class PortfolioDataTest extends UnitTestCase {
   /**
    * Builds a testable service with a canned fetchRaw() result.
    *
-   * @param array $fetched
+   * @param array<int, array<int, string|null>> $fetched
    *   The data fetchRaw() should return.
    *
    * @return \Drupal\oit\Services\PortfolioData
@@ -57,10 +57,20 @@ class PortfolioDataTest extends UnitTestCase {
       /**
        * Canned fetch result.
        *
-       * @var array
+       * @var array<int, array<int, string|null>>
        */
       private $fetched;
 
+      /**
+       * Constructs the testable service.
+       *
+       * @param \Drupal\Core\Cache\CacheBackendInterface $cache_backend
+       *   The cache backend.
+       * @param \Drupal\Core\Cache\CacheTagsInvalidatorInterface $cache_tags_invalidator
+       *   The cache tags invalidator.
+       * @param array<int, array<int, string|null>> $fetched
+       *   The canned fetch result.
+       */
       public function __construct(CacheBackendInterface $cache_backend, CacheTagsInvalidatorInterface $cache_tags_invalidator, array $fetched) {
         parent::__construct($cache_backend, $cache_tags_invalidator);
         $this->fetched = $fetched;
@@ -68,6 +78,9 @@ class PortfolioDataTest extends UnitTestCase {
 
       /**
        * {@inheritdoc}
+       *
+       * @return array<int, array<int, string|null>>
+       *   The canned fetch result.
        */
       protected function fetchRaw(): array {
         return $this->fetched;

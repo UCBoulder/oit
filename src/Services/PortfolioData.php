@@ -75,7 +75,7 @@ class PortfolioData {
    * does not invalidate the cache tag — the render that triggered it caches
    * itself fresh anyway.
    *
-   * @return array
+   * @return array<int, array<int, string|null>>
    *   The raw fetched sheet data.
    */
   public function getSheetData(): array {
@@ -109,7 +109,7 @@ class PortfolioData {
    * Isolated as the single network seam so unit tests can override it with
    * canned or empty data.
    *
-   * @return array
+   * @return array<int, array<int, string|null>>
    *   The raw fetched sheet data.
    */
   protected function fetchRaw(): array {
@@ -124,7 +124,7 @@ class PortfolioData {
    * and the 26h TTL so they cannot drift apart between the read and write
    * paths.
    *
-   * @param array $data
+   * @param array<int, array<int, string|null>> $data
    *   The data to cache.
    *
    * @return bool

@@ -64,7 +64,7 @@ class ArchiveNews {
    * @param int $cut_off
    *   Unix timestamp; news changed before this date will be archived.
    */
-  public function archive($cut_off) {
+  public function archive($cut_off): void {
     $query = $this->connection->select('node__field_news_archive', 'na');
     $query->fields('na', ['entity_id']);
     $query->condition('na.field_news_archive_value', 1);

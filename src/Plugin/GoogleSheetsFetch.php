@@ -17,21 +17,14 @@ class GoogleSheetsFetch {
   /**
    * Fetch google sheet data.
    *
-   * @var string
+   * @var array<int, array<int, string|null>>
    */
   private $fetchData;
 
   /**
-   * Sheet count returned.
-   *
-   * @var string
-   */
-  private $sheetCount;
-
-  /**
    * Get returned sheet.
    *
-   * @var string
+   * @var \Drupal\oit\Plugin\CvsToArray
    */
   private $cvsSheet;
 
@@ -80,7 +73,7 @@ class GoogleSheetsFetch {
   /**
    * Get sheet that was fetched.
    *
-   * @return array
+   * @return array<int, array<int, string|null>>
    *   The fetched sheet data as a two-dimensional array.
    */
   public function getFetchedSheet() {
@@ -90,11 +83,11 @@ class GoogleSheetsFetch {
   /**
    * Get the result count.
    *
-   * @return int
-   *   The number of rows in the fetched sheet.
+   * @return int|null
+   *   Always NULL: the row count has never been populated. Nothing calls this.
    */
   public function getCount() {
-    return $this->sheetCount;
+    return NULL;
   }
 
 }

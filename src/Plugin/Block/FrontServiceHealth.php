@@ -17,7 +17,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   admin_label = @Translation("Service Health front page block")
  * )
  */
-class FrontServiceHealth extends BlockBase implements
+final class FrontServiceHealth extends BlockBase implements
   ContainerFactoryPluginInterface {
 
   /**
@@ -32,7 +32,7 @@ class FrontServiceHealth extends BlockBase implements
    *
    * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
    *   Container pulled in.
-   * @param array $configuration
+   * @param array<string, mixed> $configuration
    *   Configuration added.
    * @param string $plugin_id
    *   Plugin_id added.
@@ -41,8 +41,8 @@ class FrontServiceHealth extends BlockBase implements
    *
    * @return static
    */
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition): self {
-    return new self(
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition): static {
+    return new static(
       $configuration,
       $plugin_id,
       $plugin_definition,
@@ -53,7 +53,7 @@ class FrontServiceHealth extends BlockBase implements
   /**
    * {@inheritdoc}
    *
-   * @param array $configuration
+   * @param array<string, mixed> $configuration
    *   Configuration array.
    * @param string $plugin_id
    *   Plugin id string.
@@ -79,6 +79,9 @@ class FrontServiceHealth extends BlockBase implements
 
   /**
    * {@inheritdoc}
+   *
+   * @return array<string, mixed>
+   *   Render array.
    */
   public function build() {
     $service_dashboard = $this->serviceHealth;
