@@ -53,6 +53,9 @@ class TokenHooks {
 
   /**
    * Implements hook_token_info().
+   *
+   * @return array<string, array<string, mixed>>
+   *   The token type and token definitions.
    */
   #[Hook('token_info')]
   public function tokenInfo(): array {
@@ -80,6 +83,21 @@ class TokenHooks {
 
   /**
    * Implements hook_tokens().
+   *
+   * @param string $type
+   *   The machine-readable name of the type (group) of token being replaced.
+   * @param array<string, string> $tokens
+   *   An array of tokens to be replaced, keyed by the token name.
+   * @param array<string, mixed> $data
+   *   An associative array of data objects to be used when generating
+   *   replacement values.
+   * @param array<string, mixed> $options
+   *   An associative array of options for token replacement.
+   * @param \Drupal\Core\Render\BubbleableMetadata $bubbleable_metadata
+   *   The bubbleable metadata.
+   *
+   * @return array<string, mixed>
+   *   An associative array of replacement values, keyed by the original token.
    */
   #[Hook('tokens')]
   public function tokens($type, $tokens, array $data, array $options, BubbleableMetadata $bubbleable_metadata): array {

@@ -23,7 +23,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 /**
  * Controller routines for zap routes.
  */
-class OitController extends ControllerBase {
+final class OitController extends ControllerBase {
 
   /**
    * Object used to get request data, such as the hash.
@@ -33,18 +33,11 @@ class OitController extends ControllerBase {
   protected $blockUuidQuery;
 
   /**
-   * Object used to get request data, such as the hash.
+   * The current request, as returned by RequestStack::getCurrentRequest().
    *
-   * @var \Symfony\Component\HttpFoundation\RequestStack
+   * @var \Symfony\Component\HttpFoundation\Request|null
    */
   protected $requestStack;
-
-  /**
-   * Logger Factory.
-   *
-   * @var \Drupal\Core\Logger\LoggerChannelFactoryInterface
-   */
-  protected $loggerFactory;
 
   /**
    * The kill switch.
@@ -143,7 +136,7 @@ class OitController extends ControllerBase {
   ) {
     $this->requestStack = $request_stack->getCurrentRequest();
     $this->blockUuidQuery = $block_uuid_query;
-    $this->loggerFactory = $logger_factory->get('oit');
+    $this->loggerFactory = $logger_factory;
     $this->killSwitch = $killSwitch;
     $this->configFactory = $config_factory;
     $this->moduleExtensionList = $module_extension_list;
@@ -157,8 +150,8 @@ class OitController extends ControllerBase {
   /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container): self {
-    return new self(
+  public static function create(ContainerInterface $container): static {
+    return new static(
       $container->get('oit.block.uuid.query'),
       $container->get('request_stack'),
       $container->get('logger.factory'),
@@ -175,6 +168,9 @@ class OitController extends ControllerBase {
 
   /**
    * Custom 404 page.
+   *
+   * @return array<string, mixed>
+   *   Render array for the 404 page.
    */
   public function oit404() {
     // Get path to oit module.
@@ -264,6 +260,9 @@ class OitController extends ControllerBase {
 
   /**
    * Routes for cron json.
+   *
+   * @return \Symfony\Component\HttpFoundation\JsonResponse
+   *   JSON response with the dashboard add/delete flags.
    */
   public function oitCronJson() {
     // Get state 'oit_dashboard_delete'.
@@ -294,6 +293,9 @@ class OitController extends ControllerBase {
 
   /**
    * Routes for denied.
+   *
+   * @return array<string, mixed>
+   *   Render array for the denied page.
    */
   public function oitDenied() {
     $content = $this->deniedContent();
@@ -343,6 +345,9 @@ class OitController extends ControllerBase {
 
   /**
    * Request Catalog page.
+   *
+   * @return array<string, mixed>
+   *   Render array for the request catalog page.
    */
   public function requestPortal() {
     $svg = $this->shortcodeSvgIcon;
@@ -425,12 +430,12 @@ class OitController extends ControllerBase {
    *   The view machine name.
    * @param string $display
    *   The view display ID.
-   * @param array $arg
+   * @param array<int, string> $arg
    *   Contextual filter arguments.
    * @param string $title
    *   The block title.
    *
-   * @return array
+   * @return array<string, mixed>
    *   Render array for the item list.
    */
   private function requestPortalView($view, $display, $arg, $title) {
@@ -468,6 +473,9 @@ class OitController extends ControllerBase {
 
   /**
    * Service Alert dashboard page.
+   *
+   * @return array<string, mixed>
+   *   Render array for the service alert dashboard.
    */
   public function serviceAlertHealth() {
     $service_dashboard = $this->serviceHealth;

@@ -2,6 +2,7 @@
 
 namespace Drupal\oit\Plugin;
 
+use Drupal\Component\Render\MarkupInterface;
 use Drupal\Core\Render\Markup;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Cache\CacheBackendInterface;
@@ -79,6 +80,9 @@ class ServiceHealth {
 
   /**
    * Service Alert health — thin cache wrapper.
+   *
+   * @return array<string, array<string, mixed>>
+   *   Service health rows keyed by "{status}-{category name}".
    */
   public function serviceHealthLookup(): array {
     $cid = 'oit:service_health_lookup';
@@ -96,6 +100,9 @@ class ServiceHealth {
 
   /**
    * Build service alert health data (uncached).
+   *
+   * @return array<string, array<string, mixed>>
+   *   Service health rows keyed by "{status}-{category name}".
    */
   protected function buildServiceHealthData(): array {
     $category = [];
@@ -106,6 +113,7 @@ class ServiceHealth {
 
     $entity_storage = $this->entityTypeManager->getStorage('taxonomy_term');
     // Pass TRUE to get full term entities (avoids N+1 load() calls).
+    /** @var \Drupal\taxonomy\TermInterface[] $dashboard_categories */
     $dashboard_categories = $entity_storage->loadTree($taxonomyName, 0, NULL, TRUE);
 
     // First pass: collect all node IDs per category.
@@ -161,8 +169,8 @@ class ServiceHealth {
         // Last node wins per category — intentional product behavior.
         foreach ($results as $result) {
           $sa = $nodes[$result];
-          $sa_button = $this->nidLink($result, $this->t('View'), ['button']);
-          $sa_link = $this->nidLink($result, $dashboard_category_name . ' - ' . $this->t('View Service Alert'), ['text-color--blue']);
+          $sa_button = $this->nidLink((int) $result, $this->t('View'), ['button']);
+          $sa_link = $this->nidLink((int) $result, $dashboard_category_name . ' - ' . $this->t('View Service Alert'), ['text-color--blue']);
           $created = $sa->get('created')->value;
           $timeago = $this->dateFormatter->formatTimeDiffSince($created);
           $timeago .= " " . $this->t('ago');
@@ -190,8 +198,8 @@ class ServiceHealth {
             ];
           }
           else {
-            $sa_button = $this->nidLink($result, $this->t('View Latest'), ['button']);
-            $sa_link = $this->nidLink($result, $dashboard_category_name . ' - ' . $this->t('View Service Alert'), ['text-color--blue']);
+            $sa_button = $this->nidLink((int) $result, $this->t('View Latest'), ['button']);
+            $sa_link = $this->nidLink((int) $result, $dashboard_category_name . ' - ' . $this->t('View Service Alert'), ['text-color--blue']);
             $category["0-$dashboard_category_name"] = [
               'service' => $dashboard_category_name,
               'tid' => $dashboard_category_key,
@@ -211,8 +219,11 @@ class ServiceHealth {
 
   /**
    * Service Alert health.
+   *
+   * @return array<int, string|\Stringable>
+   *   Rendered status labels keyed by status code.
    */
-  public function serviceHealthStatusByKey() {
+  public function serviceHealthStatusByKey(): array {
     $status_key = [
       0 => $this->t('No service issue')->render(),
       1 => $this->t('Maintenance scheduled/ongoing')->render(),
@@ -223,8 +234,14 @@ class ServiceHealth {
 
   /**
    * Reduce duplicates.
+   *
+   * @param array<string, array<string, mixed>> $category
+   *   Service health rows, as built by serviceHealthLookup().
+   *
+   * @return array<string, array{status: mixed, key: string}>
+   *   The highest-status row key per service name.
    */
-  public function removeDuplicates($category) {
+  public function removeDuplicates($category): array {
     $service_track = [];
     foreach ($category as $sh_key => $cat) {
       $status = $cat['status'];
@@ -250,6 +267,14 @@ class ServiceHealth {
 
   /**
    * Link service category to the correct service.
+   *
+   * @param string $category
+   *   The category name used as link text.
+   * @param int|string $tid
+   *   The taxonomy term ID of the category.
+   *
+   * @return \Drupal\Component\Render\MarkupInterface|string
+   *   The link markup, or the plain category name when there is no link.
    */
   public function serviceLink($category, $tid) {
     $entity_storage = $this->entityTypeManager->getStorage('taxonomy_term');
@@ -274,8 +299,18 @@ class ServiceHealth {
    *
    * Builds the anchor tag manually to avoid Link::toString() bubbling cache
    * metadata (domain context from domain_source) into the render pipeline.
+   *
+   * @param int $nid
+   *   The node ID.
+   * @param string $text
+   *   The link text.
+   * @param list<string> $class
+   *   CSS classes for the anchor.
+   *
+   * @return \Drupal\Component\Render\MarkupInterface|string
+   *   The anchor markup.
    */
-  private function nidLink(int $nid, string $text, array $class = []): Markup {
+  private function nidLink(int $nid, string $text, array $class = []): MarkupInterface|string {
     $id = strtolower(str_replace(' ', '', strip_tags((string) $text)));
     $path = Url::fromRoute('entity.node.canonical', ['node' => $nid])->toString();
     $class_attr = $class ? ' class="' . implode(' ', $class) . '"' : '';
@@ -285,8 +320,18 @@ class ServiceHealth {
 
   /**
    * External link.
+   *
+   * @param string $link
+   *   The external URI.
+   * @param string $text
+   *   The link text.
+   * @param array<int, string> $class
+   *   CSS classes for the anchor.
+   *
+   * @return \Drupal\Component\Render\MarkupInterface
+   *   The rendered link.
    */
-  private function extLink($link, $text, $class = []) {
+  private function extLink($link, $text, $class = []): MarkupInterface {
     $id = strtolower(str_replace(' ', '', $text));
     $link_options = [
       'attributes' => [
@@ -303,8 +348,14 @@ class ServiceHealth {
 
   /**
    * Returns svg circle for given status.
+   *
+   * @param int|string $status
+   *   The service health status code.
+   *
+   * @return string
+   *   The SVG markup.
    */
-  public function statusCircle($status) {
+  public function statusCircle($status): string {
     return "<svg height='20' width='20' class='service_health sa-$status'><circle cx='10' cy='10' r='8' stroke='black' stroke-width='.3' /></svg>";
   }
 

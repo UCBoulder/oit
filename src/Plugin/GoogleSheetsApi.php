@@ -15,15 +15,9 @@ class GoogleSheetsApi {
   /**
    * Sheets data.
    *
-   * @var string
+   * @var array<string, mixed>|null
    */
   private $sheetData;
-  /**
-   * Raw CVS sheet data.
-   *
-   * @var string
-   */
-  private $cvsSheet;
 
   /**
    * Fetch and process a Google Sheet by key and column letters.
@@ -39,7 +33,7 @@ class GoogleSheetsApi {
    * @param bool $shentity
    *   Whether to treat the key as a full URL.
    *
-   * @return array
+   * @return array<string, mixed>
    *   The processed sheet data.
    */
   public function sheetDefined($key, $sheet_letters, $gid = 0, $shift = 0, $shentity = FALSE) {
@@ -55,8 +49,8 @@ class GoogleSheetsApi {
   /**
    * Return the processed sheet data.
    *
-   * @return array
-   *   The processed sheet data.
+   * @return array<string, mixed>|null
+   *   The processed sheet data, or NULL if no sheet has been fetched yet.
    */
   public function getSheetData() {
     return $this->sheetData;

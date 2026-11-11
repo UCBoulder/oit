@@ -26,6 +26,11 @@ class PreprocessHooks {
 
   /**
    * Implements hook_preprocess().
+   *
+   * @param array<string, mixed> $variables
+   *   The template variables.
+   * @param string $hook
+   *   The name of the theme hook being preprocessed.
    */
   #[Hook('preprocess')]
   public function preprocess(array &$variables, $hook): void {

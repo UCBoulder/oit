@@ -291,12 +291,12 @@ class PageAttachmentsHooksTest extends DrupalUnitTestCase {
   /**
    * Gets an HTML head attachment by key.
    *
-   * @param array $html_head
+   * @param array<int|string, mixed> $html_head
    *   The html_head attachments.
    * @param string $key
    *   The attachment key.
    *
-   * @return array|null
+   * @return array<int|string, mixed>|null
    *   The matching attachment render array, or NULL if none was found.
    */
   protected function getHtmlHeadAttachmentByKey(array $html_head, string $key): ?array {

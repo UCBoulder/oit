@@ -35,7 +35,7 @@ class FormAlterRegressionTest extends DrupalUnitTestCase {
   /**
    * Builds a FormHooks instance with mocked dependencies.
    *
-   * @param array $roles
+   * @param string[] $roles
    *   The roles the mocked current user should report.
    * @param \Drupal\Core\Config\ConfigFactoryInterface|null $configFactory
    *   An optional config factory mock; one returning NULL for every config
@@ -139,7 +139,7 @@ class FormAlterRegressionTest extends DrupalUnitTestCase {
       /**
        * Returns a fixed node id.
        */
-      public function id() {
+      public function id(): int {
         return 5;
       }
 

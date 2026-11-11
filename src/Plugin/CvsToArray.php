@@ -18,7 +18,7 @@ class CvsToArray {
   /**
    * Store array from CVS.
    *
-   * @var array
+   * @var array<int, array<int, string|null>>
    */
   private $arrayCvs;
 
@@ -34,14 +34,14 @@ class CvsToArray {
   public function __construct($file, $delimiter) {
     $this->arrayCvs = [];
     if ($file === NULL || $file === '') {
-      static::reportOpenError('', 'No URL provided.');
+      self::reportOpenError('', 'No URL provided.');
       return;
     }
     try {
-      $body = static::fetch($file);
+      $body = self::fetch($file);
     }
     catch (GuzzleException $e) {
-      static::reportOpenError($file, static::describeFailure($e));
+      self::reportOpenError($file, self::describeFailure($e));
       return;
     }
     // Parse via a memory stream so fgetcsv() keeps handling quoted
@@ -128,7 +128,7 @@ class CvsToArray {
   /**
    * Return the parsed CSV data as an array.
    *
-   * @return array
+   * @return array<int, array<int, string|null>>
    *   The parsed CSV data.
    */
   public function getBuiltArray() {

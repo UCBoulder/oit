@@ -56,7 +56,7 @@ class FormAlterTest extends DrupalUnitTestCase {
   /**
    * Builds a FormHooks instance with mocked dependencies.
    *
-   * @param array $options
+   * @param array<int|string, mixed> $options
    *   Optional overrides: 'roles', 'domain', 'configFactory', 'routeMatch',
    *   'requestStack', 'query' (used to build a requestStack when one is not
    *   supplied), 'messenger', 'killSwitch', 'loggerFactory'.
@@ -89,10 +89,10 @@ class FormAlterTest extends DrupalUnitTestCase {
    * anonymous subclass overrides the seam from section 3.1 to record the
    * URL and status instead, per spec section 5.2 ("Login form, redirect").
    *
-   * @param array $options
+   * @param array<int|string, mixed> $options
    *   Same overrides as buildHooks().
    *
-   * @return \Drupal\oit\Hook\FormHooks
+   * @return \Drupal\oit\Hook\FormHooks&object{sentRedirects: array<int, array{url: string, status: int}>}
    *   A FormHooks instance with a public 'sentRedirects' property, each
    *   entry shaped as ['url' => string, 'status' => int].
    */
@@ -112,7 +112,7 @@ class FormAlterTest extends DrupalUnitTestCase {
       /**
        * Recorded sendRedirect() calls.
        *
-       * @var array
+       * @var array<int, array{url: string, status: int}>
        */
       public array $sentRedirects = [];
 
@@ -132,7 +132,7 @@ class FormAlterTest extends DrupalUnitTestCase {
   /**
    * Builds a mocked current user reporting the given roles.
    *
-   * @param array $roles
+   * @param string[] $roles
    *   The roles to report.
    *
    * @return \Drupal\Core\Session\AccountProxyInterface
@@ -178,10 +178,10 @@ class FormAlterTest extends DrupalUnitTestCase {
   /**
    * Builds a config factory returning canned values per config name.
    *
-   * @param array $values
+   * @param array<int|string, mixed> $values
    *   Keyed by config name, each an array of key => value pairs returned
    *   from that config's get().
-   * @param array $is_new
+   * @param array<int|string, mixed> $is_new
    *   Keyed by config name, the isNew() value to report. Defaults to FALSE.
    *
    * @return \Drupal\Core\Config\ConfigFactoryInterface
@@ -207,7 +207,7 @@ class FormAlterTest extends DrupalUnitTestCase {
    * A real Request built with a query array satisfies both the
    * query->get('name') and query->all() shapes the branches under test use.
    *
-   * @param array $query
+   * @param array<int|string, mixed> $query
    *   The query string parameters.
    *
    * @return \Symfony\Component\HttpFoundation\RequestStack
@@ -225,12 +225,12 @@ class FormAlterTest extends DrupalUnitTestCase {
    *
    * @param string $form_id
    *   The form id.
-   * @param array $form
+   * @param array<int|string, mixed> $form
    *   The starting form array.
-   * @param array $options
+   * @param array<int|string, mixed> $options
    *   Overrides passed through to buildHooks().
    *
-   * @return array
+   * @return array<int|string, mixed>
    *   The altered form array.
    */
   protected function runFormAlter(string $form_id, array $form = [], array $options = []): array {
@@ -280,7 +280,7 @@ class FormAlterTest extends DrupalUnitTestCase {
       /**
        * Returns the fixed id.
        */
-      public function id() {
+      public function id(): int {
         return $this->id;
       }
 
@@ -450,7 +450,7 @@ class FormAlterTest extends DrupalUnitTestCase {
   /**
    * Data provider of form ids that get the loading message.
    *
-   * @return array
+   * @return array<int|string, array<int, mixed>>
    *   Test cases.
    */
   public static function loadingMessageFormIdProvider(): array {
@@ -475,7 +475,7 @@ class FormAlterTest extends DrupalUnitTestCase {
   /**
    * Data provider of form ids that get the GP body validator.
    *
-   * @return array
+   * @return array<int|string, array<int, mixed>>
    *   Test cases.
    */
   public static function gpBodyValidateFormIdProvider(): array {
@@ -549,7 +549,7 @@ class FormAlterTest extends DrupalUnitTestCase {
   /**
    * Data provider for service alert field-to-group assignments.
    *
-   * @return array
+   * @return array<int|string, array<int, mixed>>
    *   Test cases.
    */
   public static function serviceAlertFieldGroupProvider(): array {
@@ -598,7 +598,7 @@ class FormAlterTest extends DrupalUnitTestCase {
   /**
    * Data provider of form ids reached by the sympa library check.
    *
-   * @return array
+   * @return array<int|string, array<int, mixed>>
    *   Test cases.
    */
   public static function sympaFormIdProvider(): array {
@@ -666,7 +666,7 @@ class FormAlterTest extends DrupalUnitTestCase {
   /**
    * Data provider for page form field-to-group assignments.
    *
-   * @return array
+   * @return array<int|string, array<int, mixed>>
    *   Test cases.
    */
   public static function pageFormFieldGroupProvider(): array {
@@ -756,7 +756,7 @@ class FormAlterTest extends DrupalUnitTestCase {
   /**
    * Data provider for news form field-to-group assignments.
    *
-   * @return array
+   * @return array<int|string, array<int, mixed>>
    *   Test cases.
    */
   public static function newsFormFieldGroupProvider(): array {
@@ -799,7 +799,7 @@ class FormAlterTest extends DrupalUnitTestCase {
   /**
    * Data provider for webform node form field-to-group assignments.
    *
-   * @return array
+   * @return array<int|string, array<int, mixed>>
    *   Test cases.
    */
   public static function webformNodeFieldGroupProvider(): array {
@@ -837,7 +837,7 @@ class FormAlterTest extends DrupalUnitTestCase {
   /**
    * Data provider for tutorial node form field-to-group assignments.
    *
-   * @return array
+   * @return array<int|string, array<int, mixed>>
    *   Test cases.
    */
   public static function tutorialNodeFieldGroupProvider(): array {

@@ -59,7 +59,7 @@ class PageAttachmentsHooks {
   /**
    * Implements hook_page_attachments_alter().
    *
-   * @param array $attachments
+   * @param array<string, mixed> $attachments
    *   The page attachments, passed by reference.
    */
   #[Hook('page_attachments_alter')]

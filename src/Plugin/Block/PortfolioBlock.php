@@ -21,7 +21,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   Report")
  * )
  */
-class PortfolioBlock extends BlockBase implements ContainerFactoryPluginInterface {
+final class PortfolioBlock extends BlockBase implements ContainerFactoryPluginInterface {
 
   /**
    * The portfolio data service.
@@ -47,7 +47,7 @@ class PortfolioBlock extends BlockBase implements ContainerFactoryPluginInterfac
   /**
    * Constructs a new PortfolioBlock.
    *
-   * @param array $configuration
+   * @param array<string, mixed> $configuration
    *   The plugin configuration.
    * @param string $plugin_id
    *   The plugin ID.
@@ -69,9 +69,18 @@ class PortfolioBlock extends BlockBase implements ContainerFactoryPluginInterfac
 
   /**
    * {@inheritdoc}
+   *
+   * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
+   *   The service container.
+   * @param array<string, mixed> $configuration
+   *   The plugin configuration.
+   * @param string $plugin_id
+   *   The plugin ID.
+   * @param mixed $plugin_definition
+   *   The plugin definition.
    */
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition): self {
-    return new self(
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition): static {
+    return new static(
       $configuration,
       $plugin_id,
       $plugin_definition,
@@ -83,6 +92,9 @@ class PortfolioBlock extends BlockBase implements ContainerFactoryPluginInterfac
 
   /**
    * {@inheritdoc}
+   *
+   * @return array<string, mixed>
+   *   Render array.
    */
   public function build() {
     $portfolio = $this->fetchPortfolio();
@@ -93,7 +105,7 @@ class PortfolioBlock extends BlockBase implements ContainerFactoryPluginInterfac
   /**
    * Fetch portfolio data from Google Sheets and build a render array.
    *
-   * @return array
+   * @return array<string, mixed>
    *   Render array for the portfolio table.
    */
   public function fetchPortfolio() {
@@ -134,7 +146,7 @@ class PortfolioBlock extends BlockBase implements ContainerFactoryPluginInterfac
             $this->t('Status Name'),
             $statusname
           );
-          $open = $n == 0 ? 'open' : '';
+          $open = '';
           $project = '';
           if (!empty($description)) {
             $project = sprintf(

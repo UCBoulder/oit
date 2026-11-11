@@ -3,6 +3,7 @@
 namespace Drupal\Tests\oit\Unit\Hook;
 
 use Drupal\block\BlockInterface;
+use Drupal\Core\Cache\CacheableDependencyInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Hook\Attribute\Hook;
 use Drupal\Core\Routing\RouteMatchInterface;
@@ -72,6 +73,7 @@ class BlockHooksTest extends DrupalUnitTestCase {
     $result = $this->access($this->block(self::UNPUBLISHED_NODE_PLUGIN), $node);
 
     $this->assertTrue($result->isForbidden());
+    $this->assertInstanceOf(CacheableDependencyInterface::class, $result);
     $this->assertContains('node:1', $result->getCacheTags());
   }
 
@@ -94,6 +96,7 @@ class BlockHooksTest extends DrupalUnitTestCase {
     $result = $this->access($this->block('menu_block:main', 'mainnavigation'), $this->page(FALSE));
 
     $this->assertTrue($result->isForbidden());
+    $this->assertInstanceOf(CacheableDependencyInterface::class, $result);
     $this->assertContains('node:2', $result->getCacheTags());
   }
 
@@ -144,7 +147,7 @@ class BlockHooksTest extends DrupalUnitTestCase {
    * @param mixed $node
    *   The route's node parameter.
    *
-   * @return \Drupal\Core\Access\AccessResult
+   * @return \Drupal\Core\Access\AccessResultInterface
    *   The access result.
    */
   protected function access(BlockInterface $block, mixed $node) {

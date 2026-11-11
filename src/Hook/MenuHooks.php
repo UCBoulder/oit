@@ -70,7 +70,7 @@ class MenuHooks {
    * Appends the social, feedback and close links to the off-canvas menu on the
    * oit domain.
    *
-   * @param array $rendered_tree
+   * @param array<string, mixed> $rendered_tree
    *   The built menu tree render array, passed by reference.
    */
   #[Hook('responsive_menu_off_canvas_tree_alter')]
@@ -106,7 +106,7 @@ class MenuHooks {
   /**
    * Prepends the node-access manipulator if it is not already present.
    *
-   * @param array $manipulators
+   * @param array<int, array<string, mixed>> $manipulators
    *   The list of menu tree manipulators, passed by reference.
    */
   protected function addNodeAccessManipulator(array &$manipulators): void {
@@ -120,6 +120,9 @@ class MenuHooks {
 
   /**
    * Implements hook_responsive_menu_off_canvas_manipulators_alter().
+   *
+   * @param array<int, array<string, mixed>> $manipulators
+   *   The list of menu tree manipulators, passed by reference.
    */
   #[Hook('responsive_menu_off_canvas_manipulators_alter')]
   public function offCanvasManipulatorsAlter(array &$manipulators): void {
@@ -128,6 +131,9 @@ class MenuHooks {
 
   /**
    * Implements hook_responsive_menu_horizontal_manipulators_alter().
+   *
+   * @param array<int, array<string, mixed>> $manipulators
+   *   The list of menu tree manipulators, passed by reference.
    */
   #[Hook('responsive_menu_horizontal_manipulators_alter')]
   public function horizontalManipulatorsAlter(array &$manipulators): void {
@@ -140,6 +146,9 @@ class MenuHooks {
    * Adds a "destination" query parameter to the SAML login link so that users
    * are returned to the page they were on instead of the front page. samlauth
    * honours the parameter and rejects external values.
+   *
+   * @param array<string, mixed> $variables
+   *   The menu template variables.
    *
    * @see \Drupal\samlauth\Controller\SamlController::getDestinationUrl()
    */
@@ -166,6 +175,11 @@ class MenuHooks {
    *
    * The account menu now renders a per-page destination, so its render cache
    * must vary by the current URL.
+   *
+   * @param array<string, mixed> $build
+   *   The block render array.
+   * @param \Drupal\Core\Block\BlockPluginInterface $block
+   *   The block plugin.
    */
   #[Hook('block_build_alter')]
   public function blockBuildAlter(array &$build, $block): void {
@@ -180,6 +194,11 @@ class MenuHooks {
    * Implements hook_menu_local_tasks_alter().
    *
    * Hides the "Reset your password" tab on the login page.
+   *
+   * @param array<string, mixed> $data
+   *   The local tasks data.
+   * @param string $route_name
+   *   The current route name.
    */
   #[Hook('menu_local_tasks_alter')]
   public function menuLocalTasksAlter(array &$data, string $route_name): void {
@@ -194,7 +213,7 @@ class MenuHooks {
    * Adds the destination query when one is available and marks the link
    * "nofollow" so crawlers do not follow it into the login flow.
    *
-   * @param array $items
+   * @param array<int|string, array<string, mixed>> $items
    *   The menu items, passed by reference.
    * @param string|null $destination
    *   The destination path to return to after login, or NULL for none.

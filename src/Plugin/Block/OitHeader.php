@@ -16,6 +16,9 @@ class OitHeader extends BlockBase {
 
   /**
    * {@inheritdoc}
+   *
+   * @return array<string, mixed>
+   *   Render array.
    */
   public function build() {
     $block = sprintf(

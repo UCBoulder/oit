@@ -52,7 +52,7 @@ class UserClean {
    * @param int $limit
    *   Maximum number of users to delete (0 = no limit).
    */
-  public function removeUsers($limit = 0) {
+  public function removeUsers($limit = 0): void {
     $user_storage = $this->entityTypeManager->getStorage('user');
     $query = $user_storage->getQuery();
     $query->condition('status', 1);

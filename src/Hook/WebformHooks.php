@@ -13,6 +13,9 @@ class WebformHooks {
 
   /**
    * Implements hook_webform_access_rules_alter().
+   *
+   * @param array<string, mixed> $access_rules
+   *   The webform access rules.
    */
   #[Hook('webform_access_rules_alter')]
   public function webformAccessRulesAlter(array &$access_rules): void {

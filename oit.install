@@ -21,7 +21,7 @@ use Drupal\user\Entity\User;
  * @param string $format
  *   The text format machine name.
  */
-function update_node_body($nid, $body, $format) {
+function update_node_body($nid, $body, $format): void {
   $query = \Drupal::entityQuery('node')
     ->condition('nid', $nid)
     ->accessCheck(FALSE);
@@ -40,7 +40,7 @@ function update_node_body($nid, $body, $format) {
 /**
  * Add missing manage_webform users.
  */
-function oit_update_9000() {
+function oit_update_9000(): void {
   $usernames = [
     'jonesdr',
     'fast',
@@ -85,14 +85,14 @@ function oit_update_9000() {
 /**
  * Truncate cache_container table to remove zap modules.
  */
-function oit_update_9001() {
+function oit_update_9001(): void {
   \Drupal::database()->truncate('cache_container')->execute();
 }
 
 /**
  * Set menu items for phising nodes.
  */
-function oit_update_9002() {
+function oit_update_9002(): void {
   $term_id = 849;
   $query = \Drupal::database()->select('taxonomy_index', 'ti');
   $query->fields('ti', ['nid']);
@@ -108,7 +108,7 @@ function oit_update_9002() {
       'parent' => 'views_view:views.phishing.page_1',
       'weight' => 0,
     ]);
-    $menu->setUnpublished(TRUE);
+    $menu->setUnpublished();
     $menu->save();
   }
 }
@@ -116,7 +116,7 @@ function oit_update_9002() {
 /**
  * Disable/enable servicenow to enable new schema/class.
  */
-function oit_update_9003() {
+function oit_update_9003(): void {
   $module = ['servicenow'];
   \Drupal::service('module_installer')->uninstall($module, TRUE);
   \Drupal::service('module_installer')->install($module, TRUE);
@@ -125,7 +125,7 @@ function oit_update_9003() {
 /**
  * Clear out field_exclude_from_search field.
  */
-function oit_update_9004() {
+function oit_update_9004(): void {
   \Drupal::database()->truncate('node__field_exclude_from_search')->execute();
   \Drupal::database()->truncate('node_revision__field_exclude_from_search')->execute();
 }
@@ -133,7 +133,7 @@ function oit_update_9004() {
 /**
  * Trashing markdown.
  */
-function oit_update_9005() {
+function oit_update_9005(): void {
   \Drupal::configFactory()->getEditable('filter.format.markdown')->delete();
   $module = ['markdown'];
   \Drupal::service('module_installer')->uninstall($module, TRUE);
@@ -143,7 +143,7 @@ function oit_update_9005() {
 /**
  * Enable show_login_form setting.
  */
-function oit_update_9006() {
+function oit_update_9006(): void {
   $config = \Drupal::configFactory()->getEditable('oit.settings');
   $config->set('show_login_form', TRUE)->save();
 }
@@ -151,7 +151,7 @@ function oit_update_9006() {
 /**
  * Death to phishing nodes.
  */
-function oit_update_9007() {
+function oit_update_9007(): void {
   $phish_cut_off = strtotime("today");
   $dotn = \Drupal::service('oit.dotn');
   $dotn->update(849, $phish_cut_off);
@@ -164,7 +164,7 @@ function oit_update_9007() {
 /**
  * Remove oitbik config.
  */
-function oit_update_9008() {
+function oit_update_9008(): void {
   $connection = \Drupal::database();
   $connection->delete('config')
     ->condition('name', 'oitbik.settings')
@@ -174,7 +174,7 @@ function oit_update_9008() {
 /**
  * Update Services page.
  */
-function oit_update_10002() {
+function oit_update_10002(): void {
   $nid = 329;
   $format = 'rich_text';
   $body = <<<EOT
@@ -201,7 +201,7 @@ EOT;
 /**
  * Clean out old menus.
  */
-function oit_update_10003() {
+function oit_update_10003(): void {
   $menu_items = [
     // md-about-oit.
     25353,
@@ -279,14 +279,14 @@ function oit_update_10003() {
 /**
  * Update all nodes field_domain_access to oit_colorado_edu.
  */
-function oit_update_10004() {
+function oit_update_10004(): void {
   \Drupal::state()->set('domain_update', 0);
 }
 
 /**
  * Remove Liaison key.
  */
-function oit_update_10005() {
+function oit_update_10005(): void {
   $connection = \Drupal::database();
   $connection->delete('key_value')
     ->condition('name', 'liaison')
@@ -296,14 +296,14 @@ function oit_update_10005() {
 /**
  * Truncate domain source table.
  */
-function oit_update_10006() {
+function oit_update_10006(): void {
   \Drupal::database()->truncate('node__field_domain_source')->execute();
 }
 
 /**
  * Set domain source.
  */
-function oit_update_10007() {
+function oit_update_10007(): void {
   \Drupal::database()->truncate('node__field_domain_source')->execute();
 
   // Sql query to 'node__field_domain_access' table where delta = 0 pulling
@@ -353,7 +353,7 @@ function oit_update_10007() {
 /**
  * Track latest ban_ip id to update new ip's to teams.
  */
-function oit_update_10008() {
+function oit_update_10008(): void {
   $query = \Drupal::database()->select('ban_ip', 'bi');
   $query->fields('bi', ['iid']);
   $query->orderBy('iid', 'DESC');
@@ -366,7 +366,7 @@ function oit_update_10008() {
 /**
  * Spring clean old tables.
  */
-function oit_update_10009() {
+function oit_update_10009(): void {
   $tables = [
     '__ACQUIA_MONITORING',
     'cache_migrate',
@@ -547,7 +547,7 @@ function oit_update_10009() {
 /**
  * Ban ip array of questionable ip's.
  */
-function oit_update_10010() {
+function oit_update_10010(): void {
   $biq = [];
   $biq = json_encode($biq);
   \Drupal::state()->set('ban_ip_questionable', $biq);
@@ -556,7 +556,7 @@ function oit_update_10010() {
 /**
  * Create redirect from /request-portal to /request-catalog.
  */
-function oit_update_10011() {
+function oit_update_10011(): void {
   Redirect::create([
     'redirect_source' => 'request-portal',
     'redirect_redirect' => 'internal:/request-catalog',
@@ -568,7 +568,7 @@ function oit_update_10011() {
 /**
  * Delete old tutorials.
  */
-function oit_update_10012() {
+function oit_update_10012(): void {
   $controller = \Drupal::entityTypeManager()->getStorage('node');
   $entities = $controller->loadMultiple([1560, 1561, 1563, 1566, 1568, 19726, 29301, 31301]);
   $controller->delete($entities);
@@ -577,7 +577,7 @@ function oit_update_10012() {
 /**
  * Create new oit_cron_run state.
  */
-function oit_update_10013() {
+function oit_update_10013(): void {
   $cron_run = [
     'analytics' => 0,
     'autoban' => 0,
@@ -593,7 +593,7 @@ function oit_update_10013() {
 /**
  * Remove promote from all news.
  */
-function oit_update_10014() {
+function oit_update_10014(): void {
   // Entity query to get the most recent node type of 'news' with promote = 1.
   $node_storage = \Drupal::entityTypeManager()->getStorage('node');
   $query = $node_storage->getQuery();
@@ -619,7 +619,7 @@ function oit_update_10014() {
 /**
  * Revert schema.
  */
-function oit_update_10015() {
+function oit_update_10015(): void {
   // Revert system schema version because of drupal downgrade.
   $connection = \Drupal::database();
   $connection->update('key_value')
@@ -637,14 +637,14 @@ function oit_update_10015() {
 /**
  * Delete state oit_cron_run.
  */
-function oit_update_10016() {
+function oit_update_10016(): void {
   \Drupal::state()->delete('oit_cron_run');
 }
 
 /**
  * Rename taxonomy terms for service dashboard categories.
  */
-function oit_update_10017() {
+function oit_update_10017(): void {
   $term_storage = \Drupal::entityTypeManager()->getStorage('taxonomy_term');
 
   // Update UCB Guest Wireless (tid: 1285) to 'CU Guest'.
@@ -677,7 +677,7 @@ function oit_update_10017() {
 /**
  * Add tid 1285 to field_service_alert_dash_cat for node 32357.
  */
-function oit_update_10018() {
+function oit_update_10018(): void {
   $node = Node::load(32357);
   if ($node) {
     $current_values = $node->get('field_service_alert_dash_cat')->getValue();
@@ -697,7 +697,7 @@ function oit_update_10018() {
 /**
  * Remove field_news_front_image values and associated files from news nodes.
  */
-function oit_update_10019() {
+function oit_update_10019(): void {
   $database = \Drupal::database();
 
   // Clear field values from current revisions and revision history.
@@ -706,7 +706,10 @@ function oit_update_10019() {
 }
 
 /**
- * Implements hook_update_dependencies().
+ * Declares update dependencies (hook_update_dependencies).
+ *
+ * @return array<string, array<int, array<string, int>>>
+ *   The update dependencies.
  */
 function oit_update_dependencies() {
   // The node_search plugin moved to the new search_node module in core 11.4.
@@ -722,7 +725,7 @@ function oit_update_dependencies() {
 /**
  * Install search_node so system_update_11400 can rebuild search plugins.
  */
-function oit_update_10020() {
+function oit_update_10020(): void {
   // Defensively remove a stray search.page.help_search config entity that
   // can be left behind by an interrupted core 11.4 upgrade attempt (it
   // references the "help_search" plugin without the search_help module
@@ -745,7 +748,7 @@ function oit_update_10020() {
 /**
  * Disable the smtp module.
  */
-function oit_update_10021() {
+function oit_update_10021(): void {
   $module = ['smtp'];
   if (\Drupal::moduleHandler()->moduleExists('smtp')) {
     \Drupal::service('module_installer')->uninstall($module, TRUE);

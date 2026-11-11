@@ -53,7 +53,7 @@ class DomainFilterRedirectSubscriberTest extends DrupalUnitTestCase {
   /**
    * Data provider for testRedirects().
    *
-   * @return array
+   * @return array<int|string, array<int, mixed>>
    *   Rows of [domain, uri, route, expected redirect URL].
    */
   public static function redirectProvider(): array {
@@ -90,7 +90,7 @@ class DomainFilterRedirectSubscriberTest extends DrupalUnitTestCase {
   /**
    * Data provider for testNoRedirect().
    *
-   * @return array
+   * @return array<int|string, array<int, mixed>>
    *   Rows of [domain, uri, route, method, request type].
    */
   public static function noRedirectProvider(): array {

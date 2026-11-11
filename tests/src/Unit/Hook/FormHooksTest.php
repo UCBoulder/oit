@@ -16,6 +16,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\CoversMethod;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\MockObject\MockObject;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -44,7 +45,7 @@ class FormHooksTest extends DrupalUnitTestCase {
    *
    * @param string $method
    *   The protected method name.
-   * @param array $args
+   * @param array<int|string, mixed> $args
    *   The arguments to pass.
    *
    * @return mixed
@@ -58,7 +59,7 @@ class FormHooksTest extends DrupalUnitTestCase {
   /**
    * Builds a FormHooks instance with mocked dependencies.
    *
-   * @param array $roles
+   * @param string[] $roles
    *   The roles the mocked current user should report.
    * @param \Drupal\Core\Messenger\MessengerInterface|null $messenger
    *   An optional messenger mock; one is created when omitted.
@@ -111,6 +112,11 @@ class FormHooksTest extends DrupalUnitTestCase {
 
   /**
    * Tests captchaPointDefaults builds defaults for valid ids.
+   *
+   * @param mixed $input
+   *   The captcha point identifier.
+   * @param array<int|string, mixed> $expected
+   *   The expected defaults.
    */
   #[DataProvider('captchaValidProvider')]
   public function testCaptchaPointDefaultsValid(mixed $input, array $expected): void {
@@ -120,7 +126,7 @@ class FormHooksTest extends DrupalUnitTestCase {
   /**
    * Data provider for valid captcha ids.
    *
-   * @return array
+   * @return array<int|string, array<int, mixed>>
    *   Test cases.
    */
   public static function captchaValidProvider(): array {
@@ -142,7 +148,7 @@ class FormHooksTest extends DrupalUnitTestCase {
   /**
    * Data provider for invalid captcha ids.
    *
-   * @return array
+   * @return array<int|string, array<int, mixed>>
    *   Test cases.
    */
   public static function captchaInvalidProvider(): array {
@@ -165,7 +171,7 @@ class FormHooksTest extends DrupalUnitTestCase {
   /**
    * Data provider for space monkey keys.
    *
-   * @return array
+   * @return array<int|string, array<int, mixed>>
    *   Test cases.
    */
   public static function spaceMonkeyProvider(): array {
@@ -191,7 +197,7 @@ class FormHooksTest extends DrupalUnitTestCase {
   /**
    * Data provider for login destination building.
    *
-   * @return array
+   * @return array<int|string, array<int, mixed>>
    *   Test cases.
    */
   public static function loginDestinationProvider(): array {
@@ -220,15 +226,15 @@ class FormHooksTest extends DrupalUnitTestCase {
   /**
    * Rebuilds the hooks object with a current user and messenger for warnings.
    *
-   * @param array $roles
+   * @param string[] $roles
    *   The roles the mocked current user should report.
-   * @param \PHPUnit\Framework\MockObject\MockObject|null $messenger
+   * @param (\Drupal\Core\Messenger\MessengerInterface&\PHPUnit\Framework\MockObject\MockObject)|null $messenger
    *   An optional messenger mock to use; one is created when omitted.
    *
-   * @return \Drupal\Core\Messenger\MessengerInterface|\PHPUnit\Framework\MockObject\MockObject
+   * @return \Drupal\Core\Messenger\MessengerInterface&\PHPUnit\Framework\MockObject\MockObject
    *   The messenger mock injected into the hooks object.
    */
-  protected function setUpWarningContainer(array $roles, $messenger = NULL): MessengerInterface {
+  protected function setUpWarningContainer(array $roles, (MessengerInterface&MockObject)|null $messenger = NULL): MessengerInterface&MockObject {
     $messenger = $messenger ?? $this->createMock(MessengerInterface::class);
     $this->hooks = $this->buildHooks($roles, $messenger);
 
@@ -314,7 +320,7 @@ class FormHooksTest extends DrupalUnitTestCase {
   /**
    * Data provider for times outside the deployment window.
    *
-   * @return array
+   * @return array<int|string, array<int, mixed>>
    *   Test cases keyed by description.
    */
   public static function outsideWindowProvider(): array {
@@ -352,6 +358,11 @@ class FormHooksTest extends DrupalUnitTestCase {
 
   /**
    * Tests loginWords renders a SAML link carrying the login destination.
+   *
+   * @param array<int|string, mixed> $query
+   *   The request query parameters.
+   * @param string $expected
+   *   The expected SAML link URL.
    */
   #[DataProvider('samlLinkProvider')]
   public function testLoginWordsSamlLink(array $query, string $expected): void {
@@ -368,7 +379,7 @@ class FormHooksTest extends DrupalUnitTestCase {
   /**
    * Data provider for SAML login link destinations.
    *
-   * @return array
+   * @return array<int|string, array<int, mixed>>
    *   Test cases.
    */
   public static function samlLinkProvider(): array {

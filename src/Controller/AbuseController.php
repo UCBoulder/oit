@@ -22,7 +22,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 /**
  * Controller routines for zap routes.
  */
-class AbuseController extends ControllerBase {
+final class AbuseController extends ControllerBase {
   use StringTranslationTrait;
 
   /**
@@ -35,7 +35,7 @@ class AbuseController extends ControllerBase {
   /**
    * The abuse list.
    *
-   * @var array
+   * @var array<string, array<string, mixed>>|null
    */
   protected $abuseList;
 
@@ -170,8 +170,8 @@ class AbuseController extends ControllerBase {
   /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container): self {
-    return new self(
+  public static function create(ContainerInterface $container): static {
+    return new static(
       $container->get('current_user'),
       $container->get('request_stack'),
       $container->get('logger.factory'),
@@ -188,7 +188,7 @@ class AbuseController extends ControllerBase {
   /**
    * Display the abuse IP table.
    *
-   * @return array
+   * @return array<string, mixed>
    *   Render array for the abuse IP table.
    */
   public function abuseIpTable() {

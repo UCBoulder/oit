@@ -34,7 +34,7 @@ class CvsToArrayTest extends DrupalUnitTestCase {
   /**
    * Recorded HTTP transactions.
    *
-   * @var array
+   * @var array<int|string, mixed>
    */
   protected $history = [];
 
@@ -67,7 +67,7 @@ class CvsToArrayTest extends DrupalUnitTestCase {
       /**
        * Sent messages.
        *
-       * @var array
+       * @var array<int|string, mixed>
        */
       public array $messages = [];
 
