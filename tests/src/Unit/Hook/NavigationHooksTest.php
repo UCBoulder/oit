@@ -78,7 +78,7 @@ class NavigationHooksTest extends DrupalUnitTestCase {
     $attributes = $item['url']->getOption('attributes');
     $this->assertSame(['oit-coffee-trigger'], $attributes['class']);
     $this->assertSame('button', $attributes['type']);
-    $this->assertSame(['pack_id' => 'oit', 'icon_id' => 'coffee-bean'], $item['icon']);
+    $this->assertSame(['pack_id' => 'oit', 'icon_id' => 'coffee'], $item['icon']);
   }
 
 }

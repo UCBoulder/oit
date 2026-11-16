@@ -63,7 +63,7 @@ class NavigationHooks {
             ]),
             'icon' => [
               'pack_id' => 'oit',
-              'icon_id' => 'coffee-bean',
+              'icon_id' => 'coffee',
             ],
           ],
         ],
